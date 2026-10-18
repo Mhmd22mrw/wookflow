@@ -27,17 +27,17 @@ jobs:
 
       - name: 4. Create Clean Flutter Project & Copy Code
         run: |
-          # إنشاء مشروع وهمي مؤقت لتوليد كافة ملفات الأندرويد والنظام تلقائياً
           flutter create temp_app --org com.wookflow.app --project-name wookflow_app
           
-          # نسخ ملف الـ main.dart الخاص بك إلى المشروع المؤقت
           if [ -f "lib/main.dart" ]; then
             cp lib/main.dart temp_app/lib/main.dart
           fi
           
-          # الانتقال إلى مجلد المشروع المؤقت للبناء
           cd temp_app
+          # إضافة حزمة الحفظ المحلي تلقائياً قبل بناء التطبيق
+          flutter pub add shared_preferences
           flutter pub get
+
 
       - name: 5. Build Release APK
         run: |
