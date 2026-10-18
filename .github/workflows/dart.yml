@@ -5,6 +5,9 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,27 +28,72 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: 4. Create Clean Flutter Project & Copy Code
+      - name: 4. Stable signing key (same key every build)
+        run: |
+          mkdir -p ~/.android
+          if [ ! -f keystore/debug.keystore ]; then
+            mkdir -p keystore
+            keytool -genkeypair -v -keystore keystore/debug.keystore \
+              -storepass android -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            git add keystore/debug.keystore
+            git commit -m "Add stable signing key"
+            git push
+          fi
+          cp keystore/debug.keystore ~/.android/debug.keystore
+
+      - name: 5. Create Clean Flutter Project & Copy Code
         run: |
           flutter create temp_app --org com.wookflow.app --project-name wookflow_app
-          
+
           if [ -f "lib/main.dart" ]; then
             cp lib/main.dart temp_app/lib/main.dart
           fi
-          
+
           cd temp_app
-          # إضافة الحزم اللازمة للتخزين، والمشاركة، وتوليد ملفات الـ PDF
-          flutter pub add shared_preferences pdf printing share_plus
+          flutter pub add shared_preferences:2.2.3 pdf printing share_plus
+          flutter pub add "override:shared_preferences_android:2.2.4"
+          flutter pub add dev:flutter_launcher_icons
           flutter pub get
 
-
-
-      - name: 5. Build Release APK
+      - name: 6. App icon and name
         run: |
           cd temp_app
-          flutter build apk --release
+          mkdir -p assets
+          if [ -f ../icon.png ]; then
+            cp ../icon.png assets/icon.png
+          else
+            FONT=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
+            if [ -f "$FONT" ]; then
+              convert -size 1024x1024 xc:'#3F51B5' -fill white -font "$FONT" \
+                -pointsize 380 -gravity center -annotate +0+0 'WF' assets/icon.png
+            else
+              convert -size 1024x1024 xc:'#3F51B5' -fill white \
+                -draw "roundrectangle 312,312 712,712 60,60" assets/icon.png
+            fi
+          fi
 
-      - name: 6. Upload APK Artifact
+          cat > flutter_launcher_icons.yaml <<'EOF'
+          flutter_launcher_icons:
+            android: true
+            ios: false
+            image_path: "assets/icon.png"
+            adaptive_icon_background: "#3F51B5"
+            adaptive_icon_foreground: "assets/icon.png"
+          EOF
+
+          dart run flutter_launcher_icons
+          sed -i 's/android:label="[^"]*"/android:label="WookFlow"/' android/app/src/main/AndroidManifest.xml
+
+      - name: 7. Build Release APK
+        run: |
+          cd temp_app
+          flutter build apk --release --no-shrink
+
+      - name: 8. Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
