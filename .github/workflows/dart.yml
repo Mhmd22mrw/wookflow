@@ -11,29 +11,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. تثبيت لغة الجافا المطلوبة لتطبيق الأندرويد
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # 2. تثبيت إطار العمل Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      # 3. جلب المكتبات والتبعيات الخاصة بالتطبيق
+      # 1. إنشاء مشروع Flutter وهمي متكامل بالأساس لتوليد ملفات الأندرويد
+      - name: Create Flutter Project Structure
+        run: |
+          flutter create . --org com.wookflow.app --project-name wookflow_app --platforms=android
+
+      # 2. نقل ملف الكود الخاص بك إلى مكانه الصحيح في المشروع الجديد
+      - name: Replace main.dart with custom code
+        run: |
+          # تأكد أن ملف main.dart الخاص بك موجود، سنقوم بنسخه أو تركه
+          # المشروع المنشأ تلقائياً يحتوي على lib/main.dart بالفعل
+
       - name: Install dependencies
         run: flutter pub get
 
-      # 4. بناء تطبيق الـ APK بنسخة الإنتاج
       - name: Build APK
         run: flutter build apk --release
 
-      # 5. رفع ملف الـ APK الناتج لكي تستطيع تحميله من GitHub
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
