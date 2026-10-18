@@ -53,9 +53,9 @@ class L10n {
       'Site manager'
     ],
     'version': [
-      'نظام إدارة المشاريع v1.0.0',
-      'Gestion de projets v1.0.0',
-      'Project management v1.0.0'
+      'نظام إدارة المشاريع v1.2.0',
+      'Gestion de projets v1.2.0',
+      'Project management v1.2.0'
     ],
     'language': ['اللغة', 'Langue', 'Language'],
     'report_lang': ['لغة التقرير', 'Langue du rapport', 'Report language'],
@@ -91,6 +91,16 @@ class L10n {
       'Résumé hebdo & rapports',
       'Weekly summary & reports'
     ],
+    'm_site_analytics': [
+      'ملخص وتحليل الورش والأرباح',
+      'Analyse & rentabilité chantiers',
+      'Site analytics & profit'
+    ],
+    'm_activity_log': [
+      'سجل الحركات والنشاطات',
+      'Journal des activités',
+      'Activity audit log'
+    ],
     'add_workers_first': [
       'أضف عمالًا أولًا من القائمة الجانبية',
       "Ajoutez d'abord des ouvriers depuis le menu",
@@ -116,86 +126,6 @@ class L10n {
       'إدارة الدفعات',
       'Gestion paiements',
       'Manage payments'
-    ],
-    'confirm_delivery_title': [
-      'تأكيد تسليم الورشة',
-      'Confirmer la livraison',
-      'Confirm delivery'
-    ],
-    'confirm_delivery_paid_body': [
-      'الحساب مقفل بالكامل، هل تريد تأكيد تسليم الورشة ونقلها للأرشيف؟',
-      'Le compte est soldé. Confirmer la livraison du chantier ?',
-      'Account fully settled. Confirm delivery and move to archive?'
-    ],
-    'unsettled_delivery_title': [
-      'تنبيه: الحساب غير مقفل بعد',
-      'Attention : Compte non soldé',
-      'Warning: Account not settled'
-    ],
-    'unsettled_warning_note': [
-      'تنبيه: لا يمكن تسليم الورشة مع وجود متبقي غير مسدد، إلا بإغلاق الحساب الآن أو التسليم باستثناء مع توضيح السبب بملاحظة.',
-      'Attention : Chantier non soldé. Veuillez solder ou justifier par une remarque.',
-      'Warning: Site has unpaid balance. Please settle in full or provide an exception note.'
-    ],
-    'exception_note_label': [
-      'ملاحظة / سبب التسليم الاستثنائي (إجباري)',
-      'Motif exceptionnel (obligatoire)',
-      'Exception reason / note (required)'
-    ],
-    'exception_note_hint': [
-      'مثال: اتفاق على تأجيل الدفع، خصم متفق عليه...',
-      'Ex : report de paiement, remise...',
-      'E.g. payment postponed, agreed discount...'
-    ],
-    'exception_note_required': [
-      'يرجى كتابة سبب التسليم الاستثنائي قبل المتابعة',
-      'Veuillez saisir le motif exceptionnel',
-      'Please enter the exception reason'
-    ],
-    'pay_all_and_deliver': [
-      'تسديد المتبقي وتسليم',
-      'Tout solder et livrer',
-      'Settle all and deliver'
-    ],
-    'deliver_with_exception': [
-      'تسليم باستثناء مع الملاحظة',
-      'Livrer avec dérogation',
-      'Deliver with exception'
-    ],
-    'paid_in_full_on_delivery': [
-      'تم سداد كامل المتبقي عند التسليم',
-      'Soldé intégralement à la livraison',
-      'Settled in full on delivery'
-    ],
-    'delivery_note_prefix': [
-      'ملاحظة التسليم',
-      'Note de livraison',
-      'Delivery note'
-    ],
-    'delete_site_title': [
-      'حذف الورشة',
-      'Supprimer le chantier',
-      'Delete site'
-    ],
-    'delete_site_confirm_msg': [
-      'هل أنت متأكد من حذف الورشة نهائياً؟',
-      'Êtes-vous sûr de supprimer définitivement ce chantier ?',
-      'Are you sure you want to permanently delete this site?'
-    ],
-    'site_deleted_msg': [
-      'تم حذف الورشة بنجاح',
-      'Chantier supprimé avec succès',
-      'Site deleted successfully'
-    ],
-    'delete_delivered_site': [
-      'حذف من الأرشيف',
-      'Supprimer des archives',
-      'Delete from archives'
-    ],
-    'delete_delivered_confirm_msg': [
-      'هل أنت متأكد من حذف هذه الورشة المسلمة نهائياً من الأرشيف؟',
-      'Êtes-vous sûr de supprimer définitivement ce chantier des archives ?',
-      'Are you sure you want to permanently delete this site from archives?'
     ],
     'card_hour_rate': ['سعر ساعة الإضافي', 'Taux heure supp.', 'Overtime rate/h'],
     'card_weekly': ['ملخص الأسبوع', 'Résumé de la semaine', 'Weekly summary'],
@@ -282,7 +212,7 @@ class L10n {
     ],
     'restore_success': [
       'تم إعادة تفعيل العامل بنجاح',
-      'Ouvrier réactivé avec succès',
+      'Ouvrier réactivé مع succès',
       'Worker reactivated'
     ],
     'permanent_delete_success': [
@@ -317,12 +247,32 @@ class L10n {
       'Nouveau chantier',
       'New work site'
     ],
+    'edit_site_title': [
+      'تعديل بيانات الورشة والحساب',
+      'Modifier chantier & montant',
+      'Edit site & contract amount'
+    ],
     'site_name': ['اسم الموقع', 'Nom du chantier', 'Site name'],
     'site_address': ['العنوان', 'Adresse', 'Address'],
     'site_total': [
       'الأجر الكامل للورشة',
       'Montant total du chantier',
       'Total contract amount'
+    ],
+    'add_extra_amount': [
+      'إضافة مبلغ على العقد (ملحق / أعمال إضافية)',
+      'Ajouter un supplément au contrat',
+      'Add extra amount to contract'
+    ],
+    'extra_amount_val': [
+      'قيمة المبلغ الإضافي',
+      'Montant du supplément',
+      'Extra amount'
+    ],
+    'extra_amount_reason': [
+      'سبب الإضافة (ملاحظة)',
+      'Motif du supplément',
+      'Reason for extra amount'
     ],
     'cancel': ['إلغاء', 'Annuler', 'Cancel'],
     'save': ['حفظ', 'Enregistrer', 'Save'],
@@ -357,6 +307,106 @@ class L10n {
     'contract_total': ['الأجر الإجمالي', 'Montant total', 'Contract total'],
     'received': ['الواصل', 'Reçu', 'Received'],
     'delivered_flag': ['تم التسليم', 'Livré', 'Delivered'],
+    'reopen_site': [
+      'إعادة فتح الورشة للنشطة',
+      'Rouvrir le chantier (actif)',
+      'Reopen site (make active)'
+    ],
+    'reopen_confirm_title': [
+      'إعادة فتح الورشة',
+      'Rouvrir le chantier',
+      'Reopen work site'
+    ],
+    'reopen_confirm_msg': [
+      'هل تريد إعادة فتح هذه الورشة وإعادتها إلى قائمة الورش النشطة؟',
+      'Voulez-vous réintégrer ce chantier dans les chantiers actifs ?',
+      'Do you want to reopen this site and move it back to active sites?'
+    ],
+    'site_reopened_msg': [
+      'تمت إعادة فتح الورشة ونقلها للنشطة بنجاح',
+      'Chantier rouvert avec succès',
+      'Site reopened successfully'
+    ],
+    'confirm_delivery_title': [
+      'تأكيد تسليم الورشة',
+      'Confirmer la livraison',
+      'Confirm delivery'
+    ],
+    'confirm_delivery_paid_body': [
+      'الحساب مقفل بالكامل، هل تريد تأكيد تسليم الورشة ونقلها للأرشيف؟',
+      'Le compte est soldé. Confirmer la livraison du chantier ?',
+      'Account fully settled. Confirm delivery and move to archive?'
+    ],
+    'unsettled_delivery_title': [
+      'تنبيه: الحساب غير مقفل بعد',
+      'Attention : Compte non soldé',
+      'Warning: Account not settled'
+    ],
+    'unsettled_warning_note': [
+      'تنبيه: لا يمكن تسليم الورشة مع وجود متبقي غير مسدد، إلا بإغلاق الحساب الآن أو التسليم باستثناء مع توضيح السبب بملاحظة.',
+      'Attention : Chantier non soldé. Veuillez solder ou justifier par une remarque.',
+      'Warning: Site has unpaid balance. Please settle in full or provide an exception note.'
+    ],
+    'exception_note_label': [
+      'ملاحظة / سبب التسليم الاستثنائي (إجباري)',
+      'Motif exceptionnel (obligatoire)',
+      'Exception reason / note (required)'
+    ],
+    'exception_note_hint': [
+      'مثال: اتفاق على تأجيل الدفع، خصم متفق عليه...',
+      'Ex : report de paiement, remise...',
+      'E.g. payment postponed, agreed discount...'
+    ],
+    'exception_note_required': [
+      'يرجى كتابة سبب التسليم الاستثنائي قبل المتابعة',
+      'Veuillez saisir le motif exceptionnel',
+      'Please enter the exception reason'
+    ],
+    'pay_all_and_deliver': [
+      'تسديد المتبقي وتسليم',
+      'Tout solder et livrer',
+      'Settle all and deliver'
+    ],
+    'deliver_with_exception': [
+      'تسليم باستثناء مع الملاحظة',
+      'Livrer avec dérogation',
+      'Deliver with exception'
+    ],
+    'paid_in_full_on_delivery': [
+      'تم سداد كامل المتبقي عند التسليم',
+      'Soldé intégralement à la livraison',
+      'Settled in full on delivery'
+    ],
+    'delivery_note_prefix': [
+      'ملاحظة التسليم',
+      'Note de livraison',
+      'Delivery note'
+    ],
+    'delete_site_title': [
+      'حذف الورشة',
+      'Supprimer le chantier',
+      'Delete site'
+    ],
+    'delete_site_confirm_msg': [
+      'هل أنت متأكد من حذف الورشة نهائياً؟',
+      'Êtes-vous sûr de supprimer définitivement ce chantier ?',
+      'Are you sure you want to permanently delete this site?'
+    ],
+    'site_deleted_msg': [
+      'تم حذف الورشة بنجاح',
+      'Chantier supprimé avec succès',
+      'Site deleted successfully'
+    ],
+    'delete_delivered_site': [
+      'حذف من الأرشيف',
+      'Supprimer des archives',
+      'Delete from archives'
+    ],
+    'delete_delivered_confirm_msg': [
+      'هل أنت متأكد من حذف هذه الورشة المسلمة نهائياً من الأرشيف؟',
+      'Êtes-vous sûr de supprimer définitivement ce chantier des archives ?',
+      'Are you sure you want to permanently delete this site from archives?'
+    ],
     'payments_title': [
       'إدارة الدفعات والواصل',
       'Gestion des paiements',
@@ -382,6 +432,31 @@ class L10n {
       'قيمة الدفعة الجديدة',
       'Nouveau paiement',
       'New payment'
+    ],
+    'pay_remaining_all': [
+      'دفع كامل المتبقي',
+      'Payer tout le reste',
+      'Pay all remaining'
+    ],
+    'site_already_fully_paid': [
+      'تم سداد كامل قيمة الورشة، لا يوجد متبقي لإضافة دفعات',
+      'Le chantier est déjà entièrement payé',
+      'Site already fully paid, no remaining balance'
+    ],
+    'invalid_payment_amount': [
+      'يرجى إدخال مبلغ صحيح أكبر من صفر',
+      'Veuillez saisir un montant supérieur à zéro',
+      'Please enter a valid amount greater than zero'
+    ],
+    'payment_exceeds_remaining': [
+      'خطأ: المبلغ المدخل أكبر من المتبقي',
+      'Erreur : Le montant dépasse le solde restant',
+      'Error: Amount exceeds remaining balance'
+    ],
+    'payment_saved_ok': [
+      'تم تسجيل الدفعة بنجاح',
+      'Paiement enregistré avec succès',
+      'Payment recorded successfully'
     ],
     'workers_list_title': [
       'قائمة العمال وتعديل بياناتهم',
@@ -536,10 +611,37 @@ class L10n {
       'Restore failed: Invalid data'
     ],
     'pdf_font_err': [
-      'تنبيه: تعذّر تحميل الخط العربي عبر الإنترنت. لطباعة PDF بدون إنترنت وبدون مربعات، يُرجى تضمين الخط محلياً في assets.',
+      'تنبيه: تعذّر تحميل الخط العربي عبر الإنترنت. لطباعة PDF بدون إنترنت وبدون مربعات، يُرجى تضمين الخط محلياً في assets وتفعيل إذن الإنترنت.',
       'Police arabe indisponible. Pour fonctionner hors ligne, intégrez la police dans assets.',
       'Arabic font unavailable offline. Please bundle Cairo font in assets.'
     ],
+    'select_site_hint': [
+      'اختر ورشة لعرض تحليلها الكامل',
+      'Sélectionnez un chantier',
+      'Select a site to view analysis'
+    ],
+    'site_kpi_contract': ['قيمة العقد', 'Contrat', 'Contract total'],
+    'site_kpi_received': ['المقبوض (الواصل)', 'Encaissé', 'Received'],
+    'site_kpi_remaining': ['المتبقي للتحصيل', 'Reste à percevoir', 'Remaining'],
+    'site_kpi_cost': ['تكلفة العمال والمصاريف', 'Coût total main-d’œuvre', 'Labor cost'],
+    'site_kpi_net_profit': ['صافي الربح المتوقع', 'Bénéfice net prévu', 'Expected net profit'],
+    'site_kpi_real_profit': ['صافي الربح الفعلي الحالي', 'Bénéfice réel actuel', 'Current real profit'],
+    'site_workers_count': ['العمال في الورشة', 'Ouvriers sur chantier', 'Workers on site'],
+    'site_total_days': ['إجمالي أيام العمل', 'Total jours travaillés', 'Total man-days'],
+    'site_total_ot': ['ساعات الإضافي', 'Heures supp. totales', 'Total overtime hours'],
+    'site_total_transport': ['مصاريف النقل', 'Total transport', 'Total transport'],
+    'site_worker_breakdown': ['تفاصيل عمال هذه الورشة', 'Détail par ouvrier', 'Workers breakdown'],
+    'worker_site_earnings': ['إجمالي ما تقاضاه', 'Total perçu', 'Total earnings'],
+    'clear_logs': ['مسح السجل', 'Effacer l’historique', 'Clear logs'],
+    'clear_logs_confirm': ['هل أنت متأكد من مسح سجل الحركات بالكامل؟', 'Voulez-vous effacer tout le journal ?', 'Are you sure you want to clear all logs?'],
+    'filter_all': ['الكل', 'Tous', 'All'],
+    'filter_payments': ['الدفعات', 'Paiements', 'Payments'],
+    'filter_sites': ['الورش', 'Chantiers', 'Sites'],
+    'filter_workers': ['العمال', 'Ouvriers', 'Workers'],
+    'filter_attendance': ['الحضور', 'Présence', 'Attendance'],
+    'filter_pdf': ['تقارير PDF', 'Rapports PDF', 'PDF reports'],
+    'filter_backup': ['النسخ الاحتياطي', 'Sauvegardes', 'Backups'],
+    'no_logs_found': ['لا توجد نشاطات مسجلة حالياً', 'Aucune activité enregistrée', 'No activities recorded yet'],
   };
 }
 
@@ -584,6 +686,17 @@ String fmtNum(double v) => ltr(numStr(v));
 String fmtDate(DateTime d) => ltr('${d.day}/${d.month}');
 String fmtFullDate(DateTime d) => ltr('${d.day}/${d.month}/${d.year}');
 
+// تنسيق التاريخ والوقت بالثانية للسجل
+String fmtFullDateTime(DateTime d) {
+  final y = d.year.toString();
+  final m = d.month.toString().padLeft(2, '0');
+  final day = d.day.toString().padLeft(2, '0');
+  final hh = d.hour.toString().padLeft(2, '0');
+  final mm = d.minute.toString().padLeft(2, '0');
+  final ss = d.second.toString().padLeft(2, '0');
+  return ltr('$day/$m/$y - $hh:$mm:$ss');
+}
+
 String plain(String s) => s.replaceAll(kLrm, '').replaceAll(kNbsp, ' ');
 
 bool hasArabic(String text) {
@@ -592,282 +705,41 @@ bool hasArabic(String text) {
       .hasMatch(text);
 }
 
-// ======================= النوافذ المساعدة =======================
-
-Future<void> showLanguageDialog(
-    BuildContext context, VoidCallback onChanged) async {
-  final code = await showDialog<String>(
-    context: context,
-    builder: (ctx) => SimpleDialog(
-      title: Text(t('language')),
-      children: [
-        for (final c in L10n.codes)
-          SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, c),
-            child: Row(
-              children: [
-                Icon(
-                    c == L10n.lang
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_off,
-                    color: Colors.indigo),
-                const SizedBox(width: 12),
-                Text(L10n.names[c]!, style: const TextStyle(fontSize: 16)),
-              ],
-            ),
-          ),
-      ],
-    ),
-  );
-  if (code != null && code != L10n.lang) {
-    L10n.lang = code;
-    await AppDatabase.saveLang();
-    onChanged();
-  }
-}
-
-Future<String?> pickReportLang(BuildContext context) {
-  return showDialog<String>(
-    context: context,
-    builder: (ctx) => SimpleDialog(
-      title: Text(t('report_lang')),
-      children: [
-        for (final c in L10n.codes)
-          SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, c),
-            child: Row(
-              children: [
-                const Icon(Icons.description, color: Colors.indigo),
-                const SizedBox(width: 12),
-                Text(L10n.names[c]!,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: c == L10n.lang
-                            ? FontWeight.bold
-                            : FontWeight.normal)),
-              ],
-            ),
-          ),
-      ],
-    ),
-  );
-}
-
-Future<void> showCurrencyDialog(
-    BuildContext context, VoidCallback onChanged) async {
-  final List<String> commonCurrencies = [
-    'XOF', 'SAR', 'AED', 'USD', 'EUR', 'DZD', 'MAD', 'EGP', 'TND', 'IQD', 'KWD', 'QAR', 'OMR', 'BHD', 'JOD', 'LBP', 'LYD'
-  ];
-  final customController = TextEditingController();
-  final otController =
-      TextEditingController(text: numStr(AppDatabase.overtimeRate));
-
-  await showDialog(
-    context: context,
-    builder: (ctx) => StatefulBuilder(
-      builder: (context, setD) => AlertDialog(
-        title: Text(t('change_currency')),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${t('currency')}: ${AppDatabase.currency}',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: commonCurrencies.map((c) {
-                  final isSelected = c == AppDatabase.currency;
-                  return ChoiceChip(
-                    label: Text(c),
-                    selected: isSelected,
-                    selectedColor: Colors.indigo.shade100,
-                    onSelected: (val) {
-                      if (val) {
-                        setD(() {
-                          AppDatabase.currency = c;
-                          customController.text = c;
-                        });
-                      }
-                    },
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: customController,
-                decoration: InputDecoration(
-                  labelText: t('custom_currency'),
-                  hintText: t('enter_custom_currency'),
-                  border: const OutlineInputBorder(),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                ),
-                onChanged: (val) {
-                  if (val.trim().isNotEmpty) {
-                    AppDatabase.currency = val.trim();
-                  }
-                },
-              ),
-              const Divider(height: 24),
-              TextField(
-                controller: otController,
-                decoration: InputDecoration(
-                  labelText:
-                      '${t('edit_overtime_rate')} (${AppDatabase.currency})',
-                  helperText: t('overtime_rate_hint'),
-                  border: const OutlineInputBorder(),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (val) {
-                  final parsed = double.tryParse(val);
-                  if (parsed != null && parsed >= 0) {
-                    AppDatabase.overtimeRate = parsed;
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(t('cancel')),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
-            onPressed: () async {
-              if (customController.text.trim().isNotEmpty) {
-                AppDatabase.currency = customController.text.trim();
-              }
-              final parsedOt = double.tryParse(otController.text);
-              if (parsedOt != null && parsedOt >= 0) {
-                AppDatabase.overtimeRate = parsedOt;
-              }
-              await AppDatabase.saveSettings();
-              Navigator.pop(ctx);
-              onChanged();
-            },
-            child: Text(t('save'),
-                style: const TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Future<void> showBackupDialog(
-    BuildContext context, VoidCallback onDataUpdated) async {
-  final importController = TextEditingController();
-
-  await showDialog(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(t('backup_menu')),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton.icon(
-              icon: const Icon(Icons.share, color: Colors.white),
-              label: Text(t('export_backup'),
-                  style: const TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
-              onPressed: () async {
-                final jsonStr = AppDatabase.exportBackupJson();
-                await Share.share(jsonStr,
-                    subject: 'WookFlow Backup ${dateKey(DateTime.now())}');
-              },
-            ),
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 8),
-            Text(t('import_backup'),
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: importController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: t('paste_json'),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.download, color: Colors.white),
-              label: Text(t('confirm'),
-                  style: const TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                final ok =
-                    await AppDatabase.importBackupJson(importController.text);
-                Navigator.pop(ctx);
-                if (ok) {
-                  onDataUpdated();
-                  messenger.showSnackBar(
-                      SnackBar(content: Text(t('restore_done'))));
-                } else {
-                  messenger.showSnackBar(
-                      SnackBar(content: Text(t('restore_err'))));
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(ctx), child: Text(t('cancel'))),
-      ],
-    ),
-  );
-}
-
-// ======================= التشغيل =======================
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await AppDatabase.loadData();
-  runApp(const WookFlowApp());
-}
-
-class WookFlowApp extends StatelessWidget {
-  const WookFlowApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<String>(
-      valueListenable: L10n.notifier,
-      builder: (context, lang, _) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'WookFlow',
-          theme: ThemeData(
-            primarySwatch: Colors.indigo,
-            useMaterial3: true,
-            scaffoldBackgroundColor: const Color(0xFFF4F6F9),
-          ),
-          builder: (context, child) => Directionality(
-            textDirection:
-                lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
-            child: child ?? const SizedBox.shrink(),
-          ),
-          home: const MainDashboardWrapper(),
-        );
-      },
-    );
-  }
-}
-
 // ======================= النماذج =======================
+
+class ActivityLog {
+  String id;
+  String category;
+  String title;
+  String details;
+  DateTime timestamp;
+
+  ActivityLog({
+    required this.id,
+    required this.category,
+    required this.title,
+    required this.details,
+    required this.timestamp,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'category': category,
+        'title': title,
+        'details': details,
+        'timestamp': timestamp.toIso8601String(),
+      };
+
+  factory ActivityLog.fromJson(Map<String, dynamic> json) => ActivityLog(
+        id: (json['id'] ?? '').toString(),
+        category: (json['category'] ?? 'all').toString(),
+        title: (json['title'] ?? '').toString(),
+        details: (json['details'] ?? '').toString(),
+        timestamp: json['timestamp'] != null
+            ? DateTime.tryParse(json['timestamp'].toString()) ?? DateTime.now()
+            : DateTime.now(),
+      );
+}
 
 class DayLog {
   bool worked;
@@ -965,7 +837,7 @@ class WorkSite {
   double totalContractAmount;
   double totalPaid;
   bool isDelivered;
-  String deliveryNote; // ملاحظة التسليم (خاصة عند التسليم الاستثنائي)
+  String deliveryNote;
 
   WorkSite({
     required this.id,
@@ -1004,6 +876,7 @@ class WorkSite {
 class AppDatabase {
   static List<Worker> workers = [];
   static List<WorkSite> sites = [];
+  static List<ActivityLog> logs = [];
   static String lastPopupDate = '';
   static String? lastError;
 
@@ -1030,12 +903,39 @@ class AppDatabase {
     }).toList();
   }
 
+  static void logActivity(String category, String title, String details) {
+    final entry = ActivityLog(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      category: category,
+      title: title,
+      details: details,
+      timestamp: DateTime.now(),
+    );
+    logs.insert(0, entry);
+    if (logs.length > 500) logs.removeLast();
+    saveLogsOnly();
+  }
+
+  static Future<void> saveLogsOnly() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          'activity_logs', jsonEncode(logs.map((e) => e.toJson()).toList()));
+    } catch (_) {}
+  }
+
+  static Future<void> clearAllLogs() async {
+    logs.clear();
+    await saveLogsOnly();
+  }
+
   static Future<void> loadData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.reload();
       final workersStr = prefs.getString('workers_data');
       final sitesStr = prefs.getString('sites_data');
+      final logsStr = prefs.getString('activity_logs');
       lastPopupDate = prefs.getString('last_popup_date') ?? '';
       final savedLang = prefs.getString('app_lang');
       if (savedLang != null && L10n.codes.contains(savedLang)) {
@@ -1064,6 +964,12 @@ class AppDatabase {
             .map((e) => WorkSite.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
+      if (logsStr != null) {
+        final List decoded = jsonDecode(logsStr);
+        logs = decoded
+            .map((e) => ActivityLog.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      }
     } catch (e) {
       lastError = 'Load error: $e';
     }
@@ -1077,6 +983,8 @@ class AppDatabase {
       final ok2 = await prefs.setString(
           'sites_data', jsonEncode(sites.map((e) => e.toJson()).toList()));
       final ok3 = await prefs.setString('last_popup_date', lastPopupDate);
+      await prefs.setString(
+          'activity_logs', jsonEncode(logs.map((e) => e.toJson()).toList()));
       await prefs.setString('app_currency', currency);
       await prefs.setDouble('app_overtime_rate', overtimeRate);
 
@@ -1132,11 +1040,12 @@ class AppDatabase {
 
   static String exportBackupJson() {
     final data = {
-      'version': '1.0',
+      'version': '1.2',
       'currency': currency,
       'overtimeRate': overtimeRate,
       'workers': workers.map((w) => w.toJson()).toList(),
       'sites': sites.map((s) => s.toJson()).toList(),
+      'logs': logs.map((l) => l.toJson()).toList(),
     };
     return jsonEncode(data);
   }
@@ -1160,7 +1069,17 @@ class AppDatabase {
             .map((e) => WorkSite.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
-      return await saveData();
+      if (data.containsKey('logs') && data['logs'] is List) {
+        logs = (data['logs'] as List)
+            .map((e) => ActivityLog.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      }
+      final ok = await saveData();
+      if (ok) {
+        logActivity('backup', 'استعادة نسخة احتياطية',
+            'تمت استعادة البيانات بنجاح من كود النسخة الاحتياطية');
+      }
+      return ok;
     } catch (e) {
       lastError = 'Import error: $e';
       return false;
@@ -1283,6 +1202,8 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
                   onChanged: (val) {
                     setState(() => log.worked = val);
                     AppDatabase.saveData();
+                    AppDatabase.logActivity('attendance', 'حضور عامل',
+                        '${worker.name}: ${val ? "حاضر" : "عطلة"}');
                   },
                 ),
               ],
@@ -1528,12 +1449,25 @@ class MainDashboard extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.task_alt),
               title: Text(t('m_delivered')),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const DeliveredSitesScreen()));
+                onDataUpdated();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.analytics, color: Colors.indigo),
+              title: Text(t('m_site_analytics')),
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SiteAnalyticsScreen()));
+                onDataUpdated();
               },
             ),
             ListTile(
@@ -1570,6 +1504,17 @@ class MainDashboard extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => const WeeklySummaryScreen()));
                 onDataUpdated();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history, color: Colors.deepOrange),
+              title: Text(t('m_activity_log')),
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ActivityLogScreen()));
               },
             ),
             const Divider(),
@@ -1653,6 +1598,19 @@ class MainDashboard extends StatelessWidget {
                   }),
                   _buildDashboardCard(
                       context,
+                      t('m_site_analytics'),
+                      t('view_reports'),
+                      Icons.analytics,
+                      Colors.deepPurple,
+                      onTap: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SiteAnalyticsScreen()));
+                    onDataUpdated();
+                  }),
+                  _buildDashboardCard(
+                      context,
                       t('m_payment'),
                       t('card_payments_manage'),
                       Icons.payments,
@@ -1676,6 +1634,14 @@ class MainDashboard extends StatelessWidget {
                             builder: (context) => const WeeklySummaryScreen()));
                     onDataUpdated();
                   }),
+                  _buildDashboardCard(context, t('m_activity_log'),
+                      '${AppDatabase.logs.length}', Icons.history, Colors.blueGrey,
+                      onTap: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ActivityLogScreen()));
+                  }),
                 ],
               ),
             ),
@@ -1694,21 +1660,21 @@ class MainDashboard extends StatelessWidget {
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 36, color: color),
-              const SizedBox(height: 8),
+              Icon(icon, size: 32, color: color),
+              const SizedBox(height: 6),
               Text(title,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
               const SizedBox(height: 4),
               Text(value,
                   style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87),
                   textAlign: TextAlign.center,
@@ -1791,14 +1757,17 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
                   if (_formKey.currentState!.validate()) {
                     final messenger = ScaffoldMessenger.of(context);
                     final navigator = Navigator.of(context);
+                    final workerName = _nameController.text.trim();
+                    final rate = double.tryParse(_rateController.text) ?? 0.0;
                     AppDatabase.workers.add(Worker(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      name: _nameController.text.trim(),
-                      dailyRate:
-                          double.tryParse(_rateController.text) ?? 0.0,
+                      name: workerName,
+                      dailyRate: rate,
                       phone: _phoneController.text.trim(),
                       isArchived: false,
                     ));
+                    AppDatabase.logActivity('workers', 'إضافة عامل جديد',
+                        'تمت إضافة العامل $workerName بيومية ${fmtCurrency(rate)}');
                     final ok = await AppDatabase.saveData();
                     navigator.pop();
                     messenger.showSnackBar(SnackBar(
@@ -1818,7 +1787,6 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
   }
 }
 
-// شاشة إدارة وأرشفة العمال مع الزر المصغر والأنيق
 class ManageWorkersScreen extends StatefulWidget {
   const ManageWorkersScreen({super.key});
 
@@ -1847,6 +1815,8 @@ class _ManageWorkersScreenState extends State<ManageWorkersScreen>
     setState(() {
       worker.isArchived = true;
     });
+    AppDatabase.logActivity('workers', 'أرشفة عامل',
+        'تمت أرشفة العامل ${worker.name} مع الحفاظ على سجلاته');
     await AppDatabase.saveData();
     messenger.showSnackBar(SnackBar(content: Text(t('archive_success'))));
   }
@@ -1856,6 +1826,8 @@ class _ManageWorkersScreenState extends State<ManageWorkersScreen>
     setState(() {
       worker.isArchived = false;
     });
+    AppDatabase.logActivity('workers', 'استعادة عامل',
+        'تمت استعادة وتفعيل العامل ${worker.name}');
     await AppDatabase.saveData();
     messenger.showSnackBar(SnackBar(content: Text(t('restore_success'))));
   }
@@ -1885,6 +1857,8 @@ class _ManageWorkersScreenState extends State<ManageWorkersScreen>
       setState(() {
         AppDatabase.workers.removeWhere((w) => w.id == worker.id);
       });
+      AppDatabase.logActivity('workers', 'حذف عامل نهائياً',
+          'تم الحذف النهائي للعامل ${worker.name}');
       await AppDatabase.saveData();
       messenger
           .showSnackBar(SnackBar(content: Text(t('permanent_delete_success'))));
@@ -2045,13 +2019,16 @@ class _SitesScreenState extends State<SitesScreen> {
           ElevatedButton(
             onPressed: () async {
               if (_nameController.text.isNotEmpty) {
+                final sName = _nameController.text.trim();
+                final amt = double.tryParse(_amountController.text) ?? 0.0;
                 AppDatabase.sites.add(WorkSite(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: _nameController.text.trim(),
+                  name: sName,
                   location: _locationController.text.trim(),
-                  totalContractAmount:
-                      double.tryParse(_amountController.text) ?? 0.0,
+                  totalContractAmount: amt,
                 ));
+                AppDatabase.logActivity('sites', 'إضافة موقع عمل جديد',
+                    'تم إنشاء ورشة $sName بمبلغ إجمالي ${fmtCurrency(amt)}');
                 _nameController.clear();
                 _locationController.clear();
                 _amountController.clear();
@@ -2068,7 +2045,112 @@ class _SitesScreenState extends State<SitesScreen> {
     );
   }
 
-  // تسليم الورشة مع التحقق الدقيق من تسكير الحساب أو الاستثناء
+  void _showEditSiteDialog(WorkSite site) {
+    final nameCtrl = TextEditingController(text: site.name);
+    final locCtrl = TextEditingController(text: site.location);
+    final extraAmtCtrl = TextEditingController();
+    final extraReasonCtrl = TextEditingController();
+    final totalCtrl =
+        TextEditingController(text: numStr(site.totalContractAmount));
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (ctx, setD) => AlertDialog(
+          title: Text(t('edit_site_title')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(labelText: t('site_name')),
+                ),
+                TextField(
+                  controller: locCtrl,
+                  decoration: InputDecoration(labelText: t('site_address')),
+                ),
+                TextField(
+                  controller: totalCtrl,
+                  decoration: InputDecoration(
+                      labelText:
+                          '${t('site_total')} (${AppDatabase.currency})'),
+                  keyboardType: TextInputType.number,
+                ),
+                const Divider(height: 24),
+                Text(t('add_extra_amount'),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.indigo)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: extraAmtCtrl,
+                  decoration: InputDecoration(
+                    labelText:
+                        '${t('extra_amount_val')} (${AppDatabase.currency})',
+                    border: const OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) {
+                    final extra = double.tryParse(val) ?? 0.0;
+                    if (extra > 0) {
+                      totalCtrl.text = numStr(site.totalContractAmount + extra);
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: extraReasonCtrl,
+                  decoration: InputDecoration(
+                    labelText: t('extra_amount_reason'),
+                    hintText: 'مثال: أعمال صبغ إضافية، تعديل في المخطط',
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: Text(t('cancel'))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+              onPressed: () async {
+                final oldTotal = site.totalContractAmount;
+                final newTotal =
+                    double.tryParse(totalCtrl.text) ?? site.totalContractAmount;
+                final extra = double.tryParse(extraAmtCtrl.text) ?? 0.0;
+                final reason = extraReasonCtrl.text.trim();
+
+                site.name = nameCtrl.text.trim();
+                site.location = locCtrl.text.trim();
+                site.totalContractAmount = newTotal;
+
+                if (extra > 0) {
+                  AppDatabase.logActivity('sites', 'زيادة مبلغ عقد الورشة',
+                      'ورشة ${site.name}: إضافة ${fmtCurrency(extra)} - السبب: ${reason.isEmpty ? "أعمال إضافية" : reason}');
+                } else if (newTotal != oldTotal) {
+                  AppDatabase.logActivity('sites', 'تعديل قيمة العقد',
+                      'ورشة ${site.name}: تعديل الإجمالي من ${fmtCurrency(oldTotal)} إلى ${fmtCurrency(newTotal)}');
+                } else {
+                  AppDatabase.logActivity('sites', 'تعديل بيانات ورشة',
+                      'تم تعديل بيانات ورشة ${site.name}');
+                }
+
+                Navigator.pop(dialogCtx);
+                setState(() {});
+                await AppDatabase.saveData();
+              },
+              child: Text(t('save'),
+                  style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _handleDeliverSite(BuildContext context, WorkSite site) async {
     final remaining = site.totalContractAmount - site.totalPaid;
     final messenger = ScaffoldMessenger.of(context);
@@ -2078,7 +2160,7 @@ class _SitesScreenState extends State<SitesScreen> {
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text(t('confirm_delivery_title')),
-          content: Text('${t('confirm_delivery_paid_body')}\n(${site.name})'),
+          content: Text('${t('confirm_delivery_paid_body')}\\n(${site.name})'),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
@@ -2098,6 +2180,8 @@ class _SitesScreenState extends State<SitesScreen> {
           site.isDelivered = true;
           site.deliveryNote = t('paid_in_full_on_delivery');
         });
+        AppDatabase.logActivity('sites', 'تسليم ورشة منتهية',
+            'تم تسليم ورشة ${site.name} ونقلها للأرشيف (الحساب مسدد بالكامل)');
         await AppDatabase.saveData();
         messenger.showSnackBar(SnackBar(content: Text(t('delivered_msg'))));
       }
@@ -2172,6 +2256,8 @@ class _SitesScreenState extends State<SitesScreen> {
                   site.totalPaid = site.totalContractAmount;
                   site.isDelivered = true;
                   site.deliveryNote = t('paid_in_full_on_delivery');
+                  AppDatabase.logActivity('sites', 'تسليم ورشة وسداد المتبقي',
+                      'ورشة ${site.name}: سداد المتبقي ${fmtCurrency(remaining)} بالكامل وتسليمها للأرشيف');
                   Navigator.pop(dialogCtx);
                   setState(() {});
                   await AppDatabase.saveData();
@@ -2193,6 +2279,8 @@ class _SitesScreenState extends State<SitesScreen> {
                   }
                   site.isDelivered = true;
                   site.deliveryNote = noteController.text.trim();
+                  AppDatabase.logActivity('sites', 'تسليم ورشة باستثناء',
+                      'ورشة ${site.name}: تسليم باستثناء ومتبقي غير مسدد ${fmtCurrency(remaining)} - السبب: ${site.deliveryNote}');
                   Navigator.pop(dialogCtx);
                   setState(() {});
                   await AppDatabase.saveData();
@@ -2209,13 +2297,12 @@ class _SitesScreenState extends State<SitesScreen> {
     }
   }
 
-  // حذف ورشة حالية من قائمة الورش النشطة
   void _deleteActiveSite(WorkSite site) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t('delete_site_title')),
-        content: Text('${t('delete_site_confirm_msg')}\n(${site.name})'),
+        content: Text('${t('delete_site_confirm_msg')}\\n(${site.name})'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -2234,6 +2321,8 @@ class _SitesScreenState extends State<SitesScreen> {
       setState(() {
         AppDatabase.sites.removeWhere((s) => s.id == site.id);
       });
+      AppDatabase.logActivity('sites', 'حذف ورشة',
+          'تم حذف ورشة ${site.name} نهائياً');
       await AppDatabase.saveData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -2266,23 +2355,27 @@ class _SitesScreenState extends State<SitesScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)} | ${t('remaining')}: ${fmtCurrency(remaining)}'),
+                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtCurrency(site.totalContractAmount)}\\n${t('received')}: ${fmtCurrency(site.totalPaid)} | ${t('remaining')}: ${fmtCurrency(remaining)}'),
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.indigo),
+                          tooltip: t('edit_site_title'),
+                          onPressed: () => _showEditSiteDialog(site),
+                        ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 8),
+                                  horizontal: 8, vertical: 6),
                               visualDensity: VisualDensity.compact),
                           onPressed: () =>
                               _handleDeliverSite(context, site),
                           child: Text(t('deliver')),
                         ),
-                        const SizedBox(width: 4),
                         IconButton(
                           icon: const Icon(Icons.delete_outline,
                               color: Colors.red),
@@ -2304,7 +2397,7 @@ class _SitesScreenState extends State<SitesScreen> {
   }
 }
 
-// قائمة الورش المسلمة مع خيار الحذف النهائي والملاحظات
+// قائمة الورش المسلمة مع خيار الحذف وزر إعادة الفتح
 class DeliveredSitesScreen extends StatefulWidget {
   const DeliveredSitesScreen({super.key});
 
@@ -2313,13 +2406,49 @@ class DeliveredSitesScreen extends StatefulWidget {
 }
 
 class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
+  void _reopenSite(WorkSite site) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t('reopen_confirm_title')),
+        content: Text('${t('reopen_confirm_msg')}\\n(${site.name})'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t('cancel'))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                Text(t('confirm'), style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() {
+        site.isDelivered = false;
+        site.deliveryNote = '';
+      });
+      AppDatabase.logActivity('sites', 'إعادة فتح ورشة',
+          'تمت إعادة فتح ورشة ${site.name} ونقلها إلى الورش النشطة');
+      await AppDatabase.saveData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t('site_reopened_msg'))),
+        );
+      }
+    }
+  }
+
   void _deleteDeliveredSite(WorkSite site) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t('delete_delivered_site')),
         content:
-            Text('${t('delete_delivered_confirm_msg')}\n(${site.name})'),
+            Text('${t('delete_delivered_confirm_msg')}\\n(${site.name})'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -2338,6 +2467,8 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
       setState(() {
         AppDatabase.sites.removeWhere((s) => s.id == site.id);
       });
+      AppDatabase.logActivity('sites', 'حذف ورشة من الأرشيف',
+          'تم حذف ورشة ${site.name} نهائياً من أرشيف الورش المسلمة');
       await AppDatabase.saveData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -2374,17 +2505,27 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.lineThrough)),
                     subtitle: Text(
-                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}\n'
+                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}\\n'
                         '${t('received')}: ${fmtCurrency(site.totalPaid)}'
                         '${remaining > 0 ? " | ${t('remaining')}: ${fmtCurrency(remaining)}" : ""}'
                         ' (${t('delivered_flag')})'
-                        '${site.deliveryNote.isNotEmpty ? "\n📌 ${t('delivery_note_prefix')}: ${site.deliveryNote}" : ""}'),
+                        '${site.deliveryNote.isNotEmpty ? "\\n📌 ${t('delivery_note_prefix')}: ${site.deliveryNote}" : ""}'),
                     isThreeLine: true,
-                    trailing: IconButton(
-                      icon:
-                          const Icon(Icons.delete_forever, color: Colors.red),
-                      tooltip: t('delete_delivered_site'),
-                      onPressed: () => _deleteDeliveredSite(site),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.replay, color: Colors.indigo),
+                          tooltip: t('reopen_site'),
+                          onPressed: () => _reopenSite(site),
+                        ),
+                        IconButton(
+                          icon:
+                              const Icon(Icons.delete_forever, color: Colors.red),
+                          tooltip: t('delete_delivered_site'),
+                          onPressed: () => _deleteDeliveredSite(site),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -2394,7 +2535,7 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
   }
 }
 
-// ======================= إدارة الدفعات =======================
+// ======================= إدارة الدفعات مع فحص المتبقي =======================
 
 class NewPaymentScreen extends StatefulWidget {
   const NewPaymentScreen({super.key});
@@ -2419,13 +2560,14 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
               itemCount: activeSites.length,
               itemBuilder: (context, index) {
                 final site = activeSites[index];
+                final remaining = site.totalContractAmount - site.totalPaid;
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: ListTile(
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)}\n${t('remaining')}: ${fmtCurrency(site.totalContractAmount - site.totalPaid)}'),
+                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}\\n${t('received')}: ${fmtCurrency(site.totalPaid)}\\n${t('remaining')}: ${fmtCurrency(remaining)}'),
                     isThreeLine: true,
                     trailing: IconButton(
                       icon: const Icon(Icons.add_card, color: Colors.indigo),
@@ -2439,53 +2581,581 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
   }
 
   void _showPaymentDialog(BuildContext context, WorkSite site) {
-    final paymentController = TextEditingController();
+    final remaining = site.totalContractAmount - site.totalPaid;
+
+    if (remaining <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t('site_already_fully_paid'))),
+      );
+      return;
+    }
+
+    final paymentController = TextEditingController(text: numStr(remaining));
+    String? errorText;
+
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('${t('add_payment_for')} ${site.name}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}'),
-            Text('${t('payments_sum')}: ${fmtCurrency(site.totalPaid)}'),
-            Text(
-                '${t('remaining')}: ${fmtCurrency(site.totalContractAmount - site.totalPaid)}',
-                style: const TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            TextField(
-              controller: paymentController,
-              decoration: InputDecoration(
-                  labelText: '${t('new_payment')} (${AppDatabase.currency})'),
-              keyboardType: TextInputType.number,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (ctx, setD) => AlertDialog(
+          title: Text('${t('add_payment_for')} ${site.name}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}'),
+              Text('${t('payments_sum')}: ${fmtCurrency(site.totalPaid)}'),
+              Text(
+                  '${t('remaining')}: ${fmtCurrency(remaining)}',
+                  style: const TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: paymentController,
+                decoration: InputDecoration(
+                  labelText: '${t('new_payment')} (${AppDatabase.currency})',
+                  errorText: errorText,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (val) {
+                  final entered = double.tryParse(val) ?? 0.0;
+                  if (entered > remaining) {
+                    setD(() => errorText =
+                        '${t('payment_exceeds_remaining')} (${fmtCurrency(remaining)})');
+                  } else {
+                    setD(() => errorText = null);
+                  }
+                },
+              ),
+              const SizedBox(height: 6),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  icon: const Icon(Icons.flash_on, size: 16),
+                  label: Text(t('pay_remaining_all')),
+                  onPressed: () {
+                    setD(() {
+                      paymentController.text = numStr(remaining);
+                      errorText = null;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(t('cancel'))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+              onPressed: () async {
+                final payment = double.tryParse(paymentController.text) ?? 0.0;
+                if (payment <= 0) {
+                  setD(() => errorText = t('invalid_payment_amount'));
+                  return;
+                }
+                if (payment > remaining) {
+                  setD(() => errorText =
+                      '${t('payment_exceeds_remaining')} (${fmtCurrency(remaining)})');
+                  return;
+                }
+
+                site.totalPaid += payment;
+                AppDatabase.logActivity('payments', 'إضافة دفعة مالية',
+                    'ورشة ${site.name}: دفعة بقيمة ${fmtCurrency(payment)} | المتبقي: ${fmtCurrency(site.totalContractAmount - site.totalPaid)}');
+                Navigator.pop(dialogContext);
+                if (mounted) setState(() {});
+                await AppDatabase.saveData();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(t('payment_saved_ok'))),
+                );
+              },
+              child: Text(t('save'), style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(t('cancel'))),
-          ElevatedButton(
-            onPressed: () async {
-              final payment = double.tryParse(paymentController.text) ?? 0.0;
-              if (payment > 0) {
-                site.totalPaid += payment;
-              }
-              Navigator.pop(dialogContext);
-              if (mounted) setState(() {});
-              await AppDatabase.saveData();
-            },
-            child: Text(t('save')),
-          ),
-        ],
       ),
     );
   }
 }
 
-// ======================= قائمة العمال =======================
+// ======================= ملخص وتحليل الورش والأرباح =======================
+
+class SiteAnalyticsScreen extends StatefulWidget {
+  const SiteAnalyticsScreen({super.key});
+
+  @override
+  State<SiteAnalyticsScreen> createState() => _SiteAnalyticsScreenState();
+}
+
+class _SiteAnalyticsScreenState extends State<SiteAnalyticsScreen> {
+  WorkSite? _selectedSite;
+
+  @override
+  void initState() {
+    super.initState();
+    if (AppDatabase.sites.isNotEmpty) {
+      _selectedSite = AppDatabase.sites.first;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (AppDatabase.sites.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+            title: Text(t('m_site_analytics')),
+            backgroundColor: Colors.indigo,
+            iconTheme: const IconThemeData(color: Colors.white)),
+        body: Center(child: Text(t('no_active_sites'))),
+      );
+    }
+
+    final site = _selectedSite ?? AppDatabase.sites.first;
+
+    int totalSiteDays = 0;
+    double totalSiteWages = 0;
+    double totalSiteOvertimeHours = 0;
+    double totalSiteOvertimePay = 0;
+    double totalSiteTransport = 0;
+    final workerBreakdown = <String, Map<String, dynamic>>{};
+
+    for (final w in AppDatabase.workers) {
+      int wDays = 0;
+      double wOtHours = 0;
+      double wTransport = 0;
+      double wEarnings = 0;
+
+      for (final log in w.logs.values) {
+        if (log.worked && log.site == site.name) {
+          wDays++;
+          wOtHours += log.overtimeHours;
+          wTransport += log.transport;
+          wEarnings += log.total(w.dailyRate);
+        }
+      }
+
+      if (wDays > 0) {
+        workerBreakdown[w.name] = {
+          'days': wDays,
+          'otHours': wOtHours,
+          'transport': wTransport,
+          'earnings': wEarnings,
+          'dailyRate': w.dailyRate,
+        };
+        totalSiteDays += wDays;
+        totalSiteOvertimeHours += wOtHours;
+        totalSiteOvertimePay += wOtHours * AppDatabase.overtimeRate;
+        totalSiteTransport += wTransport;
+        totalSiteWages += wEarnings;
+      }
+    }
+
+    final contractTotal = site.totalContractAmount;
+    final received = site.totalPaid;
+    final remaining = contractTotal - received;
+    final laborCost = totalSiteWages;
+    final expectedNetProfit = contractTotal - laborCost;
+    final realCurrentProfit = received - laborCost;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t('m_site_analytics')),
+        backgroundColor: Colors.indigo,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            tooltip: t('share_tip'),
+            onPressed: () {
+              final sb = StringBuffer();
+              sb.writeln('🏗️ ${t('m_site_analytics')}: ${site.name}');
+              sb.writeln('📍 ${t('site_address')}: ${site.location}');
+              sb.writeln('💰 ${t('site_kpi_contract')}: ${fmtCurrency(contractTotal)}');
+              sb.writeln('💵 ${t('site_kpi_received')}: ${fmtCurrency(received)}');
+              sb.writeln('⏳ ${t('site_kpi_remaining')}: ${fmtCurrency(remaining)}');
+              sb.writeln('👷 ${t('site_kpi_cost')}: ${fmtCurrency(laborCost)}');
+              sb.writeln('📈 ${t('site_kpi_net_profit')}: ${fmtCurrency(expectedNetProfit)}');
+              sb.writeln('📊 ${t('site_kpi_real_profit')}: ${fmtCurrency(realCurrentProfit)}');
+              sb.writeln('👥 ${t('site_workers_count')}: ${workerBreakdown.length}');
+              sb.writeln('🗓️ ${t('site_total_days')}: $totalSiteDays');
+              Share.share(sb.toString());
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              color: Colors.indigo.shade50,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.apartment, color: Colors.indigo),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<WorkSite>(
+                          isExpanded: true,
+                          value: AppDatabase.sites.contains(site) ? site : null,
+                          items: AppDatabase.sites.map((s) {
+                            return DropdownMenuItem<WorkSite>(
+                              value: s,
+                              child: Text(
+                                '${s.name} ${s.isDelivered ? "(${t('delivered_flag')})" : ""}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: s.isDelivered
+                                      ? Colors.grey.shade700
+                                      : Colors.indigo.shade900,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (newSite) {
+                            if (newSite != null) {
+                              setState(() => _selectedSite = newSite);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 1.5,
+              children: [
+                _kpiCard(t('site_kpi_contract'), fmtCurrency(contractTotal),
+                    Colors.indigo, Icons.account_balance),
+                _kpiCard(t('site_kpi_received'), fmtCurrency(received),
+                    Colors.teal, Icons.payments),
+                _kpiCard(t('site_kpi_remaining'), fmtCurrency(remaining),
+                    remaining > 0 ? Colors.red : Colors.green, Icons.pending),
+                _kpiCard(t('site_kpi_cost'), fmtCurrency(laborCost),
+                    Colors.orange.shade800, Icons.engineering),
+                _kpiCard(t('site_kpi_net_profit'),
+                    fmtCurrency(expectedNetProfit),
+                    expectedNetProfit >= 0 ? Colors.green : Colors.red,
+                    Icons.trending_up),
+                _kpiCard(t('site_kpi_real_profit'),
+                    fmtCurrency(realCurrentProfit),
+                    realCurrentProfit >= 0 ? Colors.green : Colors.red,
+                    Icons.account_balance_wallet),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    _metricRow(t('site_workers_count'), '${workerBreakdown.length}'),
+                    const Divider(height: 12),
+                    _metricRow(t('site_total_days'), '$totalSiteDays'),
+                    const Divider(height: 12),
+                    _metricRow(t('site_total_ot'),
+                        '${fmtNum(totalSiteOvertimeHours)} ${t('hour_short')} (${fmtCurrency(totalSiteOvertimePay)})'),
+                    const Divider(height: 12),
+                    _metricRow(t('site_total_transport'),
+                        fmtCurrency(totalSiteTransport)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(t('site_worker_breakdown'),
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo)),
+            const SizedBox(height: 8),
+            workerBreakdown.isEmpty
+                ? const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                        child: Text('لم يتم تسجيل أي حضور للعمال في هذه الورشة بعد.'),
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: workerBreakdown.length,
+                    itemBuilder: (ctx, idx) {
+                      final wName = workerBreakdown.keys.elementAt(idx);
+                      final data = workerBreakdown[wName]!;
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.indigo.shade100,
+                            child: const Icon(Icons.person, color: Colors.indigo),
+                          ),
+                          title: Text(wName,
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                              '${t('work_days')}: ${data['days']} | ${t('overtime_short')}: ${fmtNum(data['otHours'])} ${t('hour_short')} | ${t('transport_short')}: ${fmtCurrency(data['transport'])}'),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(t('worker_site_earnings'),
+                                  style: const TextStyle(
+                                      fontSize: 10, color: Colors.grey)),
+                              Text(fmtCurrency(data['earnings']),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.indigo)),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _kpiCard(String title, String val, Color color, IconData icon) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 18, color: color),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(title,
+                      style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+                      overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(val,
+                style: TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.bold, color: color),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _metricRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 14)),
+        Text(value,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+}
+
+// ======================= سجل الحركات والنشاطات =======================
+
+class ActivityLogScreen extends StatefulWidget {
+  const ActivityLogScreen({super.key});
+
+  @override
+  State<ActivityLogScreen> createState() => _ActivityLogScreenState();
+}
+
+class _ActivityLogScreenState extends State<ActivityLogScreen> {
+  String _selectedCategory = 'all';
+
+  Color _categoryColor(String cat) {
+    switch (cat) {
+      case 'payments':
+        return Colors.green;
+      case 'sites':
+        return Colors.orange.shade800;
+      case 'workers':
+        return Colors.blue;
+      case 'attendance':
+        return Colors.purple;
+      case 'pdf':
+        return Colors.red;
+      case 'backup':
+        return Colors.teal;
+      default:
+        return Colors.indigo;
+    }
+  }
+
+  IconData _categoryIcon(String cat) {
+    switch (cat) {
+      case 'payments':
+        return Icons.payments;
+      case 'sites':
+        return Icons.apartment;
+      case 'workers':
+        return Icons.people;
+      case 'attendance':
+        return Icons.event_available;
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'backup':
+        return Icons.cloud_sync;
+      default:
+        return Icons.notifications;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredLogs = _selectedCategory == 'all'
+        ? AppDatabase.logs
+        : AppDatabase.logs.where((l) => l.category == _selectedCategory).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t('m_activity_log')),
+        backgroundColor: Colors.indigo,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_sweep),
+            tooltip: t('clear_logs'),
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(t('clear_logs')),
+                  content: Text(t('clear_logs_confirm')),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(t('cancel'))),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(t('confirm'),
+                          style: const TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                await AppDatabase.clearAllLogs();
+                setState(() {});
+              }
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: Row(
+              children: [
+                _filterChip('all', t('filter_all')),
+                _filterChip('payments', t('filter_payments')),
+                _filterChip('sites', t('filter_sites')),
+                _filterChip('workers', t('filter_workers')),
+                _filterChip('attendance', t('filter_attendance')),
+                _filterChip('pdf', t('filter_pdf')),
+                _filterChip('backup', t('filter_backup')),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: filteredLogs.isEmpty
+                ? Center(child: Text(t('no_logs_found')))
+                : ListView.builder(
+                    itemCount: filteredLogs.length,
+                    itemBuilder: (ctx, idx) {
+                      final log = filteredLogs[idx];
+                      final color = _categoryColor(log.category);
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: color.withOpacity(0.15),
+                            child: Icon(_categoryIcon(log.category), color: color),
+                          ),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(log.title,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14)),
+                              ),
+                              Text(
+                                fmtFullDateTime(log.timestamp),
+                                style: TextStyle(
+                                    fontSize: 11, color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Text(log.details,
+                                style: const TextStyle(fontSize: 13)),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterChip(String cat, String label) {
+    final isSelected = _selectedCategory == cat;
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        selectedColor: Colors.indigo.shade100,
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.indigo.shade900 : Colors.black87,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+        onSelected: (val) {
+          if (val) setState(() => _selectedCategory = cat);
+        },
+      ),
+    );
+  }
+}
+
+// ======================= شاشات وقوائم العمال والتقارير =======================
 
 class WorkersListScreen extends StatefulWidget {
   const WorkersListScreen({super.key});
@@ -2593,6 +3263,8 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                     double.tryParse(rateController.text) ?? worker.dailyRate;
                 worker.phone = phoneController.text.trim();
               });
+              AppDatabase.logActivity('workers', 'تعديل بيانات عامل',
+                  'تم تعديل بيانات العامل ${worker.name}');
               Navigator.pop(dialogContext);
               await AppDatabase.saveData();
             },
@@ -2709,7 +3381,7 @@ String buildAllWeekText(DateTime ws, String lang) {
   return sb.toString();
 }
 
-// ---------- محرك إنشاء الـ PDF ----------
+// ---------- محرك إنشاء الـ PDF بحل مشكلة المربعات والخطوط ----------
 
 bool gPdfFontFailed = false;
 
@@ -2718,6 +3390,7 @@ Future<pw.Document> _newPdf() async {
   pw.Font? regular;
   pw.Font? bold;
 
+  // 1. محاولة تحميل الخط محلياً من Assets ليعمل 100% بدون إنترنت
   try {
     final regData = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
     regular = pw.Font.ttf(regData);
@@ -2728,6 +3401,7 @@ Future<pw.Document> _newPdf() async {
       bold = regular;
     }
   } catch (_) {
+    // 2. إذا لم يكن مدمجاً في assets، تحميل الخط من Google Fonts عبر الإنترنت
     try {
       regular = await PdfGoogleFonts.cairoRegular();
       bold = await PdfGoogleFonts.cairoBold();
@@ -2736,7 +3410,12 @@ Future<pw.Document> _newPdf() async {
         regular = await PdfGoogleFonts.notoSansArabicRegular();
         bold = await PdfGoogleFonts.notoSansArabicBold();
       } catch (_) {
-        gPdfFontFailed = true;
+        try {
+          regular = await PdfGoogleFonts.amiriRegular();
+          bold = await PdfGoogleFonts.amiriBold();
+        } catch (_) {
+          gPdfFontFailed = true;
+        }
       }
     }
   }
@@ -2876,6 +3555,9 @@ Future<void> shareWorkerWeekPdf(
     ),
   );
 
+  AppDatabase.logActivity('pdf', 'تصدير تقرير عامل PDF',
+      'تم تصدير تقرير PDF للعامل ${w.name} للأسبوع ${fmtDate(ws)}');
+
   await Printing.sharePdf(
       bytes: await pdf.save(), filename: 'report_${w.name}.pdf');
   if (gPdfFontFailed) {
@@ -2895,7 +3577,7 @@ Future<void> shareAllWeekPdf(
 
   final header = <pw.Widget>[_pdfCell(tr('worker_col'), bold: true, rtl: rtl)];
   for (int i = 0; i < 7; i++) {
-    header.add(_pdfCell('${L10n.day(i, lang)}\n${fmtDate(addDays(ws, i))}',
+    header.add(_pdfCell('${L10n.day(i, lang)}\\n${fmtDate(addDays(ws, i))}',
         bold: true, rtl: rtl));
   }
   header.add(_pdfCell(tr('total_word'), bold: true, rtl: rtl));
@@ -2950,13 +3632,14 @@ Future<void> shareAllWeekPdf(
     ),
   );
 
+  AppDatabase.logActivity('pdf', 'تصدير تقرير أسبوعي لجميع العمال PDF',
+      'تم تصدير التقرير المشترك للأسبوع ${fmtDate(ws)} بمبلغ إجمالي ${fmtCurrency(grand)}');
+
   await Printing.sharePdf(bytes: await pdf.save(), filename: 'weekly_all.pdf');
   if (gPdfFontFailed) {
     messenger.showSnackBar(SnackBar(content: Text(t('pdf_font_err'))));
   }
 }
-
-// ---------- شاشات التقارير ----------
 
 class WeeklySummaryScreen extends StatefulWidget {
   const WeeklySummaryScreen({super.key});
@@ -3003,7 +3686,7 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 16)),
                           subtitle: Text(
-                              '${t('joint_sub')}\n${t('total_word')}: ${fmtCurrency(grand)}'),
+                              '${t('joint_sub')}\\n${t('total_word')}: ${fmtCurrency(grand)}'),
                           isThreeLine: true,
                           trailing: const Icon(Icons.arrow_forward_ios),
                           onTap: () async {
@@ -3152,7 +3835,7 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
                     for (int i = 0; i < 7; i++)
                       DataColumn(
                         label: Text(
-                            '${L10n.day(i)}\n${fmtDate(addDays(_weekStart, i))}',
+                            '${L10n.day(i)}\\n${fmtDate(addDays(_weekStart, i))}',
                             textAlign: TextAlign.center),
                       ),
                     DataColumn(label: Text(t('total_word'))),
@@ -3240,7 +3923,7 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
     if (log == null) return t('not_logged');
     if (!log.worked) return t('holiday');
     final siteText = log.site.isEmpty ? '—' : log.site;
-    return '${t('site')}: $siteText\n${t('overtime_short')}: ${fmtNum(log.overtimeHours)} ${t('hour_short')} | ${t('transport_short')}: ${fmtCurrency(log.transport)}${log.note.isEmpty ? "" : "\n${log.note}"}';
+    return '${t('site')}: $siteText\\n${t('overtime_short')}: ${fmtNum(log.overtimeHours)} ${t('hour_short')} | ${t('transport_short')}: ${fmtCurrency(log.transport)}${log.note.isEmpty ? "" : "\\n${log.note}"}';
   }
 
   void _editDay(DateTime day) {
@@ -3326,6 +4009,8 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
               TextButton(
                 onPressed: () async {
                   w.logs.remove(key);
+                  AppDatabase.logActivity('attendance', 'مسح يوم عمل',
+                      '${w.name} - تم مسح تسجيل يوم ${fmtDate(day)}');
                   Navigator.pop(dialogContext);
                   if (mounted) setState(() {});
                   await AppDatabase.saveData();
@@ -3345,6 +4030,8 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                   transport: double.tryParse(trCtrl.text) ?? 0.0,
                   note: noteCtrl.text.trim(),
                 );
+                AppDatabase.logActivity('attendance', 'تعديل تسجيل يوم',
+                    '${w.name} (${fmtDate(day)}): ${worked ? "يعمل في $site" : "عطلة"}');
                 Navigator.pop(dialogContext);
                 if (mounted) setState(() {});
                 await AppDatabase.saveData();
