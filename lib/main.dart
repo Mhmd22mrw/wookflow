@@ -126,9 +126,9 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                         ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.between,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('تسجيل الحضور اليومي (كل 24 ساعة)', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            const Text('تسجيل الحضور اليومي (كل 24 ساعة)', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                             IconButton(
                               icon: const Icon(Icons.close, color: Colors.white),
                               onPressed: () => setState(() => _showDailyPopup = false),
@@ -151,7 +151,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.between,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(worker.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                             Row(
@@ -194,7 +194,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                                             Expanded(
                                               child: TextField(
                                                 enabled: worker.isActiveToday,
-                                                decoration: const InputDecoration(labelText: 'أجور النقل (FCFA)'),
+                                                decoration: const InputDecoration(labelText: 'أجور النقل (XOF)'),
                                                 keyboardType: TextInputType.number,
                                                 onChanged: (val) => worker.transportAllowance = double.tryParse(val) ?? 0.0,
                                               ),
@@ -255,10 +255,9 @@ class MainDashboard extends StatelessWidget {
           children: [
             const UserAccountsDrawerHeader(
               accountName: Text('مدير الورشة (Abidjan)'),
-              accountSubtitle: Text('نظام إدارة المشاريع الميدانية'),
+              accountEmail: Text('نظام إدارة المشاريع v1.0.0'),
               currentAccountPicture: CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.engineering, size: 40, color: Colors.indigo)),
               decoration: BoxDecoration(color: Colors.indigo),
-              accountEmail: Text('v1.0.0'),
             ),
             ListTile(
               leading: const Icon(Icons.person_add),
@@ -618,7 +617,7 @@ class NewPaymentScreen extends StatelessWidget {
             const SizedBox(height: 12),
             TextField(
               controller: paymentController,
-              decoration: const InputDecoration(labelText: 'قيمة الدفعة الجديدة (FCFA)'),
+              decoration: const InputDecoration(labelText: 'قيمة الدفعة الجديدة (XOF)'),
               keyboardType: TextInputType.number,
             ),
           ],
@@ -827,7 +826,7 @@ class WorkerDetailReportScreen extends StatelessWidget {
               trailing: Text('${worker.overtimeHours * 1000} XOF'),
             ),
             ListTile(
-              title: const Test('بدل المواصلات'),
+              title: const Text('بدل المواصلات'),
               subtitle: const Text('أجار الطريق والنقل'),
               trailing: Text('${worker.transportAllowance} XOF'),
             ),
