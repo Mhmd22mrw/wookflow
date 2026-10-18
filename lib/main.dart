@@ -107,6 +107,96 @@ class L10n {
       'Workers today'
     ],
     'card_active_sites': ['الورش النشطة', 'Chantiers actifs', 'Active sites'],
+    'card_delivered_sites': [
+      'الورش المسلمة',
+      'Chantiers livrés',
+      'Delivered sites'
+    ],
+    'card_payments_manage': [
+      'إدارة الدفعات',
+      'Gestion paiements',
+      'Manage payments'
+    ],
+    'confirm_delivery_title': [
+      'تأكيد تسليم الورشة',
+      'Confirmer la livraison',
+      'Confirm delivery'
+    ],
+    'confirm_delivery_paid_body': [
+      'الحساب مقفل بالكامل، هل تريد تأكيد تسليم الورشة ونقلها للأرشيف؟',
+      'Le compte est soldé. Confirmer la livraison du chantier ?',
+      'Account fully settled. Confirm delivery and move to archive?'
+    ],
+    'unsettled_delivery_title': [
+      'تنبيه: الحساب غير مقفل بعد',
+      'Attention : Compte non soldé',
+      'Warning: Account not settled'
+    ],
+    'unsettled_warning_note': [
+      'تنبيه: لا يمكن تسليم الورشة مع وجود متبقي غير مسدد، إلا بإغلاق الحساب الآن أو التسليم باستثناء مع توضيح السبب بملاحظة.',
+      'Attention : Chantier non soldé. Veuillez solder ou justifier par une remarque.',
+      'Warning: Site has unpaid balance. Please settle in full or provide an exception note.'
+    ],
+    'exception_note_label': [
+      'ملاحظة / سبب التسليم الاستثنائي (إجباري)',
+      'Motif exceptionnel (obligatoire)',
+      'Exception reason / note (required)'
+    ],
+    'exception_note_hint': [
+      'مثال: اتفاق على تأجيل الدفع، خصم متفق عليه...',
+      'Ex : report de paiement, remise...',
+      'E.g. payment postponed, agreed discount...'
+    ],
+    'exception_note_required': [
+      'يرجى كتابة سبب التسليم الاستثنائي قبل المتابعة',
+      'Veuillez saisir le motif exceptionnel',
+      'Please enter the exception reason'
+    ],
+    'pay_all_and_deliver': [
+      'تسديد المتبقي وتسليم',
+      'Tout solder et livrer',
+      'Settle all and deliver'
+    ],
+    'deliver_with_exception': [
+      'تسليم باستثناء مع الملاحظة',
+      'Livrer avec dérogation',
+      'Deliver with exception'
+    ],
+    'paid_in_full_on_delivery': [
+      'تم سداد كامل المتبقي عند التسليم',
+      'Soldé intégralement à la livraison',
+      'Settled in full on delivery'
+    ],
+    'delivery_note_prefix': [
+      'ملاحظة التسليم',
+      'Note de livraison',
+      'Delivery note'
+    ],
+    'delete_site_title': [
+      'حذف الورشة',
+      'Supprimer le chantier',
+      'Delete site'
+    ],
+    'delete_site_confirm_msg': [
+      'هل أنت متأكد من حذف الورشة نهائياً؟',
+      'Êtes-vous sûr de supprimer définitivement ce chantier ?',
+      'Are you sure you want to permanently delete this site?'
+    ],
+    'site_deleted_msg': [
+      'تم حذف الورشة بنجاح',
+      'Chantier supprimé avec succès',
+      'Site deleted successfully'
+    ],
+    'delete_delivered_site': [
+      'حذف من الأرشيف',
+      'Supprimer des archives',
+      'Delete from archives'
+    ],
+    'delete_delivered_confirm_msg': [
+      'هل أنت متأكد من حذف هذه الورشة المسلمة نهائياً من الأرشيف؟',
+      'Êtes-vous sûr de supprimer définitivement ce chantier des archives ?',
+      'Are you sure you want to permanently delete this site from archives?'
+    ],
     'card_hour_rate': ['سعر ساعة الإضافي', 'Taux heure supp.', 'Overtime rate/h'],
     'card_weekly': ['ملخص الأسبوع', 'Résumé de la semaine', 'Weekly summary'],
     'view_reports': ['عرض التقارير', 'Voir les rapports', 'View reports'],
@@ -169,14 +259,14 @@ class L10n {
       'Archive / delete workers'
     ],
     'archive_btn': [
-      'أرشفة العامل (إيقاف نشاطه مع حفظ تاريخه)',
-      'Archiver (conserver historique)',
-      'Archive (keep history)'
+      'أرشفة',
+      'Archiver',
+      'Archive'
     ],
     'restore_btn': [
-      'إعادة تفعيل العامل',
-      'Réactiver l’ouvrier',
-      'Reactivate worker'
+      'استعادة',
+      'Réactiver',
+      'Restore'
     ],
     'permanent_delete_btn': [
       'حذف نهائي',
@@ -489,14 +579,13 @@ String numStr(double v) =>
 
 String fmtMoney(double v) => ltr(_grouped(v));
 String fmtCurrency(double v) => ltr('${_grouped(v)}${kNbsp}${AppDatabase.currency}');
-String fmtXof(double v) => fmtCurrency(v); // للتوافق مع استدعاءات الكود السابقة
+String fmtXof(double v) => fmtCurrency(v);
 String fmtNum(double v) => ltr(numStr(v));
 String fmtDate(DateTime d) => ltr('${d.day}/${d.month}');
 String fmtFullDate(DateTime d) => ltr('${d.day}/${d.month}/${d.year}');
 
 String plain(String s) => s.replaceAll(kLrm, '').replaceAll(kNbsp, ' ');
 
-// فحص وجود أحرف عربية لضبط اتجاه النص بشكل سليم ومنع ظهور المربعات
 bool hasArabic(String text) {
   return RegExp(
           r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]')
@@ -564,7 +653,6 @@ Future<String?> pickReportLang(BuildContext context) {
   );
 }
 
-// نافذة تغيير العملة وسعر ساعة الإضافي
 Future<void> showCurrencyDialog(
     BuildContext context, VoidCallback onChanged) async {
   final List<String> commonCurrencies = [
@@ -673,7 +761,6 @@ Future<void> showCurrencyDialog(
   );
 }
 
-// نافذة النسخ الاحتياطي والاستعادة لحماية البيانات من الضياع
 Future<void> showBackupDialog(
     BuildContext context, VoidCallback onDataUpdated) async {
   final importController = TextEditingController();
@@ -823,7 +910,7 @@ class Worker {
   String name;
   double dailyRate;
   String phone;
-  bool isArchived; // خاصية أرشفة العامل للحفاظ على سجله التاريخي عند توقفه عن العمل
+  bool isArchived;
   Map<String, DayLog> logs;
 
   Worker({
@@ -878,6 +965,7 @@ class WorkSite {
   double totalContractAmount;
   double totalPaid;
   bool isDelivered;
+  String deliveryNote; // ملاحظة التسليم (خاصة عند التسليم الاستثنائي)
 
   WorkSite({
     required this.id,
@@ -886,6 +974,7 @@ class WorkSite {
     required this.totalContractAmount,
     this.totalPaid = 0.0,
     this.isDelivered = false,
+    this.deliveryNote = '',
   });
 
   Map<String, dynamic> toJson() => {
@@ -895,6 +984,7 @@ class WorkSite {
         'totalContractAmount': totalContractAmount,
         'totalPaid': totalPaid,
         'isDelivered': isDelivered,
+        'deliveryNote': deliveryNote,
       };
 
   factory WorkSite.fromJson(Map<String, dynamic> json) => WorkSite(
@@ -905,6 +995,7 @@ class WorkSite {
             ((json['totalContractAmount'] ?? 0.0) as num).toDouble(),
         totalPaid: ((json['totalPaid'] ?? 0.0) as num).toDouble(),
         isDelivered: json['isDelivered'] ?? false,
+        deliveryNote: (json['deliveryNote'] ?? '').toString(),
       );
 }
 
@@ -916,7 +1007,6 @@ class AppDatabase {
   static String lastPopupDate = '';
   static String? lastError;
 
-  // إدارة العملة وسعر ساعة الإضافي
   static ValueNotifier<String> currencyNotifier = ValueNotifier<String>('XOF');
   static String get currency => currencyNotifier.value;
   static set currency(String v) => currencyNotifier.value = v;
@@ -926,15 +1016,12 @@ class AppDatabase {
   static double get overtimeRate => overtimeRateNotifier.value;
   static set overtimeRate(double v) => overtimeRateNotifier.value = v;
 
-  // تصفية العمال النشطين (للتسجيل اليومي والقائمة النشطة)
   static List<Worker> get activeWorkers =>
       workers.where((w) => !w.isArchived).toList();
 
-  // تصفية العمال المؤرشفين
   static List<Worker> get archivedWorkers =>
       workers.where((w) => w.isArchived).toList();
 
-  // جلب العمال لأسبوع معين (يشمل النشطين + المؤرشفين الذين لديهم سجلات في هذا الأسبوع)
   static List<Worker> workersForWeek(DateTime ws) {
     return workers.where((w) {
       if (!w.isArchived) return true;
@@ -1043,7 +1130,6 @@ class AppDatabase {
     return log;
   }
 
-  // تصدير واستيراد النسخ الاحتياطية (لحماية البيانات عند تغيير الهاتف أو التحديث)
   static String exportBackupJson() {
     final data = {
       'version': '1.0',
@@ -1389,7 +1475,7 @@ class MainDashboard extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text(t('manager')), // تمت إزالة Abidjan
+              accountName: Text(t('manager')),
               accountEmail: Text(t('version')),
               currentAccountPicture: const CircleAvatar(
                   backgroundColor: Colors.white,
@@ -1532,17 +1618,52 @@ class MainDashboard extends StatelessWidget {
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.15,
                 children: [
                   _buildDashboardCard(context, t('card_workers_today'),
-                      ltr('$workingToday'), Icons.people, Colors.blue),
+                      ltr('$workingToday'), Icons.people, Colors.blue,
+                      onTap: onOpenDailyReport),
                   _buildDashboardCard(
                       context,
                       t('card_active_sites'),
                       ltr('${AppDatabase.sites.where((s) => !s.isDelivered).length}'),
                       Icons.apartment,
-                      Colors.orange),
+                      Colors.orange,
+                      onTap: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SitesScreen()));
+                    onDataUpdated();
+                  }),
+                  _buildDashboardCard(
+                      context,
+                      t('card_delivered_sites'),
+                      ltr('${AppDatabase.sites.where((s) => s.isDelivered).length}'),
+                      Icons.task_alt,
+                      Colors.teal,
+                      onTap: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DeliveredSitesScreen()));
+                    onDataUpdated();
+                  }),
+                  _buildDashboardCard(
+                      context,
+                      t('m_payment'),
+                      t('card_payments_manage'),
+                      Icons.payments,
+                      Colors.indigo,
+                      onTap: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NewPaymentScreen()));
+                    onDataUpdated();
+                  }),
                   _buildDashboardCard(context, t('card_hour_rate'),
                       fmtCurrency(AppDatabase.overtimeRate), Icons.schedule, Colors.green,
                       onTap: () => showCurrencyDialog(context, onDataUpdated)),
@@ -1573,22 +1694,26 @@ class MainDashboard extends StatelessWidget {
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 40, color: color),
-              const SizedBox(height: 10),
+              Icon(icon, size: 36, color: color),
+              const SizedBox(height: 8),
               Text(title,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  textAlign: TextAlign.center),
-              const SizedBox(height: 5),
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 4),
               Text(value,
                   style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87),
-                  textAlign: TextAlign.center),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
             ],
           ),
         ),
@@ -1609,7 +1734,6 @@ class AddWorkerScreen extends StatefulWidget {
 class _AddWorkerScreenState extends State<AddWorkerScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  // اليومية تبدأ من 0 وقابلة للتعديل بحرية
   final TextEditingController _rateController =
       TextEditingController(text: '0');
   final TextEditingController _phoneController = TextEditingController();
@@ -1694,7 +1818,7 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
   }
 }
 
-// شاشة إدارة وأرشفة العمال: تحافظ على أيام العمل السابقة تماماً
+// شاشة إدارة وأرشفة العمال مع الزر المصغر والأنيق
 class ManageWorkersScreen extends StatefulWidget {
   const ManageWorkersScreen({super.key});
 
@@ -1791,7 +1915,6 @@ class _ManageWorkersScreenState extends State<ManageWorkersScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          // قائمة العمال النشطين
           active.isEmpty
               ? Center(child: Text(t('no_active_workers')))
               : ListView.builder(
@@ -1810,8 +1933,10 @@ class _ManageWorkersScreenState extends State<ManageWorkersScreen>
                         trailing: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.orange.shade800,
-                              foregroundColor: Colors.white),
-                          icon: const Icon(Icons.archive, size: 18),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              visualDensity: VisualDensity.compact),
+                          icon: const Icon(Icons.archive, size: 16),
                           label: Text(t('archive_btn')),
                           onPressed: () => _archiveWorker(worker),
                         ),
@@ -1819,8 +1944,6 @@ class _ManageWorkersScreenState extends State<ManageWorkersScreen>
                     );
                   },
                 ),
-
-          // قائمة العمال المؤرشفين (يمكن استعادتهم أو حذفهم نهائياً)
           archived.isEmpty
               ? Center(child: Text(t('no_archived_workers')))
               : ListView.builder(
@@ -1844,12 +1967,14 @@ class _ManageWorkersScreenState extends State<ManageWorkersScreen>
                             ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.teal,
-                                  foregroundColor: Colors.white),
-                              icon: const Icon(Icons.unarchive, size: 18),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  visualDensity: VisualDensity.compact),
+                              icon: const Icon(Icons.unarchive, size: 16),
                               label: Text(t('restore_btn')),
                               onPressed: () => _restoreWorker(worker),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                             IconButton(
                               icon:
                                   const Icon(Icons.delete_forever, color: Colors.red),
@@ -1943,6 +2068,181 @@ class _SitesScreenState extends State<SitesScreen> {
     );
   }
 
+  // تسليم الورشة مع التحقق الدقيق من تسكير الحساب أو الاستثناء
+  void _handleDeliverSite(BuildContext context, WorkSite site) async {
+    final remaining = site.totalContractAmount - site.totalPaid;
+    final messenger = ScaffoldMessenger.of(context);
+
+    if (remaining <= 0) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(t('confirm_delivery_title')),
+          content: Text('${t('confirm_delivery_paid_body')}\n(${site.name})'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(t('cancel'))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              onPressed: () => Navigator.pop(ctx, true),
+              child:
+                  Text(t('confirm'), style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+
+      if (confirm == true) {
+        setState(() {
+          site.isDelivered = true;
+          site.deliveryNote = t('paid_in_full_on_delivery');
+        });
+        await AppDatabase.saveData();
+        messenger.showSnackBar(SnackBar(content: Text(t('delivered_msg'))));
+      }
+    } else {
+      final noteController = TextEditingController();
+      await showDialog(
+        context: context,
+        builder: (ctx) => StatefulBuilder(
+          builder: (dialogCtx, setD) => AlertDialog(
+            title: Row(
+              children: [
+                const Icon(Icons.warning_amber_rounded,
+                    color: Colors.orange, size: 28),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(t('unsettled_delivery_title'),
+                      style: const TextStyle(fontSize: 16)),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${t('site')}: ${site.name}',
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 6),
+                  Text(
+                      '${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}'),
+                  Text('${t('received')}: ${fmtCurrency(site.totalPaid)}'),
+                  Text(
+                    '${t('remaining')}: ${fmtCurrency(remaining)}',
+                    style: const TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.amber.shade300),
+                    ),
+                    child: Text(
+                      t('unsettled_warning_note'),
+                      style: TextStyle(
+                          fontSize: 12, color: Colors.amber.shade900),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: noteController,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      labelText: t('exception_note_label'),
+                      hintText: t('exception_note_hint'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: Text(t('cancel')),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                onPressed: () async {
+                  site.totalPaid = site.totalContractAmount;
+                  site.isDelivered = true;
+                  site.deliveryNote = t('paid_in_full_on_delivery');
+                  Navigator.pop(dialogCtx);
+                  setState(() {});
+                  await AppDatabase.saveData();
+                  messenger
+                      .showSnackBar(SnackBar(content: Text(t('delivered_msg'))));
+                },
+                child: Text(t('pay_all_and_deliver'),
+                    style: const TextStyle(color: Colors.white, fontSize: 12)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange.shade800),
+                onPressed: () async {
+                  if (noteController.text.trim().isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(t('exception_note_required'))),
+                    );
+                    return;
+                  }
+                  site.isDelivered = true;
+                  site.deliveryNote = noteController.text.trim();
+                  Navigator.pop(dialogCtx);
+                  setState(() {});
+                  await AppDatabase.saveData();
+                  messenger
+                      .showSnackBar(SnackBar(content: Text(t('delivered_msg'))));
+                },
+                child: Text(t('deliver_with_exception'),
+                    style: const TextStyle(color: Colors.white, fontSize: 12)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  // حذف ورشة حالية من قائمة الورش النشطة
+  void _deleteActiveSite(WorkSite site) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t('delete_site_title')),
+        content: Text('${t('delete_site_confirm_msg')}\n(${site.name})'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t('cancel'))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                Text(t('confirm'), style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() {
+        AppDatabase.sites.removeWhere((s) => s.id == site.id);
+      });
+      await AppDatabase.saveData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t('site_deleted_msg'))),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final activeSites = AppDatabase.sites.where((s) => !s.isDelivered).toList();
@@ -1958,27 +2258,38 @@ class _SitesScreenState extends State<SitesScreen> {
               itemCount: activeSites.length,
               itemBuilder: (context, index) {
                 final site = activeSites[index];
+                final remaining =
+                    site.totalContractAmount - site.totalPaid;
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: ListTile(
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtCurrency(site.totalContractAmount)}'),
-                    trailing: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white),
-                      onPressed: () async {
-                        final messenger = ScaffoldMessenger.of(context);
-                        setState(() {
-                          site.isDelivered = true;
-                        });
-                        await AppDatabase.saveData();
-                        messenger.showSnackBar(
-                            SnackBar(content: Text(t('delivered_msg'))));
-                      },
-                      child: Text(t('deliver')),
+                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)} | ${t('remaining')}: ${fmtCurrency(remaining)}'),
+                    isThreeLine: true,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 8),
+                              visualDensity: VisualDensity.compact),
+                          onPressed: () =>
+                              _handleDeliverSite(context, site),
+                          child: Text(t('deliver')),
+                        ),
+                        const SizedBox(width: 4),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline,
+                              color: Colors.red),
+                          tooltip: t('delete_site_title'),
+                          onPressed: () => _deleteActiveSite(site),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -1993,8 +2304,48 @@ class _SitesScreenState extends State<SitesScreen> {
   }
 }
 
-class DeliveredSitesScreen extends StatelessWidget {
+// قائمة الورش المسلمة مع خيار الحذف النهائي والملاحظات
+class DeliveredSitesScreen extends StatefulWidget {
   const DeliveredSitesScreen({super.key});
+
+  @override
+  State<DeliveredSitesScreen> createState() => _DeliveredSitesScreenState();
+}
+
+class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
+  void _deleteDeliveredSite(WorkSite site) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t('delete_delivered_site')),
+        content:
+            Text('${t('delete_delivered_confirm_msg')}\n(${site.name})'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t('cancel'))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                Text(t('confirm'), style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() {
+        AppDatabase.sites.removeWhere((s) => s.id == site.id);
+      });
+      await AppDatabase.saveData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t('site_deleted_msg'))),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2012,6 +2363,8 @@ class DeliveredSitesScreen extends StatelessWidget {
               itemCount: deliveredSites.length,
               itemBuilder: (context, index) {
                 final site = deliveredSites[index];
+                final remaining =
+                    site.totalContractAmount - site.totalPaid;
                 return Card(
                   margin: const EdgeInsets.all(8),
                   color: Colors.grey.shade100,
@@ -2021,8 +2374,18 @@ class DeliveredSitesScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.lineThrough)),
                     subtitle: Text(
-                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)} (${t('delivered_flag')})'),
+                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}\n'
+                        '${t('received')}: ${fmtCurrency(site.totalPaid)}'
+                        '${remaining > 0 ? " | ${t('remaining')}: ${fmtCurrency(remaining)}" : ""}'
+                        ' (${t('delivered_flag')})'
+                        '${site.deliveryNote.isNotEmpty ? "\n📌 ${t('delivery_note_prefix')}: ${site.deliveryNote}" : ""}'),
                     isThreeLine: true,
+                    trailing: IconButton(
+                      icon:
+                          const Icon(Icons.delete_forever, color: Colors.red),
+                      tooltip: t('delete_delivered_site'),
+                      onPressed: () => _deleteDeliveredSite(site),
+                    ),
                   ),
                 );
               },
@@ -2030,6 +2393,8 @@ class DeliveredSitesScreen extends StatelessWidget {
     );
   }
 }
+
+// ======================= إدارة الدفعات =======================
 
 class NewPaymentScreen extends StatefulWidget {
   const NewPaymentScreen({super.key});
@@ -2344,7 +2709,7 @@ String buildAllWeekText(DateTime ws, String lang) {
   return sb.toString();
 }
 
-// ---------- محرك إنشاء الـ PDF بحل مشكلة المربعات والخطوط ----------
+// ---------- محرك إنشاء الـ PDF ----------
 
 bool gPdfFontFailed = false;
 
@@ -2353,7 +2718,6 @@ Future<pw.Document> _newPdf() async {
   pw.Font? regular;
   pw.Font? bold;
 
-  // 1. محاولة تحميل الخط محلياً من Assets ليعمل 100% بدون إنترنت
   try {
     final regData = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
     regular = pw.Font.ttf(regData);
@@ -2364,7 +2728,6 @@ Future<pw.Document> _newPdf() async {
       bold = regular;
     }
   } catch (_) {
-    // 2. إذا لم يكن مدمجاً في assets، تحميل الخط من Google Fonts عبر الإنترنت
     try {
       regular = await PdfGoogleFonts.cairoRegular();
       bold = await PdfGoogleFonts.cairoBold();
@@ -2388,12 +2751,10 @@ Future<pw.Document> _newPdf() async {
       ),
     );
   } else {
-    // في حال انقطاع الإنترنت وعدم وجود الخط في الأصول
     return pw.Document();
   }
 }
 
-// خلية الجدول مع الكشف التلقائي عن النصوص العربية وضبط الاتجاه لمنع ظهور المربعات
 pw.Widget _pdfCell(String text,
     {bool bold = false, bool rtl = false, bool numeric = false}) {
   final cleanText = plain(text);
@@ -2713,7 +3074,6 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
   }
 }
 
-// التقرير المشترك: جدول كل العمال × أيام الأسبوع
 class AllWorkersWeekScreen extends StatefulWidget {
   final DateTime weekStart;
   const AllWorkersWeekScreen({super.key, required this.weekStart});
@@ -2854,7 +3214,6 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
   }
 }
 
-// تقرير عامل واحد: كل أيام الأسبوع
 class WorkerWeekReportScreen extends StatefulWidget {
   final Worker worker;
   final DateTime weekStart;
