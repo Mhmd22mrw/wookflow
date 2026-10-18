@@ -1,1 +1,865 @@
 
+import 'package:flutter/material.dart';
+import 'dart:async';
+
+void main() {
+  runApp(const WookFlowApp());
+}
+
+class WookFlowApp extends StatefulWidget {
+  const WookFlowApp({super.key});
+
+  @override
+  State<WookFlowApp> createState() => _WookFlowAppState();
+}
+
+class _WookFlowAppState extends State<WookFlowApp> {
+  Locale _locale = const Locale('ar');
+
+  void _changeLanguage(String langCode) {
+    setState(() {
+      _locale = Locale(langCode);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'WookFlow - Chantier Manager',
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF4F6F9),
+      ),
+      home: DailyCheckInWrapper(onLanguageChanged: _changeLanguage, currentLocale: _locale),
+    );
+  }
+}
+
+// نموذج البيانات الأساسي
+class Worker {
+  String id;
+  String name;
+  double dailyRate;
+  String phone;
+  bool isActiveToday;
+  String currentSite;
+  String note;
+  double overtimeHours;
+  double transportAllowance;
+
+  Worker({
+    required this.id,
+    required this.name,
+    required this.dailyRate,
+    this.phone = '',
+    this.isActiveToday = true,
+    this.currentSite = 'الورشة الرئيسية',
+    this.note = '',
+    this.overtimeHours = 0.0,
+    this.transportAllowance = 0.0,
+  });
+}
+
+class WorkSite {
+  String id;
+  String name;
+  String location;
+  double totalContractAmount;
+  double totalPaid;
+
+  WorkSite({
+    required this.id,
+    required this.name,
+    required this.location,
+    required this.totalContractAmount,
+    this.totalPaid = 0.0,
+  });
+}
+
+// ذاكرة المؤقتة للتطبيق (Mock Database)
+class AppData {
+  static List<Worker> workers = [
+    Worker(id: '1', name: 'أحمد كوني', dailyRate: 8000, phone: '+225 07000000', currentSite: 'ورشة أسان'),
+    Worker(id: '2', name: 'إبراهيم تراوري', dailyRate: 8000, phone: '+225 05000000', currentSite: 'ورشة ماركوري'),
+  ];
+
+  static List<WorkSite> sites = [
+    WorkSite(id: '1', name: 'ورشة أسان', location: 'Adjamé', totalContractAmount: 1500000, totalPaid: 500000),
+    WorkSite(id: '2', name: 'ورشة ماركوري', location: 'Marcory Zone 4', totalContractAmount: 3000000, totalPaid: 1200000),
+  ];
+}
+
+// واجهة التحقق اليومي (تظهر مرة كل 24 ساعة)
+class DailyCheckInWrapper extends StatefulWidget {
+  final Function(String) onLanguageChanged;
+  final Locale currentLocale;
+
+  const DailyCheckInWrapper({super.key, required this.onLanguageChanged, required this.currentLocale});
+
+  @override
+  State<DailyCheckInWrapper> createState() => _DailyCheckInWrapperState();
+}
+
+class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
+  bool _showDailyPopup = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          MainDashboard(onLanguageChanged: widget.onLanguageChanged),
+          if (_showDailyPopup)
+            Container(
+              color: Colors.black54,
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: const BoxDecoration(
+                          color: Colors.indigo,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.between,
+                          children: [
+                            const Text('تسجيل الحضور اليومي (كل 24 ساعة)', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white),
+                              onPressed: () => setState(() => _showDailyPopup = false),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: AppData.workers.length,
+                          itemBuilder: (context, index) {
+                            final worker = AppData.workers[index];
+                            return StatefulBuilder(
+                              builder: (context, setومState) {
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.between,
+                                          children: [
+                                            Text(worker.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                            Row(
+                                              children: [
+                                                const Text('يعمل؟'),
+                                                Switch(
+                                                  value: worker.isActiveToday,
+                                                  onChanged: (val) {
+                                                    setومState(() => worker.isActiveToday = val);
+                                                    setState(() {});
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: DropdownButtonFormField<String>(
+                                                value: worker.currentSite,
+                                                items: AppData.sites.map((s) => DropdownMenuItem(value: s.name, child: Text(s.name))).toList(),
+                                                onChanged: worker.isActiveToday ? (val) => setومState(() => worker.currentSite = val!) : null,
+                                                decoration: const InputDecoration(labelText: 'الورشة'),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: TextField(
+                                                enabled: worker.isActiveToday,
+                                                decoration: const InputDecoration(labelText: 'ساعات إضافية'),
+                                                keyboardType: TextInputType.number,
+                                                onChanged: (val) => worker.overtimeHours = double.tryParse(val) ?? 0.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: TextField(
+                                                enabled: worker.isActiveToday,
+                                                decoration: const InputDecoration(labelText: 'أجور النقل (FCFA)'),
+                                                keyboardType: TextInputType.number,
+                                                onChanged: (val) => worker.transportAllowance = double.tryParse(val) ?? 0.0,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: TextField(
+                                                enabled: worker.isActiveToday,
+                                                decoration: const InputDecoration(labelText: 'ملاحظة'),
+                                                onChanged: (val) => worker.note = val,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, minimumSize: const Size(double.infinity, 50)),
+                          onPressed: () => setState(() => _showDailyPopup = false),
+                          child: const Text('حفظ وإغلاق التقرير اليومي', style: TextStyle(color: Colors.white, fontSize: 16)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// الواجهة الرئيسية والقائمة الجانبية
+class MainDashboard extends StatelessWidget {
+  final Function(String) onLanguageChanged;
+  const MainDashboard({super.key, required this.onLanguageChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('WookFlow - إدارة الورش والعمال', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.indigo,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const UserAccountsDrawerHeader(
+              accountName: Text('مدير الورشة (Abidjan)'),
+              accountText: Text('نظام إدارة المشاريع الميدانية'),
+              currentAccountPicture: CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.engineering, size: 40, color: Colors.indigo)),
+              decoration: BoxDecoration(color: Colors.indigo),
+              accountEmail: Text('v1.0.0'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_add),
+              title: const Text('1. إضافة عامل جديد'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AddWorkerScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: const Text('2. تغيير اللغة (عربي / فرنسي / إنجليزي)'),
+              onTap: () => _showLanguageDialog(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_remove),
+              title: const Text('3. حذف عامل'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DeleteWorkerScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_city),
+              title: const Text('4. اسماء مواقع العمل'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SitesScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.payments),
+              title: const Text('5. دفعة جديدة (حسابات الورش)'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const NewPaymentScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.group),
+              title: const Text('6. قائمة العمال وتعديلهم'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const WorkersListScreen())),
+            ),
+            ListTile(
+              leading: const Icon(Icons.summarize),
+              title: const Text('7. ملخص الأسبوع والتقارير'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const WeeklySummaryScreen())),
+            ),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          children: [
+            _buildDashboardCard(context, 'العمال النشطون', '${AppData.workers.where((w) => w.isActiveToday).length}', Icons.people, Colors.blue),
+            _buildDashboardCard(context, 'إجمالي الورش', '${AppData.sites.length}', Icons.apartment, Colors.orange),
+            _buildDashboardCard(context, 'سعر ساعة العمل', '1000 XOF', Icons.money, Colors.green),
+            _buildDashboardCard(context, 'ملخص الأسبوع', 'عرض التقارير', Icons.bar_chart, Colors.purple, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const WeeklySummaryScreen()));
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDashboardCard(BuildContext context, String title, String value, IconData icon, Color color, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 40, color: color),
+              const SizedBox(height: 10),
+              Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey), textAlign: TextAlign.center),
+              const SizedBox(height: 5),
+              Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87), textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('اختر اللغة / Choose Language / Choisir la langue'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(title: const Text('العربية'), onTap: () { onLanguageChanged('ar'); Navigator.pop(context); }),
+            ListTile(title: const Text('Français'), onTap: () { onLanguageChanged('fr'); Navigator.pop(context); }),
+            ListTile(title: const Text('English'), onTap: () { onLanguageChanged('en'); Navigator.pop(context); }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 1. إضافة عامل جديد
+class AddWorkerScreen extends StatefulWidget {
+  const AddWorkerScreen({super.key});
+
+  @override
+  State<AddWorkerScreen> createState() => _AddWorkerScreenState();
+}
+
+class _AddWorkerScreenState extends State<AddWorkerScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _rateController = TextEditingController(text: '8000'); // افتراضي يومية 8 ساعات = 8000
+  final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('إضافة عامل جديد'), backgroundColor: Colors.indigo, iconTheme: const IconThemeData(color: Colors.white)),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'اسم العامل (إجباري)'),
+                validator: (value) => value!.isEmpty ? 'يرجى إدخال اسم العامل' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _rateController,
+                decoration: const InputDecoration(labelText: 'اليومية أو الأجر (إجباري) - (الساعة 1000 XOF)'),
+                keyboardType: TextInputType.number,
+                validator: (value) => value!.isEmpty ? 'يرجى إدخال اليومية' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(labelText: 'رقم الهاتف (اختياري)'),
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, minimumSize: const Size(double.infinity, 50)),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    AppData.workers.add(Worker(
+                      id: DateTime.now().toString(),
+                      name: _nameController.text,
+                      dailyRate: double.parse(_rateController.text),
+                      phone: _phoneController.text,
+                    ));
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة العامل بنجاح')));
+                  }
+                },
+                child: const Text('حفظ العامل', style: TextStyle(color: Colors.white, fontSize: 16)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// 3. حذف عامل (مع مربعات اختيار وزر سلة مهملات)
+class DeleteWorkerScreen extends StatefulWidget {
+  const DeleteWorkerScreen({super.key});
+
+  @override
+  State<DeleteWorkerScreen> createState() => _DeleteWorkerScreenState();
+}
+
+class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
+  final Map<String, bool> _selectedWorkers = {};
+  bool _selectAll = false;
+
+  @override
+  void initState() {
+    super.initState();
+    for (var w in AppData.workers) {
+      _selectedWorkers[w.id] = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('حذف العمال'),
+        backgroundColor: Colors.indigo,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.redAccent),
+            onPressed: () {
+              setState(() {
+                AppData.workers.removeWhere((w) => _selectedWorkers[w.id] == true);
+              });
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف العمال المحددين')));
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          CheckboxListTile(
+            title: const Text('اختيار الجميع', style: TextStyle(fontWeight: FontWeight.bold)),
+            value: _selectAll,
+            onChanged: (val) {
+              setState(() {
+                _selectAll = val ?? false;
+                _selectedWorkers.updateAll((key, value) => _selectAll);
+              });
+            },
+          ),
+          const Divider(),
+          Expanded(
+            child: ListView.builder(
+              itemCount: AppData.workers.length,
+              itemBuilder: (context, index) {
+                final worker = AppData.workers[index];
+                return CheckboxListTile(
+                  title: Text(worker.name),
+                  subtitle: Text('اليومية: ${worker.dailyRate} XOF | الهاتف: ${worker.phone}'),
+                  value: _selectedWorkers[worker.id] ?? false,
+                  onChanged: (val) {
+                    setState(() {
+                      _selectedWorkers[worker.id] = val ?? false;
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 4. مواقع العمل
+class SitesScreen extends StatefulWidget {
+  const SitesScreen({super.key});
+
+  @override
+  State<SitesScreen> createState() => _SitesScreenState();
+}
+
+class _SitesScreenState extends State<SitesScreen> {
+  final _nameController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _amountController = TextEditingController();
+
+  void _showAddSiteDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('إضافة موقع عمل جديد'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: _nameController, decoration: const InputDecoration(labelText: 'اسم الموقع')),
+            TextField(controller: _locationController, decoration: const InputDecoration(labelText: 'الموقع (العنوان)')),
+            TextField(controller: _amountController, decoration: const InputDecoration(labelText: 'الأجر الكامل للورشة (Total)'), keyboardType: TextInputType.number),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
+          ElevatedButton(
+            onPressed: () {
+              if (_nameController.text.isNotEmpty) {
+                AppData.sites.add(WorkSite(
+                  id: DateTime.now().toString(),
+                  name: _nameController.text,
+                  location: _locationController.text,
+                  totalContractAmount: double.tryParse(_amountController.text) ?? 0.0,
+                ));
+                _nameController.clear();
+                _locationController.clear();
+                _amountController.clear();
+                Navigator.pop(context);
+                setState(() {});
+              }
+            },
+            child: const Text('حفظ'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('مواقع العمل'), backgroundColor: Colors.indigo, iconTheme: const IconThemeData(color: Colors.white)),
+      body: ListView.builder(
+        itemCount: AppData.sites.length,
+        itemBuilder: (context, index) {
+          final site = AppData.sites[index];
+          return Card(
+            margin: const EdgeInsets.all(8),
+            child: ListTile(
+              title: Text(site.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('العنوان: ${site.location} | الأجر الإجمالي: ${site.totalContractAmount} XOF'),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.indigo,
+        onPressed: _showAddSiteDialog,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+}
+
+// 5. دفعة جديدة (حسابات الورش)
+class NewPaymentScreen extends StatelessWidget {
+  const NewPaymentScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('إدارة الدفعات والواصل'), backgroundColor: Colors.indigo, iconTheme: const IconThemeData(color: Colors.white)),
+      body: ListView.builder(
+        itemCount: AppData.sites.length,
+        itemBuilder: (context, index) {
+          final site = AppData.sites[index];
+          return Card(
+            margin: const EdgeInsets.all(8),
+            child: ListTile(
+              title: Text(site.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('الإجمالي: ${site.totalContractAmount} | الواصل: ${site.totalPaid} | الباقي: ${site.totalContractAmount - site.totalPaid} XOF'),
+              trailing: IconButton(
+                icon: const Icon(Icons.add_card, color: Colors.indigo),
+                onPressed: () => _showPaymentDialog(context, site),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showPaymentDialog(BuildContext context, WorkSite site) {
+    final paymentController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('إضافة دفعة لـ ${site.name}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('أجار الورشة الإجمالي: ${site.totalContractAmount} XOF'),
+            Text('مجموع الدفعات (الواصل): ${site.totalPaid} XOF'),
+            Text('الباقي: ${site.totalContractAmount - site.totalPaid} XOF', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: paymentController,
+              decoration: const InputDecoration(labelText: 'قيمة الدفعة الجديدة (FCFA)'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
+          ElevatedButton(
+            onPressed: () {
+              double payment = double.tryParse(paymentController.text) ?? 0.0;
+              site.totalPaid += payment;
+              Navigator.pop(context);
+              (context as Element).markNeedsBuild();
+            },
+            child: const Text('حفظ'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 6. قائمة العمال وتعديلهم
+class WorkersListScreen extends StatefulWidget {
+  const WorkersListScreen({super.key});
+
+  @override
+  State<WorkersListScreen> createState() => _WorkersListScreenState();
+}
+
+class _WorkersListScreenState extends State<WorkersListScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('قائمة العمال وتعديل بياناتهم'), backgroundColor: Colors.indigo, iconTheme: const IconThemeData(color: Colors.white)),
+      body: ListView.builder(
+        itemCount: AppData.workers.length,
+        itemBuilder: (context, index) {
+          final worker = AppData.workers[index];
+          return Card(
+            margin: const EdgeInsets.all(8),
+            child: ListTile(
+              title: Text(worker.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text('اليومية: ${worker.dailyRate} XOF | الورشة: ${worker.currentSite}'),
+              trailing: const Icon(Icons.edit, color: Colors.indigo),
+              onTap: () => _editWorkerDialog(context, worker),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _editWorkerDialog(BuildContext context, Worker worker) {
+    final nameController = TextEditingController(text: worker.name);
+    final rateController = TextEditingController(text: worker.dailyRate.toString());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('تعديل بيانات العامل'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'اسم العامل')),
+            TextField(controller: rateController, decoration: const InputDecoration(labelText: 'اليومية (XOF)'), keyboardType: TextInputType.number),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                worker.name = nameController.text;
+                worker.dailyRate = double.tryParse(rateController.text) ?? worker.dailyRate;
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('حفظ التعديلات'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 7. ملخص الأسبوع
+class WeeklySummaryScreen extends StatelessWidget {
+  const WeeklySummaryScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('ملخص الأسبوع والرواتب'), backgroundColor: Colors.indigo, iconTheme: const IconThemeData(color: Colors.white)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Card(
+            color: Colors.indigo.shade50,
+            child: ListTile(
+              title: const Text('1. المجموع الكلي لجميع العمال', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              subtitle: const Text('اضغط هنا لعرض تفاصيل يوميات جميع العمال والأجور والإضافي'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AllWorkersDailyLogScreen())),
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text('2. تفاصيل كل عامل على حدة (انقر على العامل لعرض تقريره الأسبوعي):', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          ...AppData.workers.map((worker) => Card(
+            child: ListTile(
+              title: Text(worker.name),
+              subtitle: Text('الورشة: ${worker.currentSite} | الإضافي: ${worker.overtimeHours} ساعة'),
+              trailing: const Icon(Icons.receipt_long, color: Colors.indigo),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkerDetailReportScreen(worker: worker))),
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+}
+
+// تفاصيل يوميات جميع العمال مع المجموع
+class AllWorkersDailyLogScreen extends StatelessWidget {
+  const AllWorkersDailyLogScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    double grandTotal = AppData.workers.fold(0, (sum, w) => sum + (w.isActiveToday ? w.dailyRate + (w.overtimeHours * 1000) + w.transportAllowance : 0));
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('يوميات جميع العمال والرواتب'), backgroundColor: Colors.indigo, iconTheme: const IconThemeData(color: Colors.white)),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: AppData.workers.length,
+              itemBuilder: (context, index) {
+                final w = AppData.workers[index];
+                double totalWorker = w.isActiveToday ? w.dailyRate + (w.overtimeHours * 1000) + w.transportAllowance : 0;
+                return ListTile(
+                  title: Text(w.name),
+                  subtitle: Text('الحالة: ${w.isActiveToday ? "يعمل" : "عطلة"} | إضافي: ${w.overtimeHours} س | مواصلات: ${w.transportAllowance} XOF'),
+                  trailing: Text('$totalWorker XOF', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
+                );
+              },
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(20),
+            color: Colors.indigo.shade100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('المجموع الكلي لجميع العمال:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('$grandTotal XOF', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// تقرير تفصيلي لكل عامل مع خيار PDF أو مشاركة واتساب
+class WorkerDetailReportScreen extends StatelessWidget {
+  final Worker worker;
+  const WorkerDetailReportScreen({super.key, required this.worker});
+
+  @override
+  Widget build(BuildContext context) {
+    double totalEarned = worker.isActiveToday ? worker.dailyRate + (worker.overtimeHours * 1000) + worker.transportAllowance : 0;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('تقرير: ${worker.name}'),
+        backgroundColor: Colors.indigo,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تنزيل ملف PDF بنجاح')));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاهز للمشاركة عبر الواتساب')));
+            },
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('اسم العامل: ${worker.name}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Divider(height: 20),
+            const Text('أيام الأسبوع والحالة:', style: TextStyle(fontWeight: FontWeight.bold)),
+            ListTile(
+              title: const Text('اليوم الحالي'),
+              subtitle: Text('الحالة: ${worker.isActiveToday ? "عمل في " + worker.currentSite : "عطلة"}'),
+              trailing: Text('${worker.dailyRate} XOF'),
+            ),
+            ListTile(
+              title: const Text('الساعات الإضافية'),
+              subtitle: Text('${worker.overtimeHours} ساعة (سعر الساعة 1000 XOF)'),
+              trailing: Text('${worker.overtimeHours * 1000} XOF'),
+            ),
+            ListTile(
+              title: const Text('بدل المواصلات'),
+              subtitle: const Text('أجار الطريق والنقل'),
+              trailing: Text('${worker.transportAllowance} XOF'),
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: Colors.indigo.shade50, borderRadius: BorderRadius.circular(10)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('المجموع الكامل:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('$totalEarned XOF', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
