@@ -30,27 +30,11 @@ jobs:
 
       - name: 4. Build Signed Release APK & PWA
         run: |
-          mkdir -p ~/.gradle
-          cat << 'EOF' > ~/.gradle/init.gradle
-          allprojects {
-              buildscript {
-                  repositories {
-                      google()
-                      mavenCentral()
-                  }
-              }
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-          EOF
-
           flutter create --project-name personal_vault --org com.mhmd.vault temp_project
           cp main.dart temp_project/lib/main.dart
           cd temp_project
 
-          # إصلاح مشكلة المستودعات في settings.gradle.kts لتجنب خطأ التبعيات
+          # إعداد مستودعات Gradle بالطريقة الصحيحة والحديثة
           SETTINGS_FILE="android/settings.gradle.kts"
           if [ -f "$SETTINGS_FILE" ]; then
             cat << 'EOF' > $SETTINGS_FILE
@@ -62,7 +46,7 @@ jobs:
               }
           }
           dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
               repositories {
                   google()
                   mavenCentral()
