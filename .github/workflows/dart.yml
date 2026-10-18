@@ -34,9 +34,10 @@ jobs:
           fi
           
           cd temp_app
-          # إضافة حزمة الحفظ المحلي تلقائياً قبل بناء التطبيق
-          flutter pub add shared_preferences
+          # إضافة الحزم اللازمة للتخزين، والمشاركة، وتوليد ملفات الـ PDF
+          flutter pub add shared_preferences pdf printing share_plus
           flutter pub get
+
 
 
       - name: 5. Build Release APK
