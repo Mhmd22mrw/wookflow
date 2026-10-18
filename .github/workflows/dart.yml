@@ -1,40 +1,170 @@
-name: Build Modern Flutter APK
+name: Build Signed APK and Web App
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: 1. Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
+      - name: 2. Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
-      - name: Set up Flutter
+      - name: 3. Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.x'
           channel: 'stable'
+          cache: true
 
-      - name: Create Flutter Project Structure
+      - name: 4. Build Signed Release APK & PWA
         run: |
-          flutter create . --org com.wookflow.app --project-name wookflow_app --platforms=android
+          # تسريع التحميل عبر خوادم Google
+          mkdir -p ~/.gradle
+          cat << 'EOF' > ~/.gradle/init.gradle
+          allprojects {
+              buildscript {
+                  repositories {
+                      maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
+                      google()
+                      mavenCentral()
+                  }
+              }
+              repositories {
+                  maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
+                  google()
+                  mavenCentral()
+              }
+          }
+          EOF
 
-      - name: Install dependencies
-        run: flutter pub get
+          flutter create --project-name personal_vault --org com.mhmd.vault temp_project
+          cp main.dart temp_project/lib/main.dart
+          cd temp_project
 
-      - name: Build APK
-        run: flutter build apk --release
+          # 1. تحديث إعدادات الأندرويد لتدعم أحدث إصدارات SDK 34 لمنع رسالة "التطبيق القديم"
+          BUILD_GRADLE="android/app/build.gradle"
+          if [ -f "$BUILD_GRADLE" ]; then
+            sed -i 's/minSdkVersion.*/minSdkVersion 24/' $BUILD_GRADLE
+            sed -i 's/targetSdkVersion.*/targetSdkVersion 34/' $BUILD_GRADLE
+            sed -i 's/compileSdkVersion.*/compileSdkVersion 34/' $BUILD_GRADLE
+          fi
+          
+          # للأجهزة التي تستخدم build.gradle.kts
+          BUILD_GRADLE_KTS="android/app/build.gradle.kts"
+          if [ -f "$BUILD_GRADLE_KTS" ]; then
+            sed -i 's/minSdk = .*/minSdk = 24/' $BUILD_GRADLE_KTS
+            sed -i 's/targetSdk = .*/targetSdk = 34/' $BUILD_GRADLE_KTS
+            sed -i 's/compileSdk = .*/compileSdk = 34/' $BUILD_GRADLE_KTS
+          fi
 
-      - name: Upload APK Artifact
+          # 2. إعداد الصلاحيات
+          sed -i 's/<manifest xmlns:android="http:\/\/schemas.android.com\/apk\/res\/android">/<manifest xmlns:android="http:\/\/schemas.android.com\/apk\/res\/android">\n    <uses-permission android:name="android.permission.USE_BIOMETRIC"\/>/g' android/app/src/main/AndroidManifest.xml
+          sed -i 's/android:label="personal_vault"/android:label="خزنتي الشخصية"/g' android/app/src/main/AndroidManifest.xml
+
+          mkdir -p android/app/src/main/res/xml
+          printf '<?xml version="1.0" encoding="utf-8"?>\n<paths>\n    <cache-path name="shared_apk" path="." />\n</paths>\n' > android/app/src/main/res/xml/file_paths.xml
+
+          sed -i 's/<\/application>/<provider android:name="androidx.core.content.FileProvider" android:authorities="\${applicationId}.fileprovider" android:exported="false" android:grantUriPermissions="true"><meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml\/file_paths"\/><\/provider><\/application>/g' android/app/src/main/AndroidManifest.xml
+
+          # 3. كتابة كود مشاركة الـ APK وبصمة الأمان
+          MAIN_KT=$(find android/app/src/main/kotlin -name "MainActivity.kt")
+          cat << 'EOF' > "$MAIN_KT"
+          package com.mhmd.vault.personal_vault
+
+          import android.app.KeyguardManager
+          import android.content.Context
+          import android.content.Intent
+          import androidx.core.content.FileProvider
+          import io.flutter.embedding.android.FlutterActivity
+          import io.flutter.embedding.engine.FlutterEngine
+          import io.flutter.plugin.common.MethodChannel
+          import java.io.File
+
+          class MainActivity: FlutterActivity() {
+              private val CHANNEL = "vault_native_channel"
+              private var authResult: MethodChannel.Result? = null
+
+              override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+                  super.configureFlutterEngine(flutterEngine)
+                  MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+                      when (call.method) {
+                          "shareApk" -> {
+                              try {
+                                  val apkFile = File(applicationContext.applicationInfo.sourceDir)
+                                  val sharedApk = File(cacheDir, "خزنتي_الشخصية.apk")
+                                  apkFile.copyTo(sharedApk, overwrite = true)
+                                  val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", sharedApk)
+                                  val intent = Intent(Intent.ACTION_SEND).apply {
+                                      type = "application/vnd.android.package-archive"
+                                      putExtra(Intent.EXTRA_STREAM, uri)
+                                      addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                  }
+                                  startActivity(Intent.createChooser(intent, "مشاركة تطبيق خزنتي الشخصية APK"))
+                                  result.success(true)
+                              } catch (e: Exception) {
+                                  result.error("ERR", e.message, null)
+                              }
+                          }
+                          "authenticate" -> {
+                              val km = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+                              if (km.isKeyguardSecure) {
+                                  authResult = result
+                                  val intent = km.createConfirmDeviceCredentialIntent("بصمة الخزنة الشخصية", "امسح بصمتك أو قفل الشاشة لفتح الخزنة")
+                                  if (intent != null) {
+                                      startActivityForResult(intent, 999)
+                                  } else {
+                                      result.success(false)
+                                  }
+                              } else {
+                                  result.success(false)
+                              }
+                          }
+                          else -> result.notImplemented()
+                      }
+                  }
+              }
+
+              override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+                  super.onActivityResult(requestCode, resultCode, data)
+                  if (requestCode == 999) {
+                      authResult?.success(resultCode == RESULT_OK)
+                      authResult = null
+                  }
+              }
+          }
+          EOF
+
+          # 4. رسم وتوليد أيقونة جديدة ومميزة للتطبيق
+          sudo apt-get update && sudo apt-get install -y imagemagick
+          convert -size 512x512 xc:"#0F172A" \
+            -fill "#1E293B" -stroke "#64FFDA" -strokewidth 14 -draw "roundrectangle 46,46 466,466 90,90" \
+            -fill none -stroke "#FFD54F" -strokewidth 26 -draw "roundrectangle 196,125 316,265 55,55" \
+            -fill "#64FFDA" -stroke none -draw "roundrectangle 156,225 356,395 30,30" \
+            -fill "#0F172A" -draw "circle 256,295 256,318" \
+            -fill "#0F172A" -draw "rectangle 244,305 268,355" \
+            icon.png
+
+          flutter pub add --dev flutter_launcher_icons
+          printf "\nflutter_launcher_icons:\n  android: true\n  image_path: \"icon.png\"\n" >> pubspec.yaml
+          dart run flutter_launcher_icons
+
+          # 5. بناء الـ APK الموقّع رسمياً
+          flutter build apk --release
+
+      - name: 5. Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: Signed-Personal-Vault-APK
+          path: temp_project/build/app/outputs/flutter-apk/app-release.apk
