@@ -27,16 +27,6 @@ jobs:
         run: |
           flutter create . --org com.wookflow.app --project-name wookflow_app --platforms=android
 
-      - name: Update Android SDK Compile and Target Version
-        run: |
-          # تحديث ملفات Gradle لتدعم أحدث إصدارات أندرويد الحديثة
-          GRADLE_FILE="android/app/build.gradle"
-          if [ -f "$GRADLE_FILE" ]; then
-            sed -i 's/minSdkVersion.*/minSdkVersion 24/g' $GRADLE_FILE
-            sed -i 's/targetSdkVersion.*/targetSdkVersion 34/g' $GRADLE_FILE
-            sed -i 's/compileSdkVersion.*/compileSdkVersion 34/g' $GRADLE_FILE
-          fi
-
       - name: Install dependencies
         run: flutter pub get
 
