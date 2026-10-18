@@ -6,21 +6,8 @@ void main() {
   runApp(const WookFlowApp());
 }
 
-class WookFlowApp extends StatefulWidget {
+class WookFlowApp extends StatelessWidget {
   const WookFlowApp({super.key});
-
-  @override
-  State<WookFlowApp> createState() => _WookFlowAppState();
-}
-
-class _WookFlowAppState extends State<WookFlowApp> {
-  Locale _locale = const Locale('ar');
-
-  void _changeLanguage(String langCode) {
-    setState(() {
-      _locale = Locale(langCode);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +19,7 @@ class _WookFlowAppState extends State<WookFlowApp> {
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFF4F6F9),
       ),
-      home: DailyCheckInWrapper(onLanguageChanged: _changeLanguage, currentLocale: _locale),
+      home: const MainDashboardWrapper(),
     );
   }
 }
@@ -67,10 +54,10 @@ class Worker {
   };
 
   factory Worker.fromJson(Map<String, dynamic> json) => Worker(
-    id: json['id'], name: json['name'], dailyRate: json['dailyRate'],
+    id: json['id'] ?? '', name: json['name'] ?? '', dailyRate: (json['dailyRate'] ?? 8000.0).toDouble(),
     phone: json['phone'] ?? '', isActiveToday: json['isActiveToday'] ?? true,
     currentSite: json['currentSite'] ?? '', note: json['note'] ?? '',
-    overtimeHours: json['overtimeHours'] ?? 0.0, transportAllowance: json['transportAllowance'] ?? 0.0,
+    overtimeHours: (json['overtimeHours'] ?? 0.0).toDouble(), transportAllowance: (json['transportAllowance'] ?? 0.0).toDouble(),
   );
 }
 
@@ -97,8 +84,8 @@ class WorkSite {
   };
 
   factory WorkSite.fromJson(Map<String, dynamic> json) => WorkSite(
-    id: json['id'], name: json['name'], location: json['location'],
-    totalContractAmount: json['totalContractAmount'], totalPaid: json['totalPaid'] ?? 0.0,
+    id: json['id'] ?? '', name: json['name'] ?? '', location: json['location'] ?? '',
+    totalContractAmount: (json['totalContractAmount'] ?? 0.0).toDouble(), totalPaid: (json['totalPaid'] ?? 0.0).toDouble(),
     isDelivered: json['isDelivered'] ?? false,
   );
 }
@@ -108,39 +95,39 @@ class AppDatabase {
   static List<WorkSite> sites = [];
 
   static Future<void> loadData() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? workersStr = prefs.getString('workers_data');
-    String? sitesStr = prefs.getString('sites_data');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? workersStr = prefs.getString('workers_data');
+      String? sitesStr = prefs.getString('sites_data');
 
-    if (workersStr != null) {
-      List decoded = jsonDecode(workersStr);
-      workers = decoded.map((e) => Worker.fromJson(e)).toList();
-    }
-    if (sitesStr != null) {
-      List decoded = jsonDecode(sitesStr);
-      sites = decoded.map((e) => WorkSite.fromJson(e)).toList();
-    }
+      if (workersStr != null) {
+        List decoded = jsonDecode(workersStr);
+        workers = decoded.map((e) => Worker.fromJson(e)).toList();
+      }
+      if (sitesStr != null) {
+        List decoded = jsonDecode(sitesStr);
+        sites = decoded.map((e) => WorkSite.fromJson(e)).toList();
+      }
+    } catch (_) {}
   }
 
   static Future<void> saveData() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('workers_data', jsonEncode(workers.map((e) => e.toJson()).toList()));
-    prefs.setString('sites_data', jsonEncode(sites.map((e) => e.toJson()).toList()));
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('workers_data', jsonEncode(workers.map((e) => e.toJson()).toList()));
+      prefs.setString('sites_data', jsonEncode(sites.map((e) => e.toJson()).toList()));
+    } catch (_) {}
   }
 }
 
-class DailyCheckInWrapper extends StatefulWidget {
-  final Function(String) onLanguageChanged;
-  final Locale currentLocale;
-
-  const DailyCheckInWrapper({super.key, required this.onLanguageChanged, required this.currentLocale});
+class MainDashboardWrapper extends StatefulWidget {
+  const MainDashboardWrapper({super.key});
 
   @override
-  State<DailyCheckInWrapper> createState() => _DailyCheckInWrapperState();
+  State<MainDashboardWrapper> createState() => _MainDashboardWrapperState();
 }
 
-class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
-  bool _isLoading = true;
+class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
   bool _showDailyPopup = false;
 
   @override
@@ -148,7 +135,6 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
     super.initState();
     AppDatabase.loadData().then((_) {
       setState(() {
-        _isLoading = false;
         if (AppDatabase.workers.isNotEmpty) {
           _showDailyPopup = true;
         }
@@ -158,14 +144,10 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
     return Scaffold(
       body: Stack(
         children: [
-          MainDashboard(onLanguageChanged: widget.onLanguageChanged, onDataUpdated: () => setState(() {})),
+          MainDashboard(onDataUpdated: () => setState(() {})),
           if (_showDailyPopup && AppDatabase.workers.isNotEmpty)
             Container(
               color: Colors.black54,
@@ -183,7 +165,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                         ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.between,
                           children: [
                             const Text('تسجيل الحضور اليومي (كل 24 ساعة)', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                             IconButton(
@@ -209,7 +191,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.between,
                                           children: [
                                             Text(worker.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                             Row(
@@ -299,9 +281,8 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
 }
 
 class MainDashboard extends StatelessWidget {
-  final Function(String) onLanguageChanged;
   final VoidCallback onDataUpdated;
-  const MainDashboard({super.key, required this.onLanguageChanged, required this.onDataUpdated});
+  const MainDashboard({super.key, required this.onDataUpdated});
 
   @override
   Widget build(BuildContext context) {
@@ -331,11 +312,6 @@ class MainDashboard extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.language),
-              title: const Text('2. تغيير اللغة'),
-              onTap: () => _showLanguageDialog(context),
-            ),
-            ListTile(
               leading: const Icon(Icons.person_remove),
               title: const Text('3. حذف عامل'),
               onTap: () async {
@@ -355,7 +331,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.task_alt),
-              title: const Text('4. الورش المسلمة والمنتهية'),
+              title: const Text('الورش المسلمة والمنتهية'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const DeliveredSitesScreen()));
@@ -427,23 +403,6 @@ class MainDashboard extends StatelessWidget {
               Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87), textAlign: TextAlign.center),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  void _showLanguageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('اختر اللغة'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(title: const Text('العربية'), onTap: () { onLanguageChanged('ar'); Navigator.pop(context); }),
-            ListTile(title: const Text('Français'), onTap: () { onLanguageChanged('fr'); Navigator.pop(context); }),
-            ListTile(title: const Text('English'), onTap: () { onLanguageChanged('en'); Navigator.pop(context); }),
-          ],
         ),
       ),
     );
@@ -966,7 +925,7 @@ class WorkerDetailReportScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        children: [
             Text('اسم العامل: ${worker.name}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const Divider(height: 20),
             const Text('تفاصيل اليوم الحالي:', style: TextStyle(fontWeight: FontWeight.bold)),
