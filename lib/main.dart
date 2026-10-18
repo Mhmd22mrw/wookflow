@@ -6,6 +6,49 @@ import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 
+// ======================= ثوابت ودوال مساعدة =======================
+
+const List<String> kDayNames = [
+  'الأحد',
+  'الاثنين',
+  'الثلاثاء',
+  'الأربعاء',
+  'الخميس',
+  'الجمعة',
+  'السبت'
+];
+const double kOvertimeRate = 1000;
+
+DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+DateTime addDays(DateTime d, int n) => DateTime(d.year, d.month, d.day + n);
+
+String dateKey(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+// بداية الأسبوع = الأحد
+DateTime weekStartOf(DateTime d) {
+  final day = dateOnly(d);
+  return DateTime(day.year, day.month, day.day - (day.weekday % 7));
+}
+
+String fmtDate(DateTime d) => '${d.day}/${d.month}';
+
+String fmtMoney(double v) {
+  final s = v.round().toString();
+  final buf = StringBuffer();
+  for (int i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
+    buf.write(s[i]);
+  }
+  return buf.toString();
+}
+
+String fmtNum(double v) =>
+    v == v.roundToDouble() ? v.toInt().toString() : v.toString();
+
+// ======================= التشغيل =======================
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppDatabase.loadData();
@@ -30,53 +73,91 @@ class WookFlowApp extends StatelessWidget {
   }
 }
 
+// ======================= النماذج =======================
+
+// سجل يوم واحد لعامل
+class DayLog {
+  bool worked;
+  String site;
+  double overtimeHours;
+  double transport;
+  String note;
+
+  DayLog({
+    this.worked = true,
+    this.site = '',
+    this.overtimeHours = 0.0,
+    this.transport = 0.0,
+    this.note = '',
+  });
+
+  double total(double dailyRate) =>
+      worked ? dailyRate + overtimeHours * kOvertimeRate + transport : 0.0;
+
+  Map<String, dynamic> toJson() => {
+        'worked': worked,
+        'site': site,
+        'overtimeHours': overtimeHours,
+        'transport': transport,
+        'note': note,
+      };
+
+  factory DayLog.fromJson(Map<String, dynamic> json) => DayLog(
+        worked: json['worked'] ?? true,
+        site: (json['site'] ?? '').toString(),
+        overtimeHours: ((json['overtimeHours'] ?? 0.0) as num).toDouble(),
+        transport: ((json['transport'] ?? 0.0) as num).toDouble(),
+        note: (json['note'] ?? '').toString(),
+      );
+}
+
 class Worker {
   String id;
   String name;
   double dailyRate;
   String phone;
-  bool isActiveToday;
-  String currentSite;
-  String note;
-  double overtimeHours;
-  double transportAllowance;
+  Map<String, DayLog> logs;
 
   Worker({
     required this.id,
     required this.name,
     required this.dailyRate,
     this.phone = '',
-    this.isActiveToday = true,
-    this.currentSite = '',
-    this.note = '',
-    this.overtimeHours = 0.0,
-    this.transportAllowance = 0.0,
-  });
+    Map<String, DayLog>? logs,
+  }) : logs = logs ?? {};
+
+  DayLog? logFor(DateTime d) => logs[dateKey(d)];
+
+  List<DayLog?> weekLogs(DateTime weekStart) =>
+      List.generate(7, (i) => logs[dateKey(addDays(weekStart, i))]);
+
+  double weekTotal(DateTime weekStart) => weekLogs(weekStart)
+      .fold<double>(0.0, (s, l) => s + (l?.total(dailyRate) ?? 0.0));
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'dailyRate': dailyRate,
         'phone': phone,
-        'isActiveToday': isActiveToday,
-        'currentSite': currentSite,
-        'note': note,
-        'overtimeHours': overtimeHours,
-        'transportAllowance': transportAllowance,
+        'logs': logs.map((k, v) => MapEntry(k, v.toJson())),
       };
 
-  factory Worker.fromJson(Map<String, dynamic> json) => Worker(
-        id: (json['id'] ?? '').toString(),
-        name: (json['name'] ?? '').toString(),
-        dailyRate: ((json['dailyRate'] ?? 8000.0) as num).toDouble(),
-        phone: (json['phone'] ?? '').toString(),
-        isActiveToday: json['isActiveToday'] ?? true,
-        currentSite: (json['currentSite'] ?? '').toString(),
-        note: (json['note'] ?? '').toString(),
-        overtimeHours: ((json['overtimeHours'] ?? 0.0) as num).toDouble(),
-        transportAllowance:
-            ((json['transportAllowance'] ?? 0.0) as num).toDouble(),
-      );
+  factory Worker.fromJson(Map<String, dynamic> json) {
+    final logs = <String, DayLog>{};
+    final raw = json['logs'];
+    if (raw is Map) {
+      raw.forEach((k, v) {
+        logs[k.toString()] = DayLog.fromJson(Map<String, dynamic>.from(v));
+      });
+    }
+    return Worker(
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? '').toString(),
+      dailyRate: ((json['dailyRate'] ?? 8000.0) as num).toDouble(),
+      phone: (json['phone'] ?? '').toString(),
+      logs: logs,
+    );
+  }
 }
 
 class WorkSite {
@@ -116,9 +197,12 @@ class WorkSite {
       );
 }
 
+// ======================= قاعدة البيانات =======================
+
 class AppDatabase {
   static List<Worker> workers = [];
   static List<WorkSite> sites = [];
+  static String lastPopupDate = '';
   static String? lastError;
 
   static Future<void> loadData() async {
@@ -127,6 +211,7 @@ class AppDatabase {
       await prefs.reload();
       final workersStr = prefs.getString('workers_data');
       final sitesStr = prefs.getString('sites_data');
+      lastPopupDate = prefs.getString('last_popup_date') ?? '';
 
       if (workersStr != null) {
         final List decoded = jsonDecode(workersStr);
@@ -152,18 +237,42 @@ class AppDatabase {
           'workers_data', jsonEncode(workers.map((e) => e.toJson()).toList()));
       final ok2 = await prefs.setString(
           'sites_data', jsonEncode(sites.map((e) => e.toJson()).toList()));
-      if (!(ok1 && ok2)) {
+      final ok3 = await prefs.setString('last_popup_date', lastPopupDate);
+      if (!(ok1 && ok2 && ok3)) {
         lastError = 'فشل الحفظ في الذاكرة';
       } else {
         lastError = null;
       }
-      return ok1 && ok2;
+      return ok1 && ok2 && ok3;
     } catch (e) {
       lastError = 'خطأ في الحفظ: $e';
       return false;
     }
   }
+
+  // هل نعرض نافذة التقرير اليومي تلقائيًا؟ (مرة واحدة كل يوم)
+  static bool shouldShowDailyPopup() {
+    return workers.isNotEmpty && lastPopupDate != dateKey(DateTime.now());
+  }
+
+  static Future<void> markPopupShown() async {
+    lastPopupDate = dateKey(DateTime.now());
+    await saveData();
+  }
+
+  // يرجع سجل اليوم للعامل، وينشئه إن لم يكن موجودًا
+  static DayLog ensureLog(Worker w, DateTime day) {
+    final key = dateKey(day);
+    final existing = w.logs[key];
+    if (existing != null) return existing;
+    final active = sites.where((s) => !s.isDelivered).toList();
+    final log = DayLog(site: active.isNotEmpty ? active.first.name : '');
+    w.logs[key] = log;
+    return log;
+  }
 }
+
+// ======================= الواجهة الرئيسية =======================
 
 class MainDashboardWrapper extends StatefulWidget {
   const MainDashboardWrapper({super.key});
@@ -178,14 +287,23 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
   @override
   void initState() {
     super.initState();
-    if (AppDatabase.workers.isNotEmpty) {
-      _showDailyPopup = true;
-    }
+    // يظهر تلقائيًا مرة واحدة فقط في اليوم
+    _showDailyPopup = AppDatabase.shouldShowDailyPopup();
   }
 
   Future<void> _closePopup() async {
     await AppDatabase.saveData();
+    await AppDatabase.markPopupShown();
     if (mounted) setState(() => _showDailyPopup = false);
+  }
+
+  void _openPopup() {
+    if (AppDatabase.workers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('أضف عمالًا أولًا من القائمة الجانبية')));
+      return;
+    }
+    setState(() => _showDailyPopup = true);
   }
 
   @override
@@ -193,215 +311,12 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
     return Scaffold(
       body: Stack(
         children: [
-          MainDashboard(onDataUpdated: () => setState(() {})),
+          MainDashboard(
+            onDataUpdated: () => setState(() {}),
+            onOpenDailyReport: _openPopup,
+          ),
           if (_showDailyPopup && AppDatabase.workers.isNotEmpty)
-            Container(
-              color: Colors.black54,
-              child: Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16)),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: const BoxDecoration(
-                          color: Colors.indigo,
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(16)),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Expanded(
-                              child: Text('تسجيل الحضور اليومي (كل 24 ساعة)',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                            IconButton(
-                              icon:
-                                  const Icon(Icons.close, color: Colors.white),
-                              onPressed: _closePopup,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: AppDatabase.workers.length,
-                          itemBuilder: (context, index) {
-                            final worker = AppDatabase.workers[index];
-                            final activeSites = AppDatabase.sites
-                                .where((s) => !s.isDelivered)
-                                .toList();
-                            if (activeSites.isNotEmpty &&
-                                !activeSites
-                                    .any((s) => s.name == worker.currentSite)) {
-                              worker.currentSite = activeSites.first.name;
-                            }
-                            return StatefulBuilder(
-                              builder: (context, setStateItem) {
-                                return Card(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(worker.name,
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16)),
-                                            Row(
-                                              children: [
-                                                const Text('يعمل؟'),
-                                                Switch(
-                                                  value: worker.isActiveToday,
-                                                  onChanged: (val) {
-                                                    setStateItem(() => worker
-                                                        .isActiveToday = val);
-                                                    setState(() {});
-                                                    AppDatabase.saveData();
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: DropdownButtonFormField<
-                                                  String>(
-                                                value: activeSites.any((s) =>
-                                                        s.name ==
-                                                        worker.currentSite)
-                                                    ? worker.currentSite
-                                                    : null,
-                                                items: activeSites
-                                                    .map((s) =>
-                                                        DropdownMenuItem(
-                                                            value: s.name,
-                                                            child:
-                                                                Text(s.name)))
-                                                    .toList(),
-                                                onChanged: worker.isActiveToday
-                                                    ? (val) {
-                                                        setStateItem(() =>
-                                                            worker.currentSite =
-                                                                val ?? '');
-                                                        AppDatabase.saveData();
-                                                      }
-                                                    : null,
-                                                decoration:
-                                                    const InputDecoration(
-                                                        labelText: 'الورشة'),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: TextFormField(
-                                                initialValue:
-                                                    worker.overtimeHours == 0
-                                                        ? ''
-                                                        : worker.overtimeHours
-                                                            .toString(),
-                                                enabled: worker.isActiveToday,
-                                                decoration:
-                                                    const InputDecoration(
-                                                        labelText:
-                                                            'ساعات إضافية'),
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                onChanged: (val) {
-                                                  worker.overtimeHours =
-                                                      double.tryParse(val) ??
-                                                          0.0;
-                                                  AppDatabase.saveData();
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: TextFormField(
-                                                initialValue:
-                                                    worker.transportAllowance ==
-                                                            0
-                                                        ? ''
-                                                        : worker
-                                                            .transportAllowance
-                                                            .toString(),
-                                                enabled: worker.isActiveToday,
-                                                decoration:
-                                                    const InputDecoration(
-                                                        labelText:
-                                                            'أجور النقل (XOF)'),
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                onChanged: (val) {
-                                                  worker.transportAllowance =
-                                                      double.tryParse(val) ??
-                                                          0.0;
-                                                  AppDatabase.saveData();
-                                                },
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: TextFormField(
-                                                initialValue: worker.note,
-                                                enabled: worker.isActiveToday,
-                                                decoration:
-                                                    const InputDecoration(
-                                                        labelText: 'ملاحظة'),
-                                                onChanged: (val) {
-                                                  worker.note = val;
-                                                  AppDatabase.saveData();
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.indigo,
-                              minimumSize: const Size(double.infinity, 50)),
-                          onPressed: _closePopup,
-                          child: const Text('حفظ وإغلاق التقرير اليومي',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            DailyReportPopup(onClose: _closePopup),
           if (AppDatabase.lastError != null)
             Positioned(
               bottom: 0,
@@ -422,12 +337,224 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
   }
 }
 
-class MainDashboard extends StatelessWidget {
-  final VoidCallback onDataUpdated;
-  const MainDashboard({super.key, required this.onDataUpdated});
+// ======================= نافذة التقرير اليومي =======================
+
+class DailyReportPopup extends StatefulWidget {
+  final Future<void> Function() onClose;
+  const DailyReportPopup({super.key, required this.onClose});
+
+  @override
+  State<DailyReportPopup> createState() => _DailyReportPopupState();
+}
+
+class _DailyReportPopupState extends State<DailyReportPopup> {
+  final DateTime _today = dateOnly(DateTime.now());
+
+  @override
+  void initState() {
+    super.initState();
+    for (final w in AppDatabase.workers) {
+      AppDatabase.ensureLog(w, _today);
+    }
+  }
+
+  Widget _workerCard(Worker worker) {
+    final log = AppDatabase.ensureLog(worker, _today);
+    final activeSites = AppDatabase.sites.where((s) => !s.isDelivered).toList();
+    if (activeSites.isNotEmpty && !activeSites.any((s) => s.name == log.site)) {
+      log.site = activeSites.first.name;
+    }
+    final String? siteValue =
+        activeSites.any((s) => s.name == log.site) ? log.site : null;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(worker.name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16)),
+                ),
+                const Text('يعمل؟'),
+                Switch(
+                  value: log.worked,
+                  onChanged: (val) {
+                    setState(() => log.worked = val);
+                    AppDatabase.saveData();
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: InputDecorator(
+                    decoration: const InputDecoration(labelText: 'الورشة'),
+                    isEmpty: siteValue == null,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: siteValue,
+                        items: activeSites
+                            .map((s) => DropdownMenuItem(
+                                value: s.name, child: Text(s.name)))
+                            .toList(),
+                        onChanged: log.worked
+                            ? (val) {
+                                setState(() => log.site = val ?? '');
+                                AppDatabase.saveData();
+                              }
+                            : null,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextFormField(
+                    key: ValueKey('${worker.id}-ot'),
+                    initialValue:
+                        log.overtimeHours == 0 ? '' : fmtNum(log.overtimeHours),
+                    enabled: log.worked,
+                    decoration:
+                        const InputDecoration(labelText: 'ساعات إضافية'),
+                    keyboardType: TextInputType.number,
+                    onChanged: (val) {
+                      setState(() =>
+                          log.overtimeHours = double.tryParse(val) ?? 0.0);
+                      AppDatabase.saveData();
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    key: ValueKey('${worker.id}-tr'),
+                    initialValue: log.transport == 0 ? '' : fmtNum(log.transport),
+                    enabled: log.worked,
+                    decoration:
+                        const InputDecoration(labelText: 'أجور النقل (XOF)'),
+                    keyboardType: TextInputType.number,
+                    onChanged: (val) {
+                      setState(
+                          () => log.transport = double.tryParse(val) ?? 0.0);
+                      AppDatabase.saveData();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextFormField(
+                    key: ValueKey('${worker.id}-note'),
+                    initialValue: log.note,
+                    enabled: log.worked,
+                    decoration: const InputDecoration(labelText: 'ملاحظة'),
+                    onChanged: (val) {
+                      log.note = val;
+                      AppDatabase.saveData();
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text('إجمالي اليوم: ${fmtMoney(log.total(worker.dailyRate))} XOF',
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.indigo)),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final dayName = kDayNames[_today.weekday % 7];
+    return Container(
+      color: Colors.black54,
+      child: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: MediaQuery.of(context).size.height * 0.8,
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(16)),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Colors.indigo,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                          'التقرير اليومي - $dayName ${fmtDate(_today)}',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: widget.onClose,
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: AppDatabase.workers.length,
+                  itemBuilder: (context, index) =>
+                      _workerCard(AppDatabase.workers[index]),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo,
+                      minimumSize: const Size(double.infinity, 50)),
+                  onPressed: widget.onClose,
+                  child: const Text('حفظ وإغلاق التقرير اليومي',
+                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ======================= لوحة التحكم =======================
+
+class MainDashboard extends StatelessWidget {
+  final VoidCallback onDataUpdated;
+  final VoidCallback onOpenDailyReport;
+  const MainDashboard(
+      {super.key, required this.onDataUpdated, required this.onOpenDailyReport});
+
+  @override
+  Widget build(BuildContext context) {
+    final today = dateOnly(DateTime.now());
+    final workingToday = AppDatabase.workers
+        .where((w) => w.logFor(today)?.worked ?? false)
+        .length;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('WookFlow - إدارة الورش والعمال',
@@ -444,9 +571,17 @@ class MainDashboard extends StatelessWidget {
               accountEmail: Text('نظام إدارة المشاريع v1.0.0'),
               currentAccountPicture: CircleAvatar(
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.engineering,
-                      size: 40, color: Colors.indigo)),
+                  child:
+                      Icon(Icons.engineering, size: 40, color: Colors.indigo)),
               decoration: BoxDecoration(color: Colors.indigo),
+            ),
+            ListTile(
+              leading: const Icon(Icons.today),
+              title: const Text('التقرير اليومي (حضور اليوم)'),
+              onTap: () {
+                Navigator.pop(context);
+                onOpenDailyReport();
+              },
             ),
             ListTile(
               leading: const Icon(Icons.person_add),
@@ -520,12 +655,13 @@ class MainDashboard extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.summarize),
               title: const Text('7. ملخص الأسبوع والتقارير'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                Navigator.push(
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const WeeklySummaryScreen()));
+                onDataUpdated();
               },
             ),
           ],
@@ -533,32 +669,45 @@ class MainDashboard extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+        child: Column(
           children: [
-            _buildDashboardCard(
-                context,
-                'العمال النشطون',
-                '${AppDatabase.workers.where((w) => w.isActiveToday).length}',
-                Icons.people,
-                Colors.blue),
-            _buildDashboardCard(
-                context,
-                'الورش النشطة',
-                '${AppDatabase.sites.where((s) => !s.isDelivered).length}',
-                Icons.apartment,
-                Colors.orange),
-            _buildDashboardCard(context, 'سعر ساعة العمل', '1000 XOF',
-                Icons.money, Colors.green),
-            _buildDashboardCard(context, 'ملخص الأسبوع', 'عرض التقارير',
-                Icons.bar_chart, Colors.purple, onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const WeeklySummaryScreen()));
-            }),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  minimumSize: const Size(double.infinity, 56)),
+              onPressed: onOpenDailyReport,
+              icon: const Icon(Icons.today, color: Colors.white),
+              label: const Text('التقرير اليومي (تسجيل حضور اليوم)',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                children: [
+                  _buildDashboardCard(context, 'العمال اليوم', '$workingToday',
+                      Icons.people, Colors.blue),
+                  _buildDashboardCard(
+                      context,
+                      'الورش النشطة',
+                      '${AppDatabase.sites.where((s) => !s.isDelivered).length}',
+                      Icons.apartment,
+                      Colors.orange),
+                  _buildDashboardCard(context, 'سعر ساعة العمل', '1000 XOF',
+                      Icons.money, Colors.green),
+                  _buildDashboardCard(context, 'ملخص الأسبوع', 'عرض التقارير',
+                      Icons.bar_chart, Colors.purple, onTap: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const WeeklySummaryScreen()));
+                    onDataUpdated();
+                  }),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -597,6 +746,8 @@ class MainDashboard extends StatelessWidget {
     );
   }
 }
+
+// ======================= إضافة وحذف العمال =======================
 
 class AddWorkerScreen extends StatefulWidget {
   const AddWorkerScreen({super.key});
@@ -645,8 +796,7 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
               TextFormField(
                 controller: _rateController,
                 decoration: const InputDecoration(
-                    labelText:
-                        'اليومية أو الأجر (إجباري) - (الساعة 1000 XOF)'),
+                    labelText: 'اليومية أو الأجر (إجباري) - (الساعة 1000 XOF)'),
                 keyboardType: TextInputType.number,
                 validator: (value) => (value == null || value.isEmpty)
                     ? 'يرجى إدخال اليومية'
@@ -668,17 +818,12 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
                   if (_formKey.currentState!.validate()) {
                     final messenger = ScaffoldMessenger.of(context);
                     final navigator = Navigator.of(context);
-                    final activeSites = AppDatabase.sites
-                        .where((s) => !s.isDelivered)
-                        .toList();
                     AppDatabase.workers.add(Worker(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
                       name: _nameController.text,
                       dailyRate:
                           double.tryParse(_rateController.text) ?? 8000.0,
                       phone: _phoneController.text,
-                      currentSite:
-                          activeSites.isNotEmpty ? activeSites.first.name : '',
                     ));
                     final ok = await AppDatabase.saveData();
                     navigator.pop();
@@ -767,7 +912,7 @@ class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
                       return CheckboxListTile(
                         title: Text(worker.name),
                         subtitle: Text(
-                            'اليومية: ${worker.dailyRate} XOF | الهاتف: ${worker.phone}'),
+                            'اليومية: ${fmtMoney(worker.dailyRate)} XOF | الهاتف: ${worker.phone}'),
                         value: _selectedWorkers[worker.id] ?? false,
                         onChanged: (val) {
                           setState(() {
@@ -783,6 +928,8 @@ class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
     );
   }
 }
+
+// ======================= الورش =======================
 
 class SitesScreen extends StatefulWidget {
   const SitesScreen({super.key});
@@ -877,7 +1024,7 @@ class _SitesScreenState extends State<SitesScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        'العنوان: ${site.location} | الإجمالي: ${site.totalContractAmount} XOF'),
+                        'العنوان: ${site.location} | الإجمالي: ${fmtMoney(site.totalContractAmount)} XOF'),
                     trailing: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
@@ -934,7 +1081,7 @@ class DeliveredSitesScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.lineThrough)),
                     subtitle: Text(
-                        'العنوان: ${site.location} | الأجر الإجمالي: ${site.totalContractAmount} XOF\nالواصل: ${site.totalPaid} XOF (تم التسليم)'),
+                        'العنوان: ${site.location} | الأجر الإجمالي: ${fmtMoney(site.totalContractAmount)} XOF\nالواصل: ${fmtMoney(site.totalPaid)} XOF (تم التسليم)'),
                     isThreeLine: true,
                   ),
                 );
@@ -973,7 +1120,7 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        'الإجمالي: ${site.totalContractAmount} | الواصل: ${site.totalPaid} | الباقي: ${site.totalContractAmount - site.totalPaid} XOF'),
+                        'الإجمالي: ${fmtMoney(site.totalContractAmount)} | الواصل: ${fmtMoney(site.totalPaid)} | الباقي: ${fmtMoney(site.totalContractAmount - site.totalPaid)} XOF'),
                     trailing: IconButton(
                       icon: const Icon(Icons.add_card, color: Colors.indigo),
                       onPressed: () => _showPaymentDialog(context, site),
@@ -995,9 +1142,11 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('أجار الورشة الإجمالي: ${site.totalContractAmount} XOF'),
-            Text('مجموع الدفعات (الواصل): ${site.totalPaid} XOF'),
-            Text('الباقي: ${site.totalContractAmount - site.totalPaid} XOF',
+            Text(
+                'أجار الورشة الإجمالي: ${fmtMoney(site.totalContractAmount)} XOF'),
+            Text('مجموع الدفعات (الواصل): ${fmtMoney(site.totalPaid)} XOF'),
+            Text(
+                'الباقي: ${fmtMoney(site.totalContractAmount - site.totalPaid)} XOF',
                 style: const TextStyle(
                     color: Colors.red, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
@@ -1031,6 +1180,8 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
   }
 }
 
+// ======================= قائمة العمال =======================
+
 class WorkersListScreen extends StatefulWidget {
   const WorkersListScreen({super.key});
 
@@ -1058,7 +1209,7 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                     title: Text(worker.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        'اليومية: ${worker.dailyRate} XOF | الورشة: ${worker.currentSite}'),
+                        'اليومية: ${fmtMoney(worker.dailyRate)} XOF | الهاتف: ${worker.phone}'),
                     trailing: const Icon(Icons.edit, color: Colors.indigo),
                     onTap: () => _editWorkerDialog(context, worker),
                   ),
@@ -1071,7 +1222,8 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
   void _editWorkerDialog(BuildContext context, Worker worker) {
     final nameController = TextEditingController(text: worker.name);
     final rateController =
-        TextEditingController(text: worker.dailyRate.toString());
+        TextEditingController(text: fmtNum(worker.dailyRate));
+    final phoneController = TextEditingController(text: worker.phone);
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -1086,6 +1238,10 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                 controller: rateController,
                 decoration: const InputDecoration(labelText: 'اليومية (XOF)'),
                 keyboardType: TextInputType.number),
+            TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(labelText: 'رقم الهاتف'),
+                keyboardType: TextInputType.phone),
           ],
         ),
         actions: [
@@ -1098,6 +1254,7 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                 worker.name = nameController.text;
                 worker.dailyRate =
                     double.tryParse(rateController.text) ?? worker.dailyRate;
+                worker.phone = phoneController.text;
               });
               Navigator.pop(dialogContext);
               await AppDatabase.saveData();
@@ -1110,11 +1267,208 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
   }
 }
 
-class WeeklySummaryScreen extends StatelessWidget {
-  const WeeklySummaryScreen({super.key});
+// ======================= التقارير الأسبوعية =======================
+
+// شريط التنقل بين الأسابيع
+class WeekNavigator extends StatelessWidget {
+  final DateTime weekStart;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
+  const WeekNavigator(
+      {super.key,
+      required this.weekStart,
+      required this.onPrev,
+      required this.onNext});
 
   @override
   Widget build(BuildContext context) {
+    final end = addDays(weekStart, 6);
+    return Container(
+      color: Colors.indigo.shade50,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+              icon: const Icon(Icons.chevron_left, color: Colors.indigo),
+              onPressed: onPrev),
+          Text(
+              'الأسبوع: ${fmtDate(weekStart)}/${weekStart.year}  ←  ${fmtDate(end)}/${end.year}',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          IconButton(
+              icon: const Icon(Icons.chevron_right, color: Colors.indigo),
+              onPressed: onNext),
+        ],
+      ),
+    );
+  }
+}
+
+String _dayCellText(DayLog? log, double rate) {
+  if (log == null) return '';
+  if (!log.worked) return 'عطلة';
+  return fmtMoney(log.total(rate));
+}
+
+String buildWorkerWeekText(Worker w, DateTime ws) {
+  final sb = StringBuffer();
+  sb.writeln('📊 تقرير العامل: ${w.name}');
+  sb.writeln('📅 الأسبوع: ${fmtDate(ws)} → ${fmtDate(addDays(ws, 6))}');
+  sb.writeln('');
+  double total = 0;
+  for (int i = 0; i < 7; i++) {
+    final d = addDays(ws, i);
+    final log = w.logFor(d);
+    final label = '${kDayNames[i]} ${fmtDate(d)}';
+    if (log == null) {
+      sb.writeln('$label: —');
+    } else if (!log.worked) {
+      sb.writeln('$label: عطلة');
+    } else {
+      final t = log.total(w.dailyRate);
+      total += t;
+      sb.writeln(
+          '$label: ${log.site.isEmpty ? "" : "${log.site} | "}إضافي ${fmtNum(log.overtimeHours)}س | نقل ${fmtMoney(log.transport)} = ${fmtMoney(t)}');
+    }
+  }
+  sb.writeln('');
+  sb.writeln('💰 المجموع الأسبوعي: ${fmtMoney(total)} XOF');
+  return sb.toString();
+}
+
+String buildAllWeekText(DateTime ws) {
+  final sb = StringBuffer();
+  sb.writeln('📊 التقرير الأسبوعي لجميع العمال');
+  sb.writeln('📅 ${fmtDate(ws)} → ${fmtDate(addDays(ws, 6))}');
+  sb.writeln('');
+  double grand = 0;
+  for (final w in AppDatabase.workers) {
+    final t = w.weekTotal(ws);
+    grand += t;
+    sb.writeln('👷 ${w.name}: ${fmtMoney(t)} XOF');
+  }
+  sb.writeln('');
+  sb.writeln('💰 المجموع الكلي: ${fmtMoney(grand)} XOF');
+  return sb.toString();
+}
+
+pw.Widget _pdfCell(String t, {bool bold = false}) => pw.Padding(
+      padding: const pw.EdgeInsets.all(4),
+      child: pw.Text(t,
+          style: pw.TextStyle(
+              fontSize: 10,
+              fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal)),
+    );
+
+Future<void> shareWorkerWeekPdf(Worker w, DateTime ws) async {
+  final pdf = pw.Document();
+  final rows = <pw.TableRow>[
+    pw.TableRow(children: [
+      _pdfCell('اليوم', bold: true),
+      _pdfCell('الورشة', bold: true),
+      _pdfCell('إضافي', bold: true),
+      _pdfCell('نقل', bold: true),
+      _pdfCell('المبلغ', bold: true),
+    ]),
+  ];
+  for (int i = 0; i < 7; i++) {
+    final d = addDays(ws, i);
+    final log = w.logFor(d);
+    rows.add(pw.TableRow(children: [
+      _pdfCell('${kDayNames[i]} ${fmtDate(d)}'),
+      _pdfCell(log == null ? '-' : (log.worked ? log.site : 'عطلة')),
+      _pdfCell(log != null && log.worked ? fmtNum(log.overtimeHours) : '-'),
+      _pdfCell(log != null && log.worked ? fmtMoney(log.transport) : '-'),
+      _pdfCell(log == null ? '-' : fmtMoney(log.total(w.dailyRate))),
+    ]));
+  }
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context ctx) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text('${w.name} - ${fmtDate(ws)} / ${fmtDate(addDays(ws, 6))}',
+              style:
+                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 14),
+          pw.Table(border: pw.TableBorder.all(), children: rows),
+          pw.SizedBox(height: 14),
+          pw.Text('TOTAL: ${fmtMoney(w.weekTotal(ws))} XOF',
+              style:
+                  pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        ],
+      ),
+    ),
+  );
+  await Printing.sharePdf(
+      bytes: await pdf.save(), filename: 'report_${w.name}.pdf');
+}
+
+Future<void> shareAllWeekPdf(DateTime ws) async {
+  final pdf = pw.Document();
+  final header = <pw.Widget>[_pdfCell('Worker', bold: true)];
+  for (int i = 0; i < 7; i++) {
+    header.add(_pdfCell('${kDayNames[i]}\n${fmtDate(addDays(ws, i))}',
+        bold: true));
+  }
+  header.add(_pdfCell('TOTAL', bold: true));
+
+  final rows = <pw.TableRow>[pw.TableRow(children: header)];
+  double grand = 0;
+  for (final w in AppDatabase.workers) {
+    final cells = <pw.Widget>[_pdfCell(w.name)];
+    for (int i = 0; i < 7; i++) {
+      final log = w.logFor(addDays(ws, i));
+      cells.add(_pdfCell(_dayCellText(log, w.dailyRate)));
+    }
+    final t = w.weekTotal(ws);
+    grand += t;
+    cells.add(_pdfCell(fmtMoney(t), bold: true));
+    rows.add(pw.TableRow(children: cells));
+  }
+
+  pdf.addPage(
+    pw.Page(
+      pageFormat: PdfPageFormat.a4.landscape,
+      build: (pw.Context ctx) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text('${fmtDate(ws)} / ${fmtDate(addDays(ws, 6))}',
+              style:
+                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 12),
+          pw.Table(border: pw.TableBorder.all(), children: rows),
+          pw.SizedBox(height: 12),
+          pw.Text('GRAND TOTAL: ${fmtMoney(grand)} XOF',
+              style:
+                  pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+        ],
+      ),
+    ),
+  );
+  await Printing.sharePdf(bytes: await pdf.save(), filename: 'weekly_all.pdf');
+}
+
+class WeeklySummaryScreen extends StatefulWidget {
+  const WeeklySummaryScreen({super.key});
+
+  @override
+  State<WeeklySummaryScreen> createState() => _WeeklySummaryScreenState();
+}
+
+class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
+  DateTime _weekStart = weekStartOf(DateTime.now());
+
+  void _shift(int weeks) =>
+      setState(() => _weekStart = addDays(_weekStart, 7 * weeks));
+
+  @override
+  Widget build(BuildContext context) {
+    double grand = 0;
+    for (final w in AppDatabase.workers) {
+      grand += w.weekTotal(_weekStart);
+    }
+
     return Scaffold(
       appBar: AppBar(
           title: const Text('ملخص الأسبوع والرواتب'),
@@ -1122,92 +1476,183 @@ class WeeklySummaryScreen extends StatelessWidget {
           iconTheme: const IconThemeData(color: Colors.white)),
       body: AppDatabase.workers.isEmpty
           ? const Center(child: Text('لا توجد بيانات لعرض الملخص'))
-          : ListView(
-              padding: const EdgeInsets.all(16),
+          : Column(
               children: [
-                Card(
-                  color: Colors.indigo.shade50,
-                  child: ListTile(
-                    title: const Text('1. المجموع الكلي لجميع العمال',
-                        style:
-                            TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    subtitle: const Text(
-                        'اضغط هنا لعرض تفاصيل يوميات جميع العمال والأجور والإضافي'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const AllWorkersDailyLogScreen())),
+                WeekNavigator(
+                    weekStart: _weekStart,
+                    onPrev: () => _shift(-1),
+                    onNext: () => _shift(1)),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      Card(
+                        color: Colors.indigo.shade50,
+                        child: ListTile(
+                          title: const Text('1. التقرير المشترك لجميع العمال',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                          subtitle: Text(
+                              'كل أيام الأسبوع (الأحد → السبت) | المجموع: ${fmtMoney(grand)} XOF'),
+                          trailing: const Icon(Icons.arrow_forward_ios),
+                          onTap: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        AllWorkersWeekScreen(
+                                            weekStart: _weekStart)));
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text('2. تقرير كل عامل على حدة:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      ...AppDatabase.workers.map((worker) {
+                        final logs = worker.weekLogs(_weekStart);
+                        final days =
+                            logs.where((l) => l != null && l.worked).length;
+                        return Card(
+                          child: ListTile(
+                            title: Text(worker.name),
+                            subtitle: Text('أيام العمل: $days'),
+                            trailing: Text(
+                                '${fmtMoney(worker.weekTotal(_weekStart))} XOF',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.indigo)),
+                            onTap: () async {
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          WorkerWeekReportScreen(
+                                              worker: worker,
+                                              weekStart: _weekStart)));
+                              setState(() {});
+                            },
+                          ),
+                        );
+                      }),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                const Text('2. تفاصيل كل عامل على حدة:',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                ...AppDatabase.workers.map((worker) => Card(
-                      child: ListTile(
-                        title: Text(worker.name),
-                        subtitle: Text(
-                            'الورشة: ${worker.currentSite} | الإضافي: ${worker.overtimeHours} ساعة'),
-                        trailing: const Icon(Icons.receipt_long,
-                            color: Colors.indigo),
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    WorkerDetailReportScreen(worker: worker))),
-                      ),
-                    )),
               ],
             ),
     );
   }
 }
 
-class AllWorkersDailyLogScreen extends StatelessWidget {
-  const AllWorkersDailyLogScreen({super.key});
+// التقرير المشترك: جدول كل العمال × أيام الأسبوع
+class AllWorkersWeekScreen extends StatefulWidget {
+  final DateTime weekStart;
+  const AllWorkersWeekScreen({super.key, required this.weekStart});
+
+  @override
+  State<AllWorkersWeekScreen> createState() => _AllWorkersWeekScreenState();
+}
+
+class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
+  late DateTime _weekStart;
+
+  @override
+  void initState() {
+    super.initState();
+    _weekStart = widget.weekStart;
+  }
+
+  void _shift(int weeks) =>
+      setState(() => _weekStart = addDays(_weekStart, 7 * weeks));
 
   @override
   Widget build(BuildContext context) {
-    double grandTotal = AppDatabase.workers.fold(
-        0,
-        (sum, w) =>
-            sum +
-            (w.isActiveToday
-                ? w.dailyRate + (w.overtimeHours * 1000) + w.transportAllowance
-                : 0));
+    final workers = AppDatabase.workers;
+    double grand = 0;
+    final dayTotals = List<double>.filled(7, 0.0);
+    for (final w in workers) {
+      grand += w.weekTotal(_weekStart);
+      for (int i = 0; i < 7; i++) {
+        dayTotals[i] +=
+            w.logFor(addDays(_weekStart, i))?.total(w.dailyRate) ?? 0.0;
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
-          title: const Text('يوميات جميع العمال والرواتب'),
-          backgroundColor: Colors.indigo,
-          iconTheme: const IconThemeData(color: Colors.white)),
+        title: const Text('التقرير المشترك لجميع العمال'),
+        backgroundColor: Colors.indigo,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'PDF',
+            onPressed: () => shareAllWeekPdf(_weekStart),
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            tooltip: 'مشاركة كرسالة',
+            onPressed: () => Share.share(buildAllWeekText(_weekStart)),
+          ),
+        ],
+      ),
       body: Column(
         children: [
+          WeekNavigator(
+              weekStart: _weekStart,
+              onPrev: () => _shift(-1),
+              onNext: () => _shift(1)),
           Expanded(
-            child: ListView.builder(
-              itemCount: AppDatabase.workers.length,
-              itemBuilder: (context, index) {
-                final w = AppDatabase.workers[index];
-                double totalWorker = w.isActiveToday
-                    ? w.dailyRate +
-                        (w.overtimeHours * 1000) +
-                        w.transportAllowance
-                    : 0;
-                return ListTile(
-                  title: Text(w.name),
-                  subtitle: Text(
-                      'الحالة: ${w.isActiveToday ? "يعمل" : "عطلة"} | إضافي: ${w.overtimeHours} س | مواصلات: ${w.transportAllowance} XOF'),
-                  trailing: Text('$totalWorker XOF',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.indigo)),
-                );
-              },
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SingleChildScrollView(
+                child: DataTable(
+                  columnSpacing: 14,
+                  headingRowHeight: 60,
+                  columns: [
+                    const DataColumn(label: Text('العامل')),
+                    for (int i = 0; i < 7; i++)
+                      DataColumn(
+                        label: Text(
+                            '${kDayNames[i]}\n${fmtDate(addDays(_weekStart, i))}',
+                            textAlign: TextAlign.center),
+                      ),
+                    const DataColumn(label: Text('المجموع')),
+                  ],
+                  rows: [
+                    ...workers.map((w) => DataRow(cells: [
+                          DataCell(Text(w.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold))),
+                          for (int i = 0; i < 7; i++)
+                            DataCell(Text(_dayCellText(
+                                w.logFor(addDays(_weekStart, i)),
+                                w.dailyRate))),
+                          DataCell(Text(fmtMoney(w.weekTotal(_weekStart)),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.indigo))),
+                        ])),
+                    DataRow(cells: [
+                      const DataCell(Text('المجموع',
+                          style: TextStyle(fontWeight: FontWeight.bold))),
+                      for (int i = 0; i < 7; i++)
+                        DataCell(Text(fmtMoney(dayTotals[i]),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold))),
+                      DataCell(Text(fmtMoney(grand),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.indigo))),
+                    ]),
+                  ],
+                ),
+              ),
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             color: Colors.indigo.shade100,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1215,7 +1660,7 @@ class AllWorkersDailyLogScreen extends StatelessWidget {
                 const Text('المجموع الكلي لجميع العمال:',
                     style:
                         TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text('$grandTotal XOF',
+                Text('${fmtMoney(grand)} XOF',
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -1229,143 +1674,265 @@ class AllWorkersDailyLogScreen extends StatelessWidget {
   }
 }
 
-class WorkerDetailReportScreen extends StatelessWidget {
+// تقرير عامل واحد: كل أيام الأسبوع
+class WorkerWeekReportScreen extends StatefulWidget {
   final Worker worker;
-  const WorkerDetailReportScreen({super.key, required this.worker});
-
-  Future<void> _generateAndSharePdf(BuildContext context) async {
-    final pdf = pw.Document();
-    double totalEarned = worker.isActiveToday
-        ? worker.dailyRate +
-            (worker.overtimeHours * 1000) +
-            worker.transportAllowance
-        : 0;
-
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text('تقرير أسبوعي للعامل: ${worker.name}',
-                  style: pw.TextStyle(
-                      fontSize: 22, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 20),
-              pw.Text('الورشة الحالية: ${worker.currentSite}'),
-              pw.Text(
-                  'الحالة اليومية: ${worker.isActiveToday ? "يعمل" : "عطلة"}'),
-              pw.Text('الأجر اليومي: ${worker.dailyRate} XOF'),
-              pw.Text(
-                  'الساعات الإضافية: ${worker.overtimeHours} ساعة (${worker.overtimeHours * 1000} XOF)'),
-              pw.Text('بدل المواصلات: ${worker.transportAllowance} XOF'),
-              pw.SizedBox(height: 20),
-              pw.Divider(),
-              pw.Text('المجموع الكامل: $totalEarned XOF',
-                  style: pw.TextStyle(
-                      fontSize: 18, fontWeight: pw.FontWeight.bold)),
-            ],
-          );
-        },
-      ),
-    );
-
-    await Printing.sharePdf(
-        bytes: await pdf.save(), filename: 'report_${worker.name}.pdf');
-  }
-
-  void _shareTextReport() {
-    double totalEarned = worker.isActiveToday
-        ? worker.dailyRate +
-            (worker.overtimeHours * 1000) +
-            worker.transportAllowance
-        : 0;
-    String text = '📊 تقرير العامل: ${worker.name}\n'
-        '🏠 الورشة: ${worker.currentSite}\n'
-        '💼 الحالة: ${worker.isActiveToday ? "يعمل" : "عطلة"}\n'
-        '⏰ الساعات الإضافية: ${worker.overtimeHours}\n'
-        '🚗 أجور النقل: ${worker.transportAllowance} XOF\n'
-        '💰 المجموع الكامل: $totalEarned XOF';
-    Share.share(text);
-  }
+  final DateTime weekStart;
+  const WorkerWeekReportScreen(
+      {super.key, required this.worker, required this.weekStart});
 
   @override
-  Widget build(BuildContext context) {
-    double totalEarned = worker.isActiveToday
-        ? worker.dailyRate +
-            (worker.overtimeHours * 1000) +
-            worker.transportAllowance
-        : 0;
+  State<WorkerWeekReportScreen> createState() => _WorkerWeekReportScreenState();
+}
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('تقرير: ${worker.name}'),
-        backgroundColor: Colors.indigo,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf),
-            onPressed: () => _generateAndSharePdf(context),
-            tooltip: 'تنزيل ومشاركة PDF',
+class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
+  late DateTime _weekStart;
+
+  @override
+  void initState() {
+    super.initState();
+    _weekStart = widget.weekStart;
+  }
+
+  void _shift(int weeks) =>
+      setState(() => _weekStart = addDays(_weekStart, 7 * weeks));
+
+  String _describe(DayLog? log) {
+    if (log == null) return 'لم يُسجَّل (اضغط للتعديل)';
+    if (!log.worked) return 'عطلة';
+    return 'الورشة: ${log.site.isEmpty ? "—" : log.site}\nإضافي: ${fmtNum(log.overtimeHours)} س | نقل: ${fmtMoney(log.transport)} XOF';
+  }
+
+  void _editDay(DateTime day) {
+    final w = widget.worker;
+    final key = dateKey(day);
+    final existing = w.logs[key];
+
+    bool worked = existing?.worked ?? true;
+    final names = AppDatabase.sites
+        .where((s) => !s.isDelivered)
+        .map((s) => s.name)
+        .toList();
+    String site = existing?.site ?? '';
+    if (site.isNotEmpty && !names.contains(site)) names.add(site);
+    if (site.isEmpty && names.isNotEmpty) site = names.first;
+
+    final otCtrl = TextEditingController(
+        text: (existing == null || existing.overtimeHours == 0)
+            ? ''
+            : fmtNum(existing.overtimeHours));
+    final trCtrl = TextEditingController(
+        text: (existing == null || existing.transport == 0)
+            ? ''
+            : fmtNum(existing.transport));
+    final noteCtrl = TextEditingController(text: existing?.note ?? '');
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (ctx, setD) => AlertDialog(
+          title: Text('${kDayNames[day.weekday % 7]} ${fmtDate(day)} - ${w.name}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('يعمل؟'),
+                    Switch(
+                        value: worked,
+                        onChanged: (v) => setD(() => worked = v)),
+                  ],
+                ),
+                if (names.isNotEmpty)
+                  InputDecorator(
+                    decoration: const InputDecoration(labelText: 'الورشة'),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: names.contains(site) ? site : null,
+                        items: names
+                            .map((n) =>
+                                DropdownMenuItem(value: n, child: Text(n)))
+                            .toList(),
+                        onChanged:
+                            worked ? (v) => setD(() => site = v ?? '') : null,
+                      ),
+                    ),
+                  ),
+                TextField(
+                  controller: otCtrl,
+                  enabled: worked,
+                  decoration: const InputDecoration(labelText: 'ساعات إضافية'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: trCtrl,
+                  enabled: worked,
+                  decoration:
+                      const InputDecoration(labelText: 'أجور النقل (XOF)'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: noteCtrl,
+                  enabled: worked,
+                  decoration: const InputDecoration(labelText: 'ملاحظة'),
+                ),
+              ],
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: _shareTextReport,
-            tooltip: 'مشاركة كرسالة عبر واتساب',
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('اسم العامل: ${worker.name}',
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const Divider(height: 20),
-            const Text('تفاصيل اليوم الحالي:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            ListTile(
-              title: const Text('الحالة والورشة'),
-              subtitle: Text(worker.isActiveToday
-                  ? "عمل في: ${worker.currentSite}"
-                  : "عطلة اليوم"),
-              trailing: Text('${worker.dailyRate} XOF'),
-            ),
-            ListTile(
-              title: const Text('الساعات الإضافية'),
-              subtitle:
-                  Text('${worker.overtimeHours} ساعة (سعر الساعة 1000 XOF)'),
-              trailing: Text('${worker.overtimeHours * 1000} XOF'),
-            ),
-            ListTile(
-              title: const Text('بدل المواصلات'),
-              subtitle: const Text('أجار الطريق والنقل'),
-              trailing: Text('${worker.transportAllowance} XOF'),
-            ),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                  color: Colors.indigo.shade50,
-                  borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('المجموع الكامل:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('$totalEarned XOF',
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.indigo)),
-                ],
+          actions: [
+            if (existing != null)
+              TextButton(
+                onPressed: () async {
+                  w.logs.remove(key);
+                  Navigator.pop(dialogContext);
+                  if (mounted) setState(() {});
+                  await AppDatabase.saveData();
+                },
+                child:
+                    const Text('مسح اليوم', style: TextStyle(color: Colors.red)),
               ),
+            TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('إلغاء')),
+            ElevatedButton(
+              onPressed: () async {
+                w.logs[key] = DayLog(
+                  worked: worked,
+                  site: site,
+                  overtimeHours: double.tryParse(otCtrl.text) ?? 0.0,
+                  transport: double.tryParse(trCtrl.text) ?? 0.0,
+                  note: noteCtrl.text,
+                );
+                Navigator.pop(dialogContext);
+                if (mounted) setState(() {});
+                await AppDatabase.saveData();
+              },
+              child: const Text('حفظ'),
             ),
           ],
         ),
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final w = widget.worker;
+    final logs = w.weekLogs(_weekStart);
+    final today = dateOnly(DateTime.now());
+
+    int daysWorked = 0;
+    double baseTotal = 0, overtimeTotal = 0, transportTotal = 0;
+    for (final l in logs) {
+      if (l != null && l.worked) {
+        daysWorked++;
+        baseTotal += w.dailyRate;
+        overtimeTotal += l.overtimeHours * kOvertimeRate;
+        transportTotal += l.transport;
+      }
+    }
+    final total = w.weekTotal(_weekStart);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('تقرير: ${w.name}'),
+        backgroundColor: Colors.indigo,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: () => shareWorkerWeekPdf(w, _weekStart),
+            tooltip: 'تنزيل ومشاركة PDF',
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () => Share.share(buildWorkerWeekText(w, _weekStart)),
+            tooltip: 'مشاركة كرسالة عبر واتساب',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          WeekNavigator(
+              weekStart: _weekStart,
+              onPrev: () => _shift(-1),
+              onNext: () => _shift(1)),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(8),
+              children: [
+                for (int i = 0; i < 7; i++)
+                  Builder(builder: (context) {
+                    final d = addDays(_weekStart, i);
+                    final log = logs[i];
+                    return Card(
+                      color: d == today ? Colors.indigo.shade50 : null,
+                      child: ListTile(
+                        isThreeLine: log != null && log.worked,
+                        title: Text('${kDayNames[i]}  ${fmtDate(d)}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(_describe(log)),
+                        trailing: Text(
+                            log == null
+                                ? '—'
+                                : '${fmtMoney(log.total(w.dailyRate))} XOF',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.indigo)),
+                        onTap: () => _editDay(d),
+                      ),
+                    );
+                  }),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        _sumRow('أيام العمل', '$daysWorked يوم'),
+                        _sumRow('مجموع اليوميات',
+                            '${fmtMoney(baseTotal)} XOF'),
+                        _sumRow('مجموع الإضافي',
+                            '${fmtMoney(overtimeTotal)} XOF'),
+                        _sumRow('مجموع المواصلات',
+                            '${fmtMoney(transportTotal)} XOF'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: Colors.indigo.shade100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('المجموع الأسبوعي:',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('${fmtMoney(total)} XOF',
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.indigo)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sumRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [Text(label), Text(value)],
+        ),
+      );
 }
