@@ -165,7 +165,7 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
                           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                         ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.between,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('تسجيل الحضور اليومي (كل 24 ساعة)', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                             IconButton(
@@ -191,7 +191,7 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.between,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(worker.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                             Row(
@@ -925,7 +925,7 @@ class WorkerDetailReportScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          children: [
             Text('اسم العامل: ${worker.name}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const Divider(height: 20),
             const Text('تفاصيل اليوم الحالي:', style: TextStyle(fontWeight: FontWeight.bold)),
