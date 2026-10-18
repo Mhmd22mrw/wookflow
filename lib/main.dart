@@ -80,7 +80,7 @@ class WorkSite {
   String location;
   double totalContractAmount;
   double totalPaid;
-  bool isDelivered; // هل تم تسليم الورشة؟
+  bool isDelivered;
 
   WorkSite({
     required this.id,
@@ -103,7 +103,6 @@ class WorkSite {
   );
 }
 
-// إدارة الذاكرة المحلية
 class AppDatabase {
   static List<Worker> workers = [];
   static List<WorkSite> sites = [];
@@ -150,7 +149,6 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
     AppDatabase.loadData().then((_) {
       setState(() {
         _isLoading = false;
-        // يظهر فقط إذا كان هناك عمال وورش مسجلة
         if (AppDatabase.workers.isNotEmpty) {
           _showDailyPopup = true;
         }
@@ -185,7 +183,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                         ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.between,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('تسجيل الحضور اليومي (كل 24 ساعة)', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                             IconButton(
@@ -211,7 +209,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.between,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(worker.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                             Row(
@@ -357,7 +355,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.task_alt),
-              title: const Text('4. م. الورش المسلمة والمنتهية'),
+              title: const Text('4. الورش المسلمة والمنتهية'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const DeliveredSitesScreen()));
@@ -691,7 +689,6 @@ class _SitesScreenState extends State<SitesScreen> {
   }
 }
 
-// شاشة الورش المسلمة والمنتهية
 class DeliveredSitesScreen extends StatelessWidget {
   const DeliveredSitesScreen({super.key});
 
