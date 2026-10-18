@@ -30,19 +30,16 @@ jobs:
 
       - name: 4. Build Signed Release APK & PWA
         run: |
-          # تسريع التحميل عبر خوادم Google
           mkdir -p ~/.gradle
           cat << 'EOF' > ~/.gradle/init.gradle
           allprojects {
               buildscript {
                   repositories {
-                      maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
                       google()
                       mavenCentral()
                   }
               }
               repositories {
-                  maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
                   google()
                   mavenCentral()
               }
@@ -53,23 +50,38 @@ jobs:
           cp main.dart temp_project/lib/main.dart
           cd temp_project
 
-          # 1. تحديث إعدادات الأندرويد لتدعم أحدث إصدارات SDK 34 لمنع رسالة "التطبيق القديم"
+          # إصلاح مشكلة المستودعات في settings.gradle.kts لتجنب خطأ التبعيات
+          SETTINGS_FILE="android/settings.gradle.kts"
+          if [ -f "$SETTINGS_FILE" ]; then
+            cat << 'EOF' > $SETTINGS_FILE
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "android"
+          include(":app")
+          EOF
+          fi
+
+          # تحديث إعدادات الـ SDK
           BUILD_GRADLE="android/app/build.gradle"
           if [ -f "$BUILD_GRADLE" ]; then
             sed -i 's/minSdkVersion.*/minSdkVersion 24/' $BUILD_GRADLE
             sed -i 's/targetSdkVersion.*/targetSdkVersion 34/' $BUILD_GRADLE
             sed -i 's/compileSdkVersion.*/compileSdkVersion 34/' $BUILD_GRADLE
           fi
-          
-          # للأجهزة التي تستخدم build.gradle.kts
-          BUILD_GRADLE_KTS="android/app/build.gradle.kts"
-          if [ -f "$BUILD_GRADLE_KTS" ]; then
-            sed -i 's/minSdk = .*/minSdk = 24/' $BUILD_GRADLE_KTS
-            sed -i 's/targetSdk = .*/targetSdk = 34/' $BUILD_GRADLE_KTS
-            sed -i 's/compileSdk = .*/compileSdk = 34/' $BUILD_GRADLE_KTS
-          fi
 
-          # 2. إعداد الصلاحيات
+          # إعداد الصلاحيات
           sed -i 's/<manifest xmlns:android="http:\/\/schemas.android.com\/apk\/res\/android">/<manifest xmlns:android="http:\/\/schemas.android.com\/apk\/res\/android">\n    <uses-permission android:name="android.permission.USE_BIOMETRIC"\/>/g' android/app/src/main/AndroidManifest.xml
           sed -i 's/android:label="personal_vault"/android:label="خزنتي الشخصية"/g' android/app/src/main/AndroidManifest.xml
 
@@ -78,7 +90,7 @@ jobs:
 
           sed -i 's/<\/application>/<provider android:name="androidx.core.content.FileProvider" android:authorities="\${applicationId}.fileprovider" android:exported="false" android:grantUriPermissions="true"><meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml\/file_paths"\/><\/provider><\/application>/g' android/app/src/main/AndroidManifest.xml
 
-          # 3. كتابة كود مشاركة الـ APK وبصمة الأمان
+          # كتابة كود MainActivity
           MAIN_KT=$(find android/app/src/main/kotlin -name "MainActivity.kt")
           cat << 'EOF' > "$MAIN_KT"
           package com.mhmd.vault.personal_vault
@@ -146,7 +158,7 @@ jobs:
           }
           EOF
 
-          # 4. رسم وتوليد أيقونة جديدة ومميزة للتطبيق
+          # توليد الأيقونة
           sudo apt-get update && sudo apt-get install -y imagemagick
           convert -size 512x512 xc:"#0F172A" \
             -fill "#1E293B" -stroke "#64FFDA" -strokewidth 14 -draw "roundrectangle 46,46 466,466 90,90" \
@@ -160,7 +172,7 @@ jobs:
           printf "\nflutter_launcher_icons:\n  android: true\n  image_path: \"icon.png\"\n" >> pubspec.yaml
           dart run flutter_launcher_icons
 
-          # 5. بناء الـ APK الموقّع رسمياً
+          # بناء التطبيق
           flutter build apk --release
 
       - name: 5. Upload Signed APK
