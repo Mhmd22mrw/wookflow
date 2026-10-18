@@ -212,7 +212,7 @@ class L10n {
     ],
     'restore_success': [
       'تم إعادة تفعيل العامل بنجاح',
-      'Ouvrier réactivé مع succès',
+      'Ouvrier réactivé avec succès',
       'Worker reactivated'
     ],
     'permanent_delete_success': [
@@ -686,7 +686,6 @@ String fmtNum(double v) => ltr(numStr(v));
 String fmtDate(DateTime d) => ltr('${d.day}/${d.month}');
 String fmtFullDate(DateTime d) => ltr('${d.day}/${d.month}/${d.year}');
 
-// تنسيق التاريخ والوقت بالثانية للسجل
 String fmtFullDateTime(DateTime d) {
   final y = d.year.toString();
   final m = d.month.toString().padLeft(2, '0');
@@ -1084,6 +1083,281 @@ class AppDatabase {
       lastError = 'Import error: $e';
       return false;
     }
+  }
+}
+
+// ======================= النوافذ المساعدة =======================
+
+Future<void> showLanguageDialog(
+    BuildContext context, VoidCallback onChanged) async {
+  final code = await showDialog<String>(
+    context: context,
+    builder: (ctx) => SimpleDialog(
+      title: Text(t('language')),
+      children: [
+        for (final c in L10n.codes)
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, c),
+            child: Row(
+              children: [
+                Icon(
+                    c == L10n.lang
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_off,
+                    color: Colors.indigo),
+                const SizedBox(width: 12),
+                Text(L10n.names[c]!, style: const TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
+  if (code != null && code != L10n.lang) {
+    L10n.lang = code;
+    await AppDatabase.saveLang();
+    onChanged();
+  }
+}
+
+Future<String?> pickReportLang(BuildContext context) {
+  return showDialog<String>(
+    context: context,
+    builder: (ctx) => SimpleDialog(
+      title: Text(t('report_lang')),
+      children: [
+        for (final c in L10n.codes)
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, c),
+            child: Row(
+              children: [
+                const Icon(Icons.description, color: Colors.indigo),
+                const SizedBox(width: 12),
+                Text(L10n.names[c]!,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: c == L10n.lang
+                            ? FontWeight.bold
+                            : FontWeight.normal)),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+Future<void> showCurrencyDialog(
+    BuildContext context, VoidCallback onChanged) async {
+  final List<String> commonCurrencies = [
+    'XOF', 'SAR', 'AED', 'USD', 'EUR', 'DZD', 'MAD', 'EGP', 'TND', 'IQD', 'KWD', 'QAR', 'OMR', 'BHD', 'JOD', 'LBP', 'LYD'
+  ];
+  final customController = TextEditingController();
+  final otController =
+      TextEditingController(text: numStr(AppDatabase.overtimeRate));
+
+  await showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setD) => AlertDialog(
+        title: Text(t('change_currency')),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${t('currency')}: ${AppDatabase.currency}',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: commonCurrencies.map((c) {
+                  final isSelected = c == AppDatabase.currency;
+                  return ChoiceChip(
+                    label: Text(c),
+                    selected: isSelected,
+                    selectedColor: Colors.indigo.shade100,
+                    onSelected: (val) {
+                      if (val) {
+                        setD(() {
+                          AppDatabase.currency = c;
+                          customController.text = c;
+                        });
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: customController,
+                decoration: InputDecoration(
+                  labelText: t('custom_currency'),
+                  hintText: t('enter_custom_currency'),
+                  border: const OutlineInputBorder(),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                ),
+                onChanged: (val) {
+                  if (val.trim().isNotEmpty) {
+                    AppDatabase.currency = val.trim();
+                  }
+                },
+              ),
+              const Divider(height: 24),
+              TextField(
+                controller: otController,
+                decoration: InputDecoration(
+                  labelText:
+                      '${t('edit_overtime_rate')} (${AppDatabase.currency})',
+                  helperText: t('overtime_rate_hint'),
+                  border: const OutlineInputBorder(),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (val) {
+                  final parsed = double.tryParse(val);
+                  if (parsed != null && parsed >= 0) {
+                    AppDatabase.overtimeRate = parsed;
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t('cancel')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+            onPressed: () async {
+              if (customController.text.trim().isNotEmpty) {
+                AppDatabase.currency = customController.text.trim();
+              }
+              final parsedOt = double.tryParse(otController.text);
+              if (parsedOt != null && parsedOt >= 0) {
+                AppDatabase.overtimeRate = parsedOt;
+              }
+              await AppDatabase.saveSettings();
+              Navigator.pop(ctx);
+              onChanged();
+            },
+            child: Text(t('save'),
+                style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Future<void> showBackupDialog(
+    BuildContext context, VoidCallback onDataUpdated) async {
+  final importController = TextEditingController();
+
+  await showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(t('backup_menu')),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton.icon(
+              icon: const Icon(Icons.share, color: Colors.white),
+              label: Text(t('export_backup'),
+                  style: const TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+              onPressed: () async {
+                final jsonStr = AppDatabase.exportBackupJson();
+                await Share.share(jsonStr,
+                    subject: 'WookFlow Backup ${dateKey(DateTime.now())}');
+              },
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            Text(t('import_backup'),
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: importController,
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText: t('paste_json'),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.download, color: Colors.white),
+              label: Text(t('confirm'),
+                  style: const TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final ok =
+                    await AppDatabase.importBackupJson(importController.text);
+                Navigator.pop(ctx);
+                if (ok) {
+                  onDataUpdated();
+                  messenger.showSnackBar(
+                      SnackBar(content: Text(t('restore_done'))));
+                } else {
+                  messenger.showSnackBar(
+                      SnackBar(content: Text(t('restore_err'))));
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(ctx), child: Text(t('cancel'))),
+      ],
+    ),
+  );
+}
+
+// ======================= التشغيل =======================
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppDatabase.loadData();
+  runApp(const WookFlowApp());
+}
+
+class WookFlowApp extends StatelessWidget {
+  const WookFlowApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: L10n.notifier,
+      builder: (context, lang, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'WookFlow',
+          theme: ThemeData(
+            primarySwatch: Colors.indigo,
+            useMaterial3: true,
+            scaffoldBackgroundColor: const Color(0xFFF4F6F9),
+          ),
+          builder: (context, child) => Directionality(
+            textDirection:
+                lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+            child: child ?? const SizedBox.shrink(),
+          ),
+          home: const MainDashboardWrapper(),
+        );
+      },
+    );
   }
 }
 
@@ -2160,7 +2434,7 @@ class _SitesScreenState extends State<SitesScreen> {
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text(t('confirm_delivery_title')),
-          content: Text('${t('confirm_delivery_paid_body')}\\n(${site.name})'),
+          content: Text('${t('confirm_delivery_paid_body')}\n(${site.name})'),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
@@ -2302,7 +2576,7 @@ class _SitesScreenState extends State<SitesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t('delete_site_title')),
-        content: Text('${t('delete_site_confirm_msg')}\\n(${site.name})'),
+        content: Text('${t('delete_site_confirm_msg')}\n(${site.name})'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -2355,7 +2629,7 @@ class _SitesScreenState extends State<SitesScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtCurrency(site.totalContractAmount)}\\n${t('received')}: ${fmtCurrency(site.totalPaid)} | ${t('remaining')}: ${fmtCurrency(remaining)}'),
+                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)} | ${t('remaining')}: ${fmtCurrency(remaining)}'),
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -2411,7 +2685,7 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t('reopen_confirm_title')),
-        content: Text('${t('reopen_confirm_msg')}\\n(${site.name})'),
+        content: Text('${t('reopen_confirm_msg')}\n(${site.name})'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -2448,7 +2722,7 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
       builder: (ctx) => AlertDialog(
         title: Text(t('delete_delivered_site')),
         content:
-            Text('${t('delete_delivered_confirm_msg')}\\n(${site.name})'),
+            Text('${t('delete_delivered_confirm_msg')}\n(${site.name})'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -2505,11 +2779,11 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.lineThrough)),
                     subtitle: Text(
-                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}\\n'
+                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}\n'
                         '${t('received')}: ${fmtCurrency(site.totalPaid)}'
                         '${remaining > 0 ? " | ${t('remaining')}: ${fmtCurrency(remaining)}" : ""}'
                         ' (${t('delivered_flag')})'
-                        '${site.deliveryNote.isNotEmpty ? "\\n📌 ${t('delivery_note_prefix')}: ${site.deliveryNote}" : ""}'),
+                        '${site.deliveryNote.isNotEmpty ? "\n📌 ${t('delivery_note_prefix')}: ${site.deliveryNote}" : ""}'),
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -2567,7 +2841,7 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}\\n${t('received')}: ${fmtCurrency(site.totalPaid)}\\n${t('remaining')}: ${fmtCurrency(remaining)}'),
+                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)}\n${t('remaining')}: ${fmtCurrency(remaining)}'),
                     isThreeLine: true,
                     trailing: IconButton(
                       icon: const Icon(Icons.add_card, color: Colors.indigo),
@@ -3154,1017 +3428,4 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
     );
   }
 }
-
-// ======================= شاشات وقوائم العمال والتقارير =======================
-
-class WorkersListScreen extends StatefulWidget {
-  const WorkersListScreen({super.key});
-
-  @override
-  State<WorkersListScreen> createState() => _WorkersListScreenState();
-}
-
-class _WorkersListScreenState extends State<WorkersListScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final allWorkers = AppDatabase.workers;
-
-    return Scaffold(
-      appBar: AppBar(
-          title: Text(t('workers_list_title')),
-          backgroundColor: Colors.indigo,
-          iconTheme: const IconThemeData(color: Colors.white)),
-      body: allWorkers.isEmpty
-          ? Center(child: Text(t('no_workers')))
-          : ListView.builder(
-              itemCount: allWorkers.length,
-              itemBuilder: (context, index) {
-                final worker = allWorkers[index];
-                return Card(
-                  margin: const EdgeInsets.all(8),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                          worker.isArchived ? Colors.grey : Colors.indigo,
-                      child: Icon(
-                        worker.isArchived
-                            ? Icons.person_off
-                            : Icons.person,
-                        color: Colors.white,
-                      ),
-                    ),
-                    title: Row(
-                      children: [
-                        Text(worker.name,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        if (worker.isArchived) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                                color: Colors.orange.shade100,
-                                borderRadius: BorderRadius.circular(4)),
-                            child: Text(t('archived_tab'),
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.orange.shade900)),
-                          ),
-                        ]
-                      ],
-                    ),
-                    subtitle: Text(
-                        '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
-                    trailing: const Icon(Icons.edit, color: Colors.indigo),
-                    onTap: () => _editWorkerDialog(context, worker),
-                  ),
-                );
-              },
-            ),
-    );
-  }
-
-  void _editWorkerDialog(BuildContext context, Worker worker) {
-    final nameController = TextEditingController(text: worker.name);
-    final rateController =
-        TextEditingController(text: numStr(worker.dailyRate));
-    final phoneController = TextEditingController(text: worker.phone);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(t('edit_worker')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: t('worker_name'))),
-            TextField(
-                controller: rateController,
-                decoration: InputDecoration(
-                    labelText: '${t('daily_wage')} (${AppDatabase.currency})'),
-                keyboardType: TextInputType.number),
-            TextField(
-                controller: phoneController,
-                decoration: InputDecoration(labelText: t('phone_number')),
-                keyboardType: TextInputType.phone),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(t('cancel'))),
-          ElevatedButton(
-            onPressed: () async {
-              setState(() {
-                worker.name = nameController.text.trim();
-                worker.dailyRate =
-                    double.tryParse(rateController.text) ?? worker.dailyRate;
-                worker.phone = phoneController.text.trim();
-              });
-              AppDatabase.logActivity('workers', 'تعديل بيانات عامل',
-                  'تم تعديل بيانات العامل ${worker.name}');
-              Navigator.pop(dialogContext);
-              await AppDatabase.saveData();
-            },
-            child: Text(t('save_edits')),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ======================= التقارير الأسبوعية =======================
-
-class WeekNavigator extends StatelessWidget {
-  final DateTime weekStart;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
-  const WeekNavigator(
-      {super.key,
-      required this.weekStart,
-      required this.onPrev,
-      required this.onNext});
-
-  @override
-  Widget build(BuildContext context) {
-    final end = addDays(weekStart, 6);
-    return Container(
-      color: Colors.indigo.shade50,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-                icon: const Icon(Icons.chevron_left, color: Colors.indigo),
-                onPressed: onPrev),
-            Flexible(
-              child: Text(
-                '${t('week')}: ${fmtFullDate(weekStart)} - ${fmtFullDate(end)}',
-                textAlign: TextAlign.center,
-                textDirection:
-                    L10n.isRtl ? TextDirection.rtl : TextDirection.ltr,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            IconButton(
-                icon: const Icon(Icons.chevron_right, color: Colors.indigo),
-                onPressed: onNext),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-String dayCellText(DayLog? log, double rate, String lang) {
-  if (log == null) return '';
-  if (!log.worked) return L10n.tr('holiday', lang);
-  return fmtMoney(log.total(rate));
-}
-
-String buildWorkerWeekText(Worker w, DateTime ws, String lang) {
-  String tr(String k) => L10n.tr(k, lang);
-  final sb = StringBuffer();
-  sb.writeln('📊 ${tr('worker_report')}: ${w.name}');
-  sb.writeln('📅 ${tr('week')}: ${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}');
-  sb.writeln('');
-  double total = 0, base = 0, ot = 0, trans = 0;
-  int days = 0;
-  for (int i = 0; i < 7; i++) {
-    final d = addDays(ws, i);
-    final log = w.logFor(d);
-    final label = '${L10n.day(i, lang)} ${fmtDate(d)}';
-    if (log == null) {
-      sb.writeln('$label: —');
-    } else if (!log.worked) {
-      sb.writeln('$label: ${tr('holiday')}');
-    } else {
-      final dayTotal = log.total(w.dailyRate);
-      total += dayTotal;
-      base += w.dailyRate;
-      ot += log.overtimeHours * AppDatabase.overtimeRate;
-      trans += log.transport;
-      days++;
-      sb.writeln(
-          '$label: ${log.site.isEmpty ? "" : "${log.site} | "}${tr('overtime_short')} ${fmtNum(log.overtimeHours)}${tr('hour_short')} | ${tr('transport_short')} ${fmtMoney(log.transport)} = ${fmtCurrency(dayTotal)}${log.note.isEmpty ? "" : " | ${log.note}"}');
-    }
-  }
-  sb.writeln('');
-  sb.writeln('${tr('work_days')}: ${ltr('$days')}');
-  sb.writeln('${tr('sum_days')}: ${fmtCurrency(base)}');
-  sb.writeln('${tr('sum_overtime')}: ${fmtCurrency(ot)}');
-  sb.writeln('${tr('sum_transport')}: ${fmtCurrency(trans)}');
-  sb.writeln('💰 ${tr('weekly_total')}: ${fmtCurrency(total)}');
-  return sb.toString();
-}
-
-String buildAllWeekText(DateTime ws, String lang) {
-  String tr(String k) => L10n.tr(k, lang);
-  final sb = StringBuffer();
-  sb.writeln('📊 ${tr('all_report')}');
-  sb.writeln('📅 ${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}');
-  sb.writeln('');
-  double grand = 0;
-  final weekWorkers = AppDatabase.workersForWeek(ws);
-  for (final w in weekWorkers) {
-    final tot = w.weekTotal(ws);
-    grand += tot;
-    sb.writeln('👷 ${w.name}: ${fmtCurrency(tot)}');
-  }
-  sb.writeln('');
-  sb.writeln('💰 ${tr('grand_total')}: ${fmtCurrency(grand)}');
-  return sb.toString();
-}
-
-// ---------- محرك إنشاء الـ PDF بحل مشكلة المربعات والخطوط ----------
-
-bool gPdfFontFailed = false;
-
-Future<pw.Document> _newPdf() async {
-  gPdfFontFailed = false;
-  pw.Font? regular;
-  pw.Font? bold;
-
-  // 1. محاولة تحميل الخط محلياً من Assets ليعمل 100% بدون إنترنت
-  try {
-    final regData = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
-    regular = pw.Font.ttf(regData);
-    try {
-      final boldData = await rootBundle.load('assets/fonts/Cairo-Bold.ttf');
-      bold = pw.Font.ttf(boldData);
-    } catch (_) {
-      bold = regular;
-    }
-  } catch (_) {
-    // 2. إذا لم يكن مدمجاً في assets، تحميل الخط من Google Fonts عبر الإنترنت
-    try {
-      regular = await PdfGoogleFonts.cairoRegular();
-      bold = await PdfGoogleFonts.cairoBold();
-    } catch (_) {
-      try {
-        regular = await PdfGoogleFonts.notoSansArabicRegular();
-        bold = await PdfGoogleFonts.notoSansArabicBold();
-      } catch (_) {
-        try {
-          regular = await PdfGoogleFonts.amiriRegular();
-          bold = await PdfGoogleFonts.amiriBold();
-        } catch (_) {
-          gPdfFontFailed = true;
-        }
-      }
-    }
-  }
-
-  if (regular != null) {
-    bold ??= regular;
-    return pw.Document(
-      theme: pw.ThemeData.withFont(
-        base: regular,
-        bold: bold,
-        fontFallback: [regular, bold],
-      ),
-    );
-  } else {
-    return pw.Document();
-  }
-}
-
-pw.Widget _pdfCell(String text,
-    {bool bold = false, bool rtl = false, bool numeric = false}) {
-  final cleanText = plain(text);
-  final isAr = hasArabic(cleanText);
-  final textDir = (isAr || (rtl && !numeric))
-      ? pw.TextDirection.rtl
-      : pw.TextDirection.ltr;
-
-  return pw.Padding(
-    padding: const pw.EdgeInsets.all(4),
-    child: pw.Text(
-      cleanText,
-      textDirection: textDir,
-      style: pw.TextStyle(
-          fontSize: 10,
-          fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal),
-    ),
-  );
-}
-
-pw.Widget _pdfLine(String label, String value,
-    {required bool rtl, bool big = false}) {
-  final style = pw.TextStyle(
-      fontSize: big ? 15 : 11,
-      fontWeight: big ? pw.FontWeight.bold : pw.FontWeight.normal);
-  final labelW = pw.Text('$label:',
-      textDirection: rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
-      style: style);
-  final valueW = pw.Text(plain(value),
-      textDirection: pw.TextDirection.ltr, style: style);
-  return pw.Padding(
-    padding: const pw.EdgeInsets.only(top: 3),
-    child: pw.Row(
-      mainAxisSize: pw.MainAxisSize.min,
-      children: rtl
-          ? [valueW, pw.SizedBox(width: 6), labelW]
-          : [labelW, pw.SizedBox(width: 6), valueW],
-    ),
-  );
-}
-
-Future<void> shareWorkerWeekPdf(
-    BuildContext context, Worker w, DateTime ws, String lang) async {
-  final messenger = ScaffoldMessenger.of(context);
-  String tr(String k) => L10n.tr(k, lang);
-  final rtl = lang == 'ar';
-  final td = rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
-  final pdf = await _newPdf();
-
-  List<pw.Widget> order(List<pw.Widget> c) => rtl ? c.reversed.toList() : c;
-
-  final rows = <pw.TableRow>[
-    pw.TableRow(
-      children: order(<pw.Widget>[
-        _pdfCell(tr('day_col'), bold: true, rtl: rtl),
-        _pdfCell(tr('site'), bold: true, rtl: rtl),
-        _pdfCell(tr('overtime_short'), bold: true, rtl: rtl),
-        _pdfCell(tr('transport_short'), bold: true, rtl: rtl),
-        _pdfCell(tr('amount'), bold: true, rtl: rtl),
-      ]),
-    ),
-  ];
-
-  double base = 0, ot = 0, trans = 0, total = 0;
-  int days = 0;
-  for (int i = 0; i < 7; i++) {
-    final d = addDays(ws, i);
-    final log = w.logFor(d);
-    String siteText = '-';
-    if (log != null) {
-      siteText = log.worked ? (log.site.isEmpty ? '-' : log.site) : tr('holiday');
-    }
-    if (log != null && log.worked) {
-      days++;
-      base += w.dailyRate;
-      ot += log.overtimeHours * AppDatabase.overtimeRate;
-      trans += log.transport;
-      total += log.total(w.dailyRate);
-    }
-    rows.add(pw.TableRow(
-      children: order(<pw.Widget>[
-        _pdfCell('${L10n.day(i, lang)} ${fmtDate(d)}', rtl: rtl),
-        _pdfCell(siteText, rtl: rtl),
-        _pdfCell(log != null && log.worked ? fmtNum(log.overtimeHours) : '-',
-            numeric: true),
-        _pdfCell(log != null && log.worked ? fmtMoney(log.transport) : '-',
-            numeric: true),
-        _pdfCell(log == null ? '-' : fmtMoney(log.total(w.dailyRate)),
-            numeric: true),
-      ]),
-    ));
-  }
-
-  pdf.addPage(
-    pw.Page(
-      margin: const pw.EdgeInsets.all(28),
-      build: (pw.Context ctx) => pw.Column(
-        crossAxisAlignment:
-            rtl ? pw.CrossAxisAlignment.end : pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text('${tr('worker_report')}: ${w.name}',
-              textDirection: hasArabic(w.name) ? pw.TextDirection.rtl : td,
-              style:
-                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 4),
-          _pdfLine(tr('week'), '${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}',
-              rtl: rtl),
-          pw.SizedBox(height: 14),
-          pw.Table(border: pw.TableBorder.all(), children: rows),
-          pw.SizedBox(height: 14),
-          _pdfLine(tr('work_days'), '$days', rtl: rtl),
-          _pdfLine(tr('sum_days'), fmtCurrency(base), rtl: rtl),
-          _pdfLine(tr('sum_overtime'), fmtCurrency(ot), rtl: rtl),
-          _pdfLine(tr('sum_transport'), fmtCurrency(trans), rtl: rtl),
-          pw.SizedBox(height: 8),
-          _pdfLine(tr('weekly_total'), fmtCurrency(total), rtl: rtl, big: true),
-        ],
-      ),
-    ),
-  );
-
-  AppDatabase.logActivity('pdf', 'تصدير تقرير عامل PDF',
-      'تم تصدير تقرير PDF للعامل ${w.name} للأسبوع ${fmtDate(ws)}');
-
-  await Printing.sharePdf(
-      bytes: await pdf.save(), filename: 'report_${w.name}.pdf');
-  if (gPdfFontFailed) {
-    messenger.showSnackBar(SnackBar(content: Text(t('pdf_font_err'))));
-  }
-}
-
-Future<void> shareAllWeekPdf(
-    BuildContext context, DateTime ws, String lang) async {
-  final messenger = ScaffoldMessenger.of(context);
-  String tr(String k) => L10n.tr(k, lang);
-  final rtl = lang == 'ar';
-  final td = rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
-  final pdf = await _newPdf();
-
-  List<pw.Widget> order(List<pw.Widget> c) => rtl ? c.reversed.toList() : c;
-
-  final header = <pw.Widget>[_pdfCell(tr('worker_col'), bold: true, rtl: rtl)];
-  for (int i = 0; i < 7; i++) {
-    header.add(_pdfCell('${L10n.day(i, lang)}\\n${fmtDate(addDays(ws, i))}',
-        bold: true, rtl: rtl));
-  }
-  header.add(_pdfCell(tr('total_word'), bold: true, rtl: rtl));
-
-  final rows = <pw.TableRow>[pw.TableRow(children: order(header))];
-  double grand = 0;
-  final dayTotals = List<double>.filled(7, 0.0);
-  final weekWorkers = AppDatabase.workersForWeek(ws);
-
-  for (final w in weekWorkers) {
-    final cells = <pw.Widget>[_pdfCell(w.name, rtl: rtl)];
-    for (int i = 0; i < 7; i++) {
-      final log = w.logFor(addDays(ws, i));
-      dayTotals[i] += log?.total(w.dailyRate) ?? 0.0;
-      cells.add(_pdfCell(dayCellText(log, w.dailyRate, lang),
-          rtl: rtl, numeric: log != null && log.worked));
-    }
-    final tot = w.weekTotal(ws);
-    grand += tot;
-    cells.add(_pdfCell(fmtMoney(tot), bold: true, numeric: true));
-    rows.add(pw.TableRow(children: order(cells)));
-  }
-
-  final totalCells = <pw.Widget>[_pdfCell(tr('total_word'), bold: true, rtl: rtl)];
-  for (int i = 0; i < 7; i++) {
-    totalCells.add(_pdfCell(fmtMoney(dayTotals[i]), bold: true, numeric: true));
-  }
-  totalCells.add(_pdfCell(fmtMoney(grand), bold: true, numeric: true));
-  rows.add(pw.TableRow(children: order(totalCells)));
-
-  pdf.addPage(
-    pw.Page(
-      pageFormat: PdfPageFormat.a4.landscape,
-      margin: const pw.EdgeInsets.all(24),
-      build: (pw.Context ctx) => pw.Column(
-        crossAxisAlignment:
-            rtl ? pw.CrossAxisAlignment.end : pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(tr('all_report'),
-              textDirection: td,
-              style:
-                  pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 4),
-          _pdfLine(tr('week'), '${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}',
-              rtl: rtl),
-          pw.SizedBox(height: 12),
-          pw.Table(border: pw.TableBorder.all(), children: rows),
-          pw.SizedBox(height: 12),
-          _pdfLine(tr('grand_total'), fmtCurrency(grand), rtl: rtl, big: true),
-        ],
-      ),
-    ),
-  );
-
-  AppDatabase.logActivity('pdf', 'تصدير تقرير أسبوعي لجميع العمال PDF',
-      'تم تصدير التقرير المشترك للأسبوع ${fmtDate(ws)} بمبلغ إجمالي ${fmtCurrency(grand)}');
-
-  await Printing.sharePdf(bytes: await pdf.save(), filename: 'weekly_all.pdf');
-  if (gPdfFontFailed) {
-    messenger.showSnackBar(SnackBar(content: Text(t('pdf_font_err'))));
-  }
-}
-
-class WeeklySummaryScreen extends StatefulWidget {
-  const WeeklySummaryScreen({super.key});
-
-  @override
-  State<WeeklySummaryScreen> createState() => _WeeklySummaryScreenState();
-}
-
-class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
-  DateTime _weekStart = weekStartOf(DateTime.now());
-
-  void _shift(int weeks) =>
-      setState(() => _weekStart = addDays(_weekStart, 7 * weeks));
-
-  @override
-  Widget build(BuildContext context) {
-    final weekWorkers = AppDatabase.workersForWeek(_weekStart);
-    double grand = 0;
-    for (final w in weekWorkers) {
-      grand += w.weekTotal(_weekStart);
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-          title: Text(t('weekly_title')),
-          backgroundColor: Colors.indigo,
-          iconTheme: const IconThemeData(color: Colors.white)),
-      body: weekWorkers.isEmpty
-          ? Center(child: Text(t('no_data')))
-          : Column(
-              children: [
-                WeekNavigator(
-                    weekStart: _weekStart,
-                    onPrev: () => _shift(-1),
-                    onNext: () => _shift(1)),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      Card(
-                        color: Colors.indigo.shade50,
-                        child: ListTile(
-                          title: Text(t('joint_report'),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16)),
-                          subtitle: Text(
-                              '${t('joint_sub')}\\n${t('total_word')}: ${fmtCurrency(grand)}'),
-                          isThreeLine: true,
-                          trailing: const Icon(Icons.arrow_forward_ios),
-                          onTap: () async {
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => AllWorkersWeekScreen(
-                                        weekStart: _weekStart)));
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(t('per_worker'),
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      ...weekWorkers.map((worker) {
-                        final logs = worker.weekLogs(_weekStart);
-                        final days =
-                            logs.where((l) => l != null && l.worked).length;
-                        return Card(
-                          child: ListTile(
-                            title: Row(
-                              children: [
-                                Text(worker.name),
-                                if (worker.isArchived) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                        color: Colors.orange.shade100,
-                                        borderRadius:
-                                            BorderRadius.circular(4)),
-                                    child: Text(t('archived_tab'),
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.orange.shade900)),
-                                  ),
-                                ]
-                              ],
-                            ),
-                            subtitle:
-                                Text('${t('work_days')}: ${ltr('$days')}'),
-                            trailing: Text(fmtCurrency(worker.weekTotal(_weekStart)),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.indigo)),
-                            onTap: () async {
-                              await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          WorkerWeekReportScreen(
-                                              worker: worker,
-                                              weekStart: _weekStart)));
-                              setState(() {});
-                            },
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-}
-
-class AllWorkersWeekScreen extends StatefulWidget {
-  final DateTime weekStart;
-  const AllWorkersWeekScreen({super.key, required this.weekStart});
-
-  @override
-  State<AllWorkersWeekScreen> createState() => _AllWorkersWeekScreenState();
-}
-
-class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
-  late DateTime _weekStart;
-
-  @override
-  void initState() {
-    super.initState();
-    _weekStart = widget.weekStart;
-  }
-
-  void _shift(int weeks) =>
-      setState(() => _weekStart = addDays(_weekStart, 7 * weeks));
-
-  @override
-  Widget build(BuildContext context) {
-    final workers = AppDatabase.workersForWeek(_weekStart);
-    final lang = L10n.lang;
-    double grand = 0;
-    final dayTotals = List<double>.filled(7, 0.0);
-    for (final w in workers) {
-      grand += w.weekTotal(_weekStart);
-      for (int i = 0; i < 7; i++) {
-        dayTotals[i] +=
-            w.logFor(addDays(_weekStart, i))?.total(w.dailyRate) ?? 0.0;
-      }
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t('joint_report')),
-        backgroundColor: Colors.indigo,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf),
-            tooltip: t('pdf_tip'),
-            onPressed: () async {
-              final rl = await pickReportLang(context);
-              if (rl == null || !mounted) return;
-              await shareAllWeekPdf(context, _weekStart, rl);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.share),
-            tooltip: t('share_tip'),
-            onPressed: () async {
-              final rl = await pickReportLang(context);
-              if (rl == null) return;
-              await Share.share(buildAllWeekText(_weekStart, rl));
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          WeekNavigator(
-              weekStart: _weekStart,
-              onPrev: () => _shift(-1),
-              onNext: () => _shift(1)),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: SingleChildScrollView(
-                child: DataTable(
-                  columnSpacing: 14,
-                  headingRowHeight: 60,
-                  columns: [
-                    DataColumn(label: Text(t('worker_col'))),
-                    for (int i = 0; i < 7; i++)
-                      DataColumn(
-                        label: Text(
-                            '${L10n.day(i)}\\n${fmtDate(addDays(_weekStart, i))}',
-                            textAlign: TextAlign.center),
-                      ),
-                    DataColumn(label: Text(t('total_word'))),
-                  ],
-                  rows: [
-                    ...workers.map((w) => DataRow(cells: [
-                          DataCell(Text(w.name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold))),
-                          for (int i = 0; i < 7; i++)
-                            DataCell(Text(dayCellText(
-                                w.logFor(addDays(_weekStart, i)),
-                                w.dailyRate,
-                                lang))),
-                          DataCell(Text(fmtMoney(w.weekTotal(_weekStart)),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.indigo))),
-                        ])),
-                    DataRow(cells: [
-                      DataCell(Text(t('total_word'),
-                          style: const TextStyle(fontWeight: FontWeight.bold))),
-                      for (int i = 0; i < 7; i++)
-                        DataCell(Text(fmtMoney(dayTotals[i]),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold))),
-                      DataCell(Text(fmtMoney(grand),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.indigo))),
-                    ]),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.indigo.shade100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text('${t('grand_total')}:',
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold)),
-                ),
-                Text(fmtCurrency(grand),
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.indigo)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class WorkerWeekReportScreen extends StatefulWidget {
-  final Worker worker;
-  final DateTime weekStart;
-  const WorkerWeekReportScreen(
-      {super.key, required this.worker, required this.weekStart});
-
-  @override
-  State<WorkerWeekReportScreen> createState() => _WorkerWeekReportScreenState();
-}
-
-class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
-  late DateTime _weekStart;
-
-  @override
-  void initState() {
-    super.initState();
-    _weekStart = widget.weekStart;
-  }
-
-  void _shift(int weeks) =>
-      setState(() => _weekStart = addDays(_weekStart, 7 * weeks));
-
-  String _describe(DayLog? log) {
-    if (log == null) return t('not_logged');
-    if (!log.worked) return t('holiday');
-    final siteText = log.site.isEmpty ? '—' : log.site;
-    return '${t('site')}: $siteText\\n${t('overtime_short')}: ${fmtNum(log.overtimeHours)} ${t('hour_short')} | ${t('transport_short')}: ${fmtCurrency(log.transport)}${log.note.isEmpty ? "" : "\\n${log.note}"}';
-  }
-
-  void _editDay(DateTime day) {
-    final w = widget.worker;
-    final key = dateKey(day);
-    final existing = w.logs[key];
-
-    bool worked = existing?.worked ?? true;
-    final names = AppDatabase.sites
-        .where((s) => !s.isDelivered)
-        .map((s) => s.name)
-        .toList();
-    String site = existing?.site ?? '';
-    if (site.isNotEmpty && !names.contains(site)) names.add(site);
-    if (site.isEmpty && names.isNotEmpty) site = names.first;
-
-    final otCtrl = TextEditingController(
-        text: (existing == null || existing.overtimeHours == 0)
-            ? ''
-            : numStr(existing.overtimeHours));
-    final trCtrl = TextEditingController(
-        text: (existing == null || existing.transport == 0)
-            ? ''
-            : numStr(existing.transport));
-    final noteCtrl = TextEditingController(text: existing?.note ?? '');
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (ctx, setD) => AlertDialog(
-          title: Text('${L10n.day(day.weekday % 7)} ${fmtDate(day)} - ${w.name}'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(t('works')),
-                    Switch(
-                        value: worked, onChanged: (v) => setD(() => worked = v)),
-                  ],
-                ),
-                if (names.isNotEmpty)
-                  InputDecorator(
-                    decoration: InputDecoration(labelText: t('site')),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: names.contains(site) ? site : null,
-                        items: names
-                            .map((n) =>
-                                DropdownMenuItem(value: n, child: Text(n)))
-                            .toList(),
-                        onChanged:
-                            worked ? (v) => setD(() => site = v ?? '') : null,
-                      ),
-                    ),
-                  ),
-                TextField(
-                  controller: otCtrl,
-                  enabled: worked,
-                  decoration: InputDecoration(labelText: t('overtime')),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: trCtrl,
-                  enabled: worked,
-                  decoration: InputDecoration(
-                      labelText: '${t('transport')} (${AppDatabase.currency})'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: noteCtrl,
-                  enabled: worked,
-                  decoration: InputDecoration(labelText: t('note')),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            if (existing != null)
-              TextButton(
-                onPressed: () async {
-                  w.logs.remove(key);
-                  AppDatabase.logActivity('attendance', 'مسح يوم عمل',
-                      '${w.name} - تم مسح تسجيل يوم ${fmtDate(day)}');
-                  Navigator.pop(dialogContext);
-                  if (mounted) setState(() {});
-                  await AppDatabase.saveData();
-                },
-                child: Text(t('delete_day'),
-                    style: const TextStyle(color: Colors.red)),
-              ),
-            TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(t('cancel'))),
-            ElevatedButton(
-              onPressed: () async {
-                w.logs[key] = DayLog(
-                  worked: worked,
-                  site: site,
-                  overtimeHours: double.tryParse(otCtrl.text) ?? 0.0,
-                  transport: double.tryParse(trCtrl.text) ?? 0.0,
-                  note: noteCtrl.text.trim(),
-                );
-                AppDatabase.logActivity('attendance', 'تعديل تسجيل يوم',
-                    '${w.name} (${fmtDate(day)}): ${worked ? "يعمل في $site" : "عطلة"}');
-                Navigator.pop(dialogContext);
-                if (mounted) setState(() {});
-                await AppDatabase.saveData();
-              },
-              child: Text(t('save')),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _sumRow(String label, String value) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text(label), Text(value)],
-        ),
-      );
-
-  @override
-  Widget build(BuildContext context) {
-    final w = widget.worker;
-    final logs = w.weekLogs(_weekStart);
-    final today = dateOnly(DateTime.now());
-
-    int daysWorked = 0;
-    double baseTotal = 0, overtimeTotal = 0, transportTotal = 0;
-    for (final l in logs) {
-      if (l != null && l.worked) {
-        daysWorked++;
-        baseTotal += w.dailyRate;
-        overtimeTotal += l.overtimeHours * AppDatabase.overtimeRate;
-        transportTotal += l.transport;
-      }
-    }
-    final total = w.weekTotal(_weekStart);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${t('worker_report')}: ${w.name}',
-            overflow: TextOverflow.ellipsis),
-        backgroundColor: Colors.indigo,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.picture_as_pdf),
-            tooltip: t('pdf_tip'),
-            onPressed: () async {
-              final rl = await pickReportLang(context);
-              if (rl == null || !mounted) return;
-              await shareWorkerWeekPdf(context, w, _weekStart, rl);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.share),
-            tooltip: t('share_tip'),
-            onPressed: () async {
-              final rl = await pickReportLang(context);
-              if (rl == null) return;
-              await Share.share(buildWorkerWeekText(w, _weekStart, rl));
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          WeekNavigator(
-              weekStart: _weekStart,
-              onPrev: () => _shift(-1),
-              onNext: () => _shift(1)),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(8),
-              children: [
-                for (int i = 0; i < 7; i++)
-                  Builder(builder: (context) {
-                    final d = addDays(_weekStart, i);
-                    final log = logs[i];
-                    return Card(
-                      color: d == today ? Colors.indigo.shade50 : null,
-                      child: ListTile(
-                        isThreeLine: log != null && log.worked,
-                        title: Text('${L10n.day(i)}  ${fmtDate(d)}',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(_describe(log)),
-                        trailing: Text(
-                            log == null ? '—' : fmtCurrency(log.total(w.dailyRate)),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.indigo)),
-                        onTap: () => _editDay(d),
-                      ),
-                    );
-                  }),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        _sumRow(t('work_days'), ltr('$daysWorked')),
-                        _sumRow(t('sum_days'), fmtCurrency(baseTotal)),
-                        _sumRow(t('sum_overtime'), fmtCurrency(overtimeTotal)),
-                        _sumRow(t('sum_transport'), fmtCurrency(transportTotal)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.indigo.shade100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text('${t('weekly_total')}:',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-                Text(fmtCurrency(total),
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.indigo)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+'''
