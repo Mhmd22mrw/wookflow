@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
@@ -47,9 +48,9 @@ class L10n {
       'WookFlow - Sites & workers'
     ],
     'manager': [
-      'مدير الورشة (Abidjan)',
-      'Chef de chantier (Abidjan)',
-      'Site manager (Abidjan)'
+      'مدير الورشة',
+      'Chef de chantier',
+      'Site manager'
     ],
     'version': [
       'نظام إدارة المشاريع v1.0.0',
@@ -64,7 +65,11 @@ class L10n {
       'Daily report (attendance)'
     ],
     'm_add_worker': ['إضافة عامل جديد', 'Ajouter un ouvrier', 'Add worker'],
-    'm_delete_worker': ['حذف عامل', 'Supprimer un ouvrier', 'Delete worker'],
+    'm_delete_worker': [
+      'إدارة وأرشفة العمال',
+      'Gérer / archiver ouvriers',
+      'Manage / archive workers'
+    ],
     'm_sites': ['مواقع العمل (الورش)', 'Chantiers', 'Work sites'],
     'm_delivered': [
       'الورش المسلمة والمنتهية',
@@ -102,14 +107,14 @@ class L10n {
       'Workers today'
     ],
     'card_active_sites': ['الورش النشطة', 'Chantiers actifs', 'Active sites'],
-    'card_hour_rate': ['سعر ساعة العمل', 'Taux horaire', 'Hourly rate'],
+    'card_hour_rate': ['سعر ساعة الإضافي', 'Taux heure supp.', 'Overtime rate/h'],
     'card_weekly': ['ملخص الأسبوع', 'Résumé de la semaine', 'Weekly summary'],
     'view_reports': ['عرض التقارير', 'Voir les rapports', 'View reports'],
     'daily_title': ['التقرير اليومي', 'Rapport journalier', 'Daily report'],
     'works': ['يعمل؟', 'Présent ?', 'Working?'],
     'site': ['الورشة', 'Chantier', 'Site'],
     'overtime': ['ساعات إضافية', 'Heures supp.', 'Overtime hours'],
-    'transport': ['أجور النقل (XOF)', 'Transport (XOF)', 'Transport (XOF)'],
+    'transport': ['أجور النقل', 'Frais de transport', 'Transport costs'],
     'note': ['ملاحظة', 'Remarque', 'Note'],
     'day_total': ['إجمالي اليوم', 'Total du jour', 'Day total'],
     'save_close': [
@@ -129,9 +134,9 @@ class L10n {
       'Please enter the name'
     ],
     'rate_req': [
-      'اليومية (إجباري) - الساعة الإضافية 1000 XOF',
-      'Salaire journalier (obligatoire) - heure supp. 1000 XOF',
-      'Daily wage (required) - overtime hour 1000 XOF'
+      'الأجر اليومي',
+      'Salaire journalier',
+      'Daily wage'
     ],
     'enter_rate': [
       'يرجى إدخال اليومية',
@@ -149,7 +154,7 @@ class L10n {
       'Save worker'
     ],
     'worker_saved': [
-      'تم إضافة العامل وحفظه',
+      'تم إضافة العامل وحفظه بنجاح',
       'Ouvrier ajouté et enregistré',
       'Worker added and saved'
     ],
@@ -158,18 +163,63 @@ class L10n {
       "Échec de l'enregistrement",
       'Save failed'
     ],
-    'delete_title': ['حذف العمال', 'Supprimer des ouvriers', 'Delete workers'],
-    'deleted_ok': [
-      'تم حذف العمال المحددين بنجاح',
-      'Ouvriers supprimés avec succès',
-      'Selected workers deleted'
+    'manage_workers_title': [
+      'أرشفة وحذف العمال',
+      'Archivage / suppression ouvriers',
+      'Archive / delete workers'
     ],
-    'no_workers_now': [
-      'لا يوجد عمال مضافون حالياً',
-      "Aucun ouvrier pour le moment",
-      'No workers yet'
+    'archive_btn': [
+      'أرشفة العامل (إيقاف نشاطه مع حفظ تاريخه)',
+      'Archiver (conserver historique)',
+      'Archive (keep history)'
     ],
-    'select_all': ['اختيار الجميع', 'Tout sélectionner', 'Select all'],
+    'restore_btn': [
+      'إعادة تفعيل العامل',
+      'Réactiver l’ouvrier',
+      'Reactivate worker'
+    ],
+    'permanent_delete_btn': [
+      'حذف نهائي',
+      'Suppression définitive',
+      'Permanent delete'
+    ],
+    'active_tab': ['النشطون', 'Actifs', 'Active'],
+    'archived_tab': ['المؤرشفون (السابقون)', 'Archivés', 'Archived'],
+    'archive_success': [
+      'تم أرشفة العامل بنجاح مع الحفاظ على جميع سجلاته السابقة',
+      'Ouvrier archivé (historique conservé)',
+      'Worker archived (history preserved)'
+    ],
+    'restore_success': [
+      'تم إعادة تفعيل العامل بنجاح',
+      'Ouvrier réactivé avec succès',
+      'Worker reactivated'
+    ],
+    'permanent_delete_success': [
+      'تم الحذف النهائي للعامل',
+      'Ouvrier supprimé définitivement',
+      'Worker permanently deleted'
+    ],
+    'delete_confirm_title': [
+      'تأكيد الحذف النهائي',
+      'Confirmation de suppression',
+      'Confirm permanent deletion'
+    ],
+    'delete_confirm_body': [
+      'تحذير: الحذف النهائي سيحذف العامل وجميع أيامه وسجلاته القديمة تماماً! للأمان، يفضل استخدام (الأرشفة) للاحتفاظ بالتقارير. هل تريد المتابعة؟',
+      'Attention : Cela effacera définitivement l’ouvrier et son historique. Voulez-vous continuer ?',
+      'Warning: This permanently deletes the worker and all historical records. Proceed?'
+    ],
+    'no_active_workers': [
+      'لا يوجد عمال نشطون حالياً',
+      'Aucun ouvrier actif',
+      'No active workers'
+    ],
+    'no_archived_workers': [
+      'لا يوجد عمال مؤرشفون',
+      'Aucun ouvrier archivé',
+      'No archived workers'
+    ],
     'daily_wage': ['اليومية', 'Salaire/jour', 'Daily wage'],
     'phone': ['الهاتف', 'Tél.', 'Phone'],
     'add_site_title': [
@@ -186,6 +236,7 @@ class L10n {
     ],
     'cancel': ['إلغاء', 'Annuler', 'Cancel'],
     'save': ['حفظ', 'Enregistrer', 'Save'],
+    'confirm': ['تأكيد', 'Confirmer', 'Confirm'],
     'sites_title': [
       'مواقع العمل النشطة',
       'Chantiers actifs',
@@ -238,9 +289,9 @@ class L10n {
       'Total payments (received)'
     ],
     'new_payment': [
-      'قيمة الدفعة الجديدة (XOF)',
-      'Nouveau paiement (XOF)',
-      'New payment (XOF)'
+      'قيمة الدفعة الجديدة',
+      'Nouveau paiement',
+      'New payment'
     ],
     'workers_list_title': [
       'قائمة العمال وتعديل بياناتهم',
@@ -258,11 +309,6 @@ class L10n {
       'Edit worker'
     ],
     'worker_name': ['اسم العامل', "Nom de l'ouvrier", 'Worker name'],
-    'daily_xof': [
-      'اليومية (XOF)',
-      'Salaire/jour (XOF)',
-      'Daily wage (XOF)'
-    ],
     'phone_number': ['رقم الهاتف', 'Téléphone', 'Phone number'],
     'save_edits': [
       'حفظ التعديلات',
@@ -355,10 +401,54 @@ class L10n {
       'Partager en texte (WhatsApp)',
       'Share as text (WhatsApp)'
     ],
+    'currency': ['العملة', 'Devise', 'Currency'],
+    'change_currency': ['تغيير العملة', 'Changer la devise', 'Change currency'],
+    'custom_currency': ['عملة مخصصة', 'Devise personnalisée', 'Custom currency'],
+    'enter_custom_currency': ['أدخل رمز العملة', 'Entrez la devise', 'Enter currency'],
+    'edit_overtime_rate': [
+      'تعديل سعر ساعة الإضافي',
+      'Modifier taux heure supp.',
+      'Edit overtime hourly rate'
+    ],
+    'overtime_rate_hint': [
+      'سعر ساعة العمل الإضافي الافتراضي',
+      'Taux horaire par défaut',
+      'Default overtime hourly rate'
+    ],
+    'backup_menu': [
+      'النسخ الاحتياطي للبيانات',
+      'Sauvegarde des données',
+      'Data backup & restore'
+    ],
+    'export_backup': [
+      'تصدير نسخة احتياطية (مشاركة/حفظ)',
+      'Exporter une sauvegarde',
+      'Export backup'
+    ],
+    'import_backup': [
+      'استعادة نسخة احتياطية (لصق كود)',
+      'Restaurer une sauvegarde',
+      'Import backup'
+    ],
+    'paste_json': [
+      'الصق نص النسخة الاحتياطية هنا:',
+      'Collez le code de sauvegarde ici :',
+      'Paste backup JSON here:'
+    ],
+    'restore_done': [
+      'تمت استعادة البيانات بنجاح!',
+      'Données restaurées avec succès !',
+      'Data restored successfully!'
+    ],
+    'restore_err': [
+      'فشلت الاستعادة: البيانات غير صالحة',
+      'Échec : données invalides',
+      'Restore failed: Invalid data'
+    ],
     'pdf_font_err': [
-      'تعذّر تحميل الخط العربي (يلزم إنترنت)، قد لا تظهر الحروف العربية في PDF',
-      'Police arabe indisponible (internet requis)',
-      'Arabic font unavailable (internet required)'
+      'تنبيه: تعذّر تحميل الخط العربي عبر الإنترنت. لطباعة PDF بدون إنترنت وبدون مربعات، يُرجى تضمين الخط محلياً في assets.',
+      'Police arabe indisponible. Pour fonctionner hors ligne, intégrez la police dans assets.',
+      'Arabic font unavailable offline. Please bundle Cairo font in assets.'
     ],
   };
 }
@@ -367,9 +457,8 @@ String t(String key) => L10n.t(key);
 
 // ======================= دوال مساعدة =======================
 
-const String kLrm = '\u200E'; // علامة تثبّت اتجاه الأرقام من اليسار لليمين
-const String kNbsp = '\u00A0'; // مسافة لا تفصل الرقم
-const double kOvertimeRate = 1000;
+const String kLrm = '\u200E';
+const String kNbsp = '\u00A0';
 
 DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
@@ -378,7 +467,6 @@ DateTime addDays(DateTime d, int n) => DateTime(d.year, d.month, d.day + n);
 String dateKey(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-// بداية الأسبوع = الأحد
 DateTime weekStartOf(DateTime d) {
   final day = dateOnly(d);
   return DateTime(day.year, day.month, day.day - (day.weekday % 7));
@@ -400,15 +488,22 @@ String numStr(double v) =>
     v == v.roundToDouble() ? v.toInt().toString() : v.toString();
 
 String fmtMoney(double v) => ltr(_grouped(v));
-String fmtXof(double v) => ltr('${_grouped(v)}${kNbsp}XOF');
+String fmtCurrency(double v) => ltr('${_grouped(v)}${kNbsp}${AppDatabase.currency}');
+String fmtXof(double v) => fmtCurrency(v); // للتوافق مع استدعاءات الكود السابقة
 String fmtNum(double v) => ltr(numStr(v));
 String fmtDate(DateTime d) => ltr('${d.day}/${d.month}');
 String fmtFullDate(DateTime d) => ltr('${d.day}/${d.month}/${d.year}');
 
-// تنظيف النص قبل وضعه في PDF
 String plain(String s) => s.replaceAll(kLrm, '').replaceAll(kNbsp, ' ');
 
-// ======================= نافذتا اختيار اللغة =======================
+// فحص وجود أحرف عربية لضبط اتجاه النص بشكل سليم ومنع ظهور المربعات
+bool hasArabic(String text) {
+  return RegExp(
+          r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]')
+      .hasMatch(text);
+}
+
+// ======================= النوافذ المساعدة =======================
 
 Future<void> showLanguageDialog(
     BuildContext context, VoidCallback onChanged) async {
@@ -469,6 +564,186 @@ Future<String?> pickReportLang(BuildContext context) {
   );
 }
 
+// نافذة تغيير العملة وسعر ساعة الإضافي
+Future<void> showCurrencyDialog(
+    BuildContext context, VoidCallback onChanged) async {
+  final List<String> commonCurrencies = [
+    'XOF', 'SAR', 'AED', 'USD', 'EUR', 'DZD', 'MAD', 'EGP', 'TND', 'IQD', 'KWD', 'QAR', 'OMR', 'BHD', 'JOD', 'LBP', 'LYD'
+  ];
+  final customController = TextEditingController();
+  final otController =
+      TextEditingController(text: numStr(AppDatabase.overtimeRate));
+
+  await showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setD) => AlertDialog(
+        title: Text(t('change_currency')),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${t('currency')}: ${AppDatabase.currency}',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: commonCurrencies.map((c) {
+                  final isSelected = c == AppDatabase.currency;
+                  return ChoiceChip(
+                    label: Text(c),
+                    selected: isSelected,
+                    selectedColor: Colors.indigo.shade100,
+                    onSelected: (val) {
+                      if (val) {
+                        setD(() {
+                          AppDatabase.currency = c;
+                          customController.text = c;
+                        });
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: customController,
+                decoration: InputDecoration(
+                  labelText: t('custom_currency'),
+                  hintText: t('enter_custom_currency'),
+                  border: const OutlineInputBorder(),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                ),
+                onChanged: (val) {
+                  if (val.trim().isNotEmpty) {
+                    AppDatabase.currency = val.trim();
+                  }
+                },
+              ),
+              const Divider(height: 24),
+              TextField(
+                controller: otController,
+                decoration: InputDecoration(
+                  labelText:
+                      '${t('edit_overtime_rate')} (${AppDatabase.currency})',
+                  helperText: t('overtime_rate_hint'),
+                  border: const OutlineInputBorder(),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (val) {
+                  final parsed = double.tryParse(val);
+                  if (parsed != null && parsed >= 0) {
+                    AppDatabase.overtimeRate = parsed;
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t('cancel')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+            onPressed: () async {
+              if (customController.text.trim().isNotEmpty) {
+                AppDatabase.currency = customController.text.trim();
+              }
+              final parsedOt = double.tryParse(otController.text);
+              if (parsedOt != null && parsedOt >= 0) {
+                AppDatabase.overtimeRate = parsedOt;
+              }
+              await AppDatabase.saveSettings();
+              Navigator.pop(ctx);
+              onChanged();
+            },
+            child: Text(t('save'),
+                style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+// نافذة النسخ الاحتياطي والاستعادة لحماية البيانات من الضياع
+Future<void> showBackupDialog(
+    BuildContext context, VoidCallback onDataUpdated) async {
+  final importController = TextEditingController();
+
+  await showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(t('backup_menu')),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton.icon(
+              icon: const Icon(Icons.share, color: Colors.white),
+              label: Text(t('export_backup'),
+                  style: const TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+              onPressed: () async {
+                final jsonStr = AppDatabase.exportBackupJson();
+                await Share.share(jsonStr,
+                    subject: 'WookFlow Backup ${dateKey(DateTime.now())}');
+              },
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            Text(t('import_backup'),
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: importController,
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText: t('paste_json'),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.download, color: Colors.white),
+              label: Text(t('confirm'),
+                  style: const TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final ok =
+                    await AppDatabase.importBackupJson(importController.text);
+                Navigator.pop(ctx);
+                if (ok) {
+                  onDataUpdated();
+                  messenger.showSnackBar(
+                      SnackBar(content: Text(t('restore_done'))));
+                } else {
+                  messenger.showSnackBar(
+                      SnackBar(content: Text(t('restore_err'))));
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(ctx), child: Text(t('cancel'))),
+      ],
+    ),
+  );
+}
+
 // ======================= التشغيل =======================
 
 void main() async {
@@ -493,7 +768,6 @@ class WookFlowApp extends StatelessWidget {
             useMaterial3: true,
             scaffoldBackgroundColor: const Color(0xFFF4F6F9),
           ),
-          // اتجاه ثابت حسب اللغة: عربي = من اليمين، فرنسي/إنجليزي = من اليسار
           builder: (context, child) => Directionality(
             textDirection:
                 lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
@@ -523,8 +797,9 @@ class DayLog {
     this.note = '',
   });
 
-  double total(double dailyRate) =>
-      worked ? dailyRate + overtimeHours * kOvertimeRate + transport : 0.0;
+  double total(double dailyRate) => worked
+      ? dailyRate + overtimeHours * AppDatabase.overtimeRate + transport
+      : 0.0;
 
   Map<String, dynamic> toJson() => {
         'worked': worked,
@@ -548,6 +823,7 @@ class Worker {
   String name;
   double dailyRate;
   String phone;
+  bool isArchived; // خاصية أرشفة العامل للحفاظ على سجله التاريخي عند توقفه عن العمل
   Map<String, DayLog> logs;
 
   Worker({
@@ -555,6 +831,7 @@ class Worker {
     required this.name,
     required this.dailyRate,
     this.phone = '',
+    this.isArchived = false,
     Map<String, DayLog>? logs,
   }) : logs = logs ?? {};
 
@@ -571,6 +848,7 @@ class Worker {
         'name': name,
         'dailyRate': dailyRate,
         'phone': phone,
+        'isArchived': isArchived,
         'logs': logs.map((k, v) => MapEntry(k, v.toJson())),
       };
 
@@ -585,8 +863,9 @@ class Worker {
     return Worker(
       id: (json['id'] ?? '').toString(),
       name: (json['name'] ?? '').toString(),
-      dailyRate: ((json['dailyRate'] ?? 8000.0) as num).toDouble(),
+      dailyRate: ((json['dailyRate'] ?? 0.0) as num).toDouble(),
       phone: (json['phone'] ?? '').toString(),
+      isArchived: json['isArchived'] ?? false,
       logs: logs,
     );
   }
@@ -637,6 +916,33 @@ class AppDatabase {
   static String lastPopupDate = '';
   static String? lastError;
 
+  // إدارة العملة وسعر ساعة الإضافي
+  static ValueNotifier<String> currencyNotifier = ValueNotifier<String>('XOF');
+  static String get currency => currencyNotifier.value;
+  static set currency(String v) => currencyNotifier.value = v;
+
+  static ValueNotifier<double> overtimeRateNotifier =
+      ValueNotifier<double>(1000.0);
+  static double get overtimeRate => overtimeRateNotifier.value;
+  static set overtimeRate(double v) => overtimeRateNotifier.value = v;
+
+  // تصفية العمال النشطين (للتسجيل اليومي والقائمة النشطة)
+  static List<Worker> get activeWorkers =>
+      workers.where((w) => !w.isArchived).toList();
+
+  // تصفية العمال المؤرشفين
+  static List<Worker> get archivedWorkers =>
+      workers.where((w) => w.isArchived).toList();
+
+  // جلب العمال لأسبوع معين (يشمل النشطين + المؤرشفين الذين لديهم سجلات في هذا الأسبوع)
+  static List<Worker> workersForWeek(DateTime ws) {
+    return workers.where((w) {
+      if (!w.isArchived) return true;
+      final logs = w.weekLogs(ws);
+      return logs.any((l) => l != null);
+    }).toList();
+  }
+
   static Future<void> loadData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -647,6 +953,16 @@ class AppDatabase {
       final savedLang = prefs.getString('app_lang');
       if (savedLang != null && L10n.codes.contains(savedLang)) {
         L10n.lang = savedLang;
+      }
+
+      final savedCurrency = prefs.getString('app_currency');
+      if (savedCurrency != null && savedCurrency.trim().isNotEmpty) {
+        currency = savedCurrency.trim();
+      }
+
+      final savedOt = prefs.getDouble('app_overtime_rate');
+      if (savedOt != null && savedOt >= 0) {
+        overtimeRate = savedOt;
       }
 
       if (workersStr != null) {
@@ -674,6 +990,9 @@ class AppDatabase {
       final ok2 = await prefs.setString(
           'sites_data', jsonEncode(sites.map((e) => e.toJson()).toList()));
       final ok3 = await prefs.setString('last_popup_date', lastPopupDate);
+      await prefs.setString('app_currency', currency);
+      await prefs.setDouble('app_overtime_rate', overtimeRate);
+
       if (!(ok1 && ok2 && ok3)) {
         lastError = 'Save failed';
       } else {
@@ -683,6 +1002,16 @@ class AppDatabase {
     } catch (e) {
       lastError = 'Save error: $e';
       return false;
+    }
+  }
+
+  static Future<void> saveSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('app_currency', currency);
+      await prefs.setDouble('app_overtime_rate', overtimeRate);
+    } catch (e) {
+      lastError = 'Settings save error: $e';
     }
   }
 
@@ -696,7 +1025,7 @@ class AppDatabase {
   }
 
   static bool shouldShowDailyPopup() {
-    return workers.isNotEmpty && lastPopupDate != dateKey(DateTime.now());
+    return activeWorkers.isNotEmpty && lastPopupDate != dateKey(DateTime.now());
   }
 
   static Future<void> markPopupShown() async {
@@ -712,6 +1041,44 @@ class AppDatabase {
     final log = DayLog(site: active.isNotEmpty ? active.first.name : '');
     w.logs[key] = log;
     return log;
+  }
+
+  // تصدير واستيراد النسخ الاحتياطية (لحماية البيانات عند تغيير الهاتف أو التحديث)
+  static String exportBackupJson() {
+    final data = {
+      'version': '1.0',
+      'currency': currency,
+      'overtimeRate': overtimeRate,
+      'workers': workers.map((w) => w.toJson()).toList(),
+      'sites': sites.map((s) => s.toJson()).toList(),
+    };
+    return jsonEncode(data);
+  }
+
+  static Future<bool> importBackupJson(String jsonStr) async {
+    try {
+      final Map<String, dynamic> data = jsonDecode(jsonStr);
+      if (data.containsKey('currency')) {
+        currency = data['currency'].toString();
+      }
+      if (data.containsKey('overtimeRate')) {
+        overtimeRate = ((data['overtimeRate'] ?? 1000.0) as num).toDouble();
+      }
+      if (data.containsKey('workers') && data['workers'] is List) {
+        workers = (data['workers'] as List)
+            .map((e) => Worker.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      }
+      if (data.containsKey('sites') && data['sites'] is List) {
+        sites = (data['sites'] as List)
+            .map((e) => WorkSite.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      }
+      return await saveData();
+    } catch (e) {
+      lastError = 'Import error: $e';
+      return false;
+    }
   }
 }
 
@@ -740,7 +1107,7 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
   }
 
   void _openPopup() {
-    if (AppDatabase.workers.isEmpty) {
+    if (AppDatabase.activeWorkers.isEmpty) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(t('add_workers_first'))));
       return;
@@ -757,7 +1124,7 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
             onDataUpdated: () => setState(() {}),
             onOpenDailyReport: _openPopup,
           ),
-          if (_showDailyPopup && AppDatabase.workers.isNotEmpty)
+          if (_showDailyPopup && AppDatabase.activeWorkers.isNotEmpty)
             DailyReportPopup(onClose: _closePopup),
           if (AppDatabase.lastError != null)
             Positioned(
@@ -795,7 +1162,7 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
   @override
   void initState() {
     super.initState();
-    for (final w in AppDatabase.workers) {
+    for (final w in AppDatabase.activeWorkers) {
       AppDatabase.ensureLog(w, _today);
     }
   }
@@ -884,7 +1251,8 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
                     initialValue:
                         log.transport == 0 ? '' : numStr(log.transport),
                     enabled: log.worked,
-                    decoration: InputDecoration(labelText: t('transport')),
+                    decoration: InputDecoration(
+                        labelText: '${t('transport')} (${AppDatabase.currency})'),
                     keyboardType: TextInputType.number,
                     onChanged: (val) {
                       setState(
@@ -909,7 +1277,7 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
               ],
             ),
             const SizedBox(height: 6),
-            Text('${t('day_total')}: ${fmtXof(log.total(worker.dailyRate))}',
+            Text('${t('day_total')}: ${fmtCurrency(log.total(worker.dailyRate))}',
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.indigo)),
           ],
@@ -921,6 +1289,8 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
   @override
   Widget build(BuildContext context) {
     final dayName = L10n.day(_today.weekday % 7);
+    final currentActiveWorkers = AppDatabase.activeWorkers;
+
     return Container(
       color: Colors.black54,
       child: Center(
@@ -957,9 +1327,9 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: AppDatabase.workers.length,
+                  itemCount: currentActiveWorkers.length,
                   itemBuilder: (context, index) =>
-                      _workerCard(AppDatabase.workers[index]),
+                      _workerCard(currentActiveWorkers[index]),
                 ),
               ),
               Padding(
@@ -995,7 +1365,7 @@ class MainDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = dateOnly(DateTime.now());
-    final workingToday = AppDatabase.workers
+    final workingToday = AppDatabase.activeWorkers
         .where((w) => w.logFor(today)?.worked ?? false)
         .length;
 
@@ -1019,7 +1389,7 @@ class MainDashboard extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text(t('manager')),
+              accountName: Text(t('manager')), // تمت إزالة Abidjan
               accountEmail: Text(t('version')),
               currentAccountPicture: const CircleAvatar(
                   backgroundColor: Colors.white,
@@ -1048,14 +1418,14 @@ class MainDashboard extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.person_remove),
+              leading: const Icon(Icons.manage_accounts),
               title: Text(t('m_delete_worker')),
               onTap: () async {
                 Navigator.pop(context);
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const DeleteWorkerScreen()));
+                        builder: (context) => const ManageWorkersScreen()));
                 onDataUpdated();
               },
             ),
@@ -1118,6 +1488,23 @@ class MainDashboard extends StatelessWidget {
             ),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.currency_exchange, color: Colors.indigo),
+              title: Text('${t('currency')}: ${AppDatabase.currency}'),
+              subtitle: Text('${t('card_hour_rate')}: ${fmtCurrency(AppDatabase.overtimeRate)}'),
+              onTap: () {
+                Navigator.pop(context);
+                showCurrencyDialog(context, onDataUpdated);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.cloud_sync, color: Colors.teal),
+              title: Text(t('backup_menu')),
+              onTap: () {
+                Navigator.pop(context);
+                showBackupDialog(context, onDataUpdated);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.language),
               title: Text('${t('language')}: ${L10n.names[L10n.lang]}'),
               onTap: () {
@@ -1157,7 +1544,8 @@ class MainDashboard extends StatelessWidget {
                       Icons.apartment,
                       Colors.orange),
                   _buildDashboardCard(context, t('card_hour_rate'),
-                      fmtXof(kOvertimeRate), Icons.money, Colors.green),
+                      fmtCurrency(AppDatabase.overtimeRate), Icons.schedule, Colors.green,
+                      onTap: () => showCurrencyDialog(context, onDataUpdated)),
                   _buildDashboardCard(context, t('card_weekly'),
                       t('view_reports'), Icons.bar_chart, Colors.purple,
                       onTap: () async {
@@ -1209,7 +1597,7 @@ class MainDashboard extends StatelessWidget {
   }
 }
 
-// ======================= إضافة وحذف العمال =======================
+// ======================= إضافة وإدارة العمال =======================
 
 class AddWorkerScreen extends StatefulWidget {
   const AddWorkerScreen({super.key});
@@ -1221,8 +1609,9 @@ class AddWorkerScreen extends StatefulWidget {
 class _AddWorkerScreenState extends State<AddWorkerScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  // اليومية تبدأ من 0 وقابلة للتعديل بحرية
   final TextEditingController _rateController =
-      TextEditingController(text: '8000');
+      TextEditingController(text: '0');
   final TextEditingController _phoneController = TextEditingController();
 
   @override
@@ -1249,16 +1638,17 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(labelText: t('worker_name_req')),
-                validator: (value) => (value == null || value.isEmpty)
+                validator: (value) => (value == null || value.trim().isEmpty)
                     ? t('enter_name')
                     : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _rateController,
-                decoration: InputDecoration(labelText: t('rate_req')),
+                decoration: InputDecoration(
+                    labelText: '${t('rate_req')} (${AppDatabase.currency})'),
                 keyboardType: TextInputType.number,
-                validator: (value) => (value == null || value.isEmpty)
+                validator: (value) => (value == null || value.trim().isEmpty)
                     ? t('enter_rate')
                     : null,
               ),
@@ -1279,10 +1669,11 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
                     final navigator = Navigator.of(context);
                     AppDatabase.workers.add(Worker(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      name: _nameController.text,
+                      name: _nameController.text.trim(),
                       dailyRate:
-                          double.tryParse(_rateController.text) ?? 8000.0,
-                      phone: _phoneController.text,
+                          double.tryParse(_rateController.text) ?? 0.0,
+                      phone: _phoneController.text.trim(),
+                      isArchived: false,
                     ));
                     final ok = await AppDatabase.saveData();
                     navigator.pop();
@@ -1303,87 +1694,177 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
   }
 }
 
-class DeleteWorkerScreen extends StatefulWidget {
-  const DeleteWorkerScreen({super.key});
+// شاشة إدارة وأرشفة العمال: تحافظ على أيام العمل السابقة تماماً
+class ManageWorkersScreen extends StatefulWidget {
+  const ManageWorkersScreen({super.key});
 
   @override
-  State<DeleteWorkerScreen> createState() => _DeleteWorkerScreenState();
+  State<ManageWorkersScreen> createState() => _ManageWorkersScreenState();
 }
 
-class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
-  final Map<String, bool> _selectedWorkers = {};
-  bool _selectAll = false;
+class _ManageWorkersScreenState extends State<ManageWorkersScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    for (var w in AppDatabase.workers) {
-      _selectedWorkers[w.id] = false;
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _archiveWorker(Worker worker) async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() {
+      worker.isArchived = true;
+    });
+    await AppDatabase.saveData();
+    messenger.showSnackBar(SnackBar(content: Text(t('archive_success'))));
+  }
+
+  void _restoreWorker(Worker worker) async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() {
+      worker.isArchived = false;
+    });
+    await AppDatabase.saveData();
+    messenger.showSnackBar(SnackBar(content: Text(t('restore_success'))));
+  }
+
+  void _permanentDeleteWorker(Worker worker) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t('delete_confirm_title')),
+        content: Text(t('delete_confirm_body')),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t('cancel'))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(t('confirm'),
+                style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final messenger = ScaffoldMessenger.of(context);
+      setState(() {
+        AppDatabase.workers.removeWhere((w) => w.id == worker.id);
+      });
+      await AppDatabase.saveData();
+      messenger
+          .showSnackBar(SnackBar(content: Text(t('permanent_delete_success'))));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final active = AppDatabase.activeWorkers;
+    final archived = AppDatabase.archivedWorkers;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(t('delete_title')),
+        title: Text(t('manage_workers_title')),
         backgroundColor: Colors.indigo,
         iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.white),
-            onPressed: () async {
-              final messenger = ScaffoldMessenger.of(context);
-              setState(() {
-                AppDatabase.workers
-                    .removeWhere((w) => _selectedWorkers[w.id] == true);
-              });
-              final ok = await AppDatabase.saveData();
-              messenger.showSnackBar(SnackBar(
-                  content: Text(ok
-                      ? t('deleted_ok')
-                      : '${t('save_failed')}: ${AppDatabase.lastError}')));
-            },
-          ),
-        ],
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          indicatorColor: Colors.amber,
+          tabs: [
+            Tab(text: '${t('active_tab')} (${active.length})'),
+            Tab(text: '${t('archived_tab')} (${archived.length})'),
+          ],
+        ),
       ),
-      body: AppDatabase.workers.isEmpty
-          ? Center(child: Text(t('no_workers_now')))
-          : Column(
-              children: [
-                CheckboxListTile(
-                  title: Text(t('select_all'),
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  value: _selectAll,
-                  onChanged: (val) {
-                    setState(() {
-                      _selectAll = val ?? false;
-                      _selectedWorkers.updateAll((key, value) => _selectAll);
-                    });
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // قائمة العمال النشطين
+          active.isEmpty
+              ? Center(child: Text(t('no_active_workers')))
+              : ListView.builder(
+                  itemCount: active.length,
+                  itemBuilder: (context, index) {
+                    final worker = active[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      child: ListTile(
+                        title: Text(worker.name,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(
+                            '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
+                        trailing: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange.shade800,
+                              foregroundColor: Colors.white),
+                          icon: const Icon(Icons.archive, size: 18),
+                          label: Text(t('archive_btn')),
+                          onPressed: () => _archiveWorker(worker),
+                        ),
+                      ),
+                    );
                   },
                 ),
-                const Divider(),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: AppDatabase.workers.length,
-                    itemBuilder: (context, index) {
-                      final worker = AppDatabase.workers[index];
-                      return CheckboxListTile(
-                        title: Text(worker.name),
+
+          // قائمة العمال المؤرشفين (يمكن استعادتهم أو حذفهم نهائياً)
+          archived.isEmpty
+              ? Center(child: Text(t('no_archived_workers')))
+              : ListView.builder(
+                  itemCount: archived.length,
+                  itemBuilder: (context, index) {
+                    final worker = archived[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      color: Colors.grey.shade100,
+                      child: ListTile(
+                        title: Text(worker.name,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueGrey)),
                         subtitle: Text(
-                            '${t('daily_wage')}: ${fmtXof(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
-                        value: _selectedWorkers[worker.id] ?? false,
-                        onChanged: (val) {
-                          setState(() {
-                            _selectedWorkers[worker.id] = val ?? false;
-                          });
-                        },
-                      );
-                    },
-                  ),
+                            '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.teal,
+                                  foregroundColor: Colors.white),
+                              icon: const Icon(Icons.unarchive, size: 18),
+                              label: Text(t('restore_btn')),
+                              onPressed: () => _restoreWorker(worker),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon:
+                                  const Icon(Icons.delete_forever, color: Colors.red),
+                              tooltip: t('permanent_delete_btn'),
+                              onPressed: () =>
+                                  _permanentDeleteWorker(worker),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+        ],
+      ),
     );
   }
 }
@@ -1426,7 +1907,9 @@ class _SitesScreenState extends State<SitesScreen> {
                 decoration: InputDecoration(labelText: t('site_address'))),
             TextField(
                 controller: _amountController,
-                decoration: InputDecoration(labelText: t('site_total')),
+                decoration: InputDecoration(
+                    labelText:
+                        '${t('site_total')} (${AppDatabase.currency})'),
                 keyboardType: TextInputType.number),
           ],
         ),
@@ -1439,8 +1922,8 @@ class _SitesScreenState extends State<SitesScreen> {
               if (_nameController.text.isNotEmpty) {
                 AppDatabase.sites.add(WorkSite(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: _nameController.text,
-                  location: _locationController.text,
+                  name: _nameController.text.trim(),
+                  location: _locationController.text.trim(),
                   totalContractAmount:
                       double.tryParse(_amountController.text) ?? 0.0,
                 ));
@@ -1481,7 +1964,7 @@ class _SitesScreenState extends State<SitesScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtXof(site.totalContractAmount)}'),
+                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtCurrency(site.totalContractAmount)}'),
                     trailing: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
@@ -1538,7 +2021,7 @@ class DeliveredSitesScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.lineThrough)),
                     subtitle: Text(
-                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtXof(site.totalContractAmount)}\n${t('received')}: ${fmtXof(site.totalPaid)} (${t('delivered_flag')})'),
+                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)} (${t('delivered_flag')})'),
                     isThreeLine: true,
                   ),
                 );
@@ -1577,7 +2060,7 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('total')}: ${fmtXof(site.totalContractAmount)}\n${t('received')}: ${fmtXof(site.totalPaid)}\n${t('remaining')}: ${fmtXof(site.totalContractAmount - site.totalPaid)}'),
+                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)}\n${t('remaining')}: ${fmtCurrency(site.totalContractAmount - site.totalPaid)}'),
                     isThreeLine: true,
                     trailing: IconButton(
                       icon: const Icon(Icons.add_card, color: Colors.indigo),
@@ -1600,16 +2083,17 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${t('contract_total')}: ${fmtXof(site.totalContractAmount)}'),
-            Text('${t('payments_sum')}: ${fmtXof(site.totalPaid)}'),
+            Text('${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)}'),
+            Text('${t('payments_sum')}: ${fmtCurrency(site.totalPaid)}'),
             Text(
-                '${t('remaining')}: ${fmtXof(site.totalContractAmount - site.totalPaid)}',
+                '${t('remaining')}: ${fmtCurrency(site.totalContractAmount - site.totalPaid)}',
                 style: const TextStyle(
                     color: Colors.red, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             TextField(
               controller: paymentController,
-              decoration: InputDecoration(labelText: t('new_payment')),
+              decoration: InputDecoration(
+                  labelText: '${t('new_payment')} (${AppDatabase.currency})'),
               keyboardType: TextInputType.number,
             ),
           ],
@@ -1648,24 +2132,55 @@ class WorkersListScreen extends StatefulWidget {
 class _WorkersListScreenState extends State<WorkersListScreen> {
   @override
   Widget build(BuildContext context) {
+    final allWorkers = AppDatabase.workers;
+
     return Scaffold(
       appBar: AppBar(
           title: Text(t('workers_list_title')),
           backgroundColor: Colors.indigo,
           iconTheme: const IconThemeData(color: Colors.white)),
-      body: AppDatabase.workers.isEmpty
+      body: allWorkers.isEmpty
           ? Center(child: Text(t('no_workers')))
           : ListView.builder(
-              itemCount: AppDatabase.workers.length,
+              itemCount: allWorkers.length,
               itemBuilder: (context, index) {
-                final worker = AppDatabase.workers[index];
+                final worker = allWorkers[index];
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: ListTile(
-                    title: Text(worker.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          worker.isArchived ? Colors.grey : Colors.indigo,
+                      child: Icon(
+                        worker.isArchived
+                            ? Icons.person_off
+                            : Icons.person,
+                        color: Colors.white,
+                      ),
+                    ),
+                    title: Row(
+                      children: [
+                        Text(worker.name,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        if (worker.isArchived) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                                color: Colors.orange.shade100,
+                                borderRadius: BorderRadius.circular(4)),
+                            child: Text(t('archived_tab'),
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.orange.shade900)),
+                          ),
+                        ]
+                      ],
+                    ),
                     subtitle: Text(
-                        '${t('daily_wage')}: ${fmtXof(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
+                        '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
                     trailing: const Icon(Icons.edit, color: Colors.indigo),
                     onTap: () => _editWorkerDialog(context, worker),
                   ),
@@ -1692,7 +2207,8 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                 decoration: InputDecoration(labelText: t('worker_name'))),
             TextField(
                 controller: rateController,
-                decoration: InputDecoration(labelText: t('daily_xof')),
+                decoration: InputDecoration(
+                    labelText: '${t('daily_wage')} (${AppDatabase.currency})'),
                 keyboardType: TextInputType.number),
             TextField(
                 controller: phoneController,
@@ -1707,10 +2223,10 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
           ElevatedButton(
             onPressed: () async {
               setState(() {
-                worker.name = nameController.text;
+                worker.name = nameController.text.trim();
                 worker.dailyRate =
                     double.tryParse(rateController.text) ?? worker.dailyRate;
-                worker.phone = phoneController.text;
+                worker.phone = phoneController.text.trim();
               });
               Navigator.pop(dialogContext);
               await AppDatabase.saveData();
@@ -1741,7 +2257,6 @@ class WeekNavigator extends StatelessWidget {
     return Container(
       color: Colors.indigo.shade50,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      // ترتيب الأزرار ثابت (يسار = أسبوع سابق، يمين = أسبوع لاحق) مهما كانت اللغة
       child: Directionality(
         textDirection: TextDirection.ltr,
         child: Row(
@@ -1795,19 +2310,19 @@ String buildWorkerWeekText(Worker w, DateTime ws, String lang) {
       final dayTotal = log.total(w.dailyRate);
       total += dayTotal;
       base += w.dailyRate;
-      ot += log.overtimeHours * kOvertimeRate;
+      ot += log.overtimeHours * AppDatabase.overtimeRate;
       trans += log.transport;
       days++;
       sb.writeln(
-          '$label: ${log.site.isEmpty ? "" : "${log.site} | "}${tr('overtime_short')} ${fmtNum(log.overtimeHours)}${tr('hour_short')} | ${tr('transport_short')} ${fmtMoney(log.transport)} = ${fmtXof(dayTotal)}${log.note.isEmpty ? "" : " | ${log.note}"}');
+          '$label: ${log.site.isEmpty ? "" : "${log.site} | "}${tr('overtime_short')} ${fmtNum(log.overtimeHours)}${tr('hour_short')} | ${tr('transport_short')} ${fmtMoney(log.transport)} = ${fmtCurrency(dayTotal)}${log.note.isEmpty ? "" : " | ${log.note}"}');
     }
   }
   sb.writeln('');
   sb.writeln('${tr('work_days')}: ${ltr('$days')}');
-  sb.writeln('${tr('sum_days')}: ${fmtXof(base)}');
-  sb.writeln('${tr('sum_overtime')}: ${fmtXof(ot)}');
-  sb.writeln('${tr('sum_transport')}: ${fmtXof(trans)}');
-  sb.writeln('💰 ${tr('weekly_total')}: ${fmtXof(total)}');
+  sb.writeln('${tr('sum_days')}: ${fmtCurrency(base)}');
+  sb.writeln('${tr('sum_overtime')}: ${fmtCurrency(ot)}');
+  sb.writeln('${tr('sum_transport')}: ${fmtCurrency(trans)}');
+  sb.writeln('💰 ${tr('weekly_total')}: ${fmtCurrency(total)}');
   return sb.toString();
 }
 
@@ -1818,41 +2333,80 @@ String buildAllWeekText(DateTime ws, String lang) {
   sb.writeln('📅 ${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}');
   sb.writeln('');
   double grand = 0;
-  for (final w in AppDatabase.workers) {
+  final weekWorkers = AppDatabase.workersForWeek(ws);
+  for (final w in weekWorkers) {
     final tot = w.weekTotal(ws);
     grand += tot;
-    sb.writeln('👷 ${w.name}: ${fmtXof(tot)}');
+    sb.writeln('👷 ${w.name}: ${fmtCurrency(tot)}');
   }
   sb.writeln('');
-  sb.writeln('💰 ${tr('grand_total')}: ${fmtXof(grand)}');
+  sb.writeln('💰 ${tr('grand_total')}: ${fmtCurrency(grand)}');
   return sb.toString();
 }
 
-// ---------- PDF ----------
+// ---------- محرك إنشاء الـ PDF بحل مشكلة المربعات والخطوط ----------
 
 bool gPdfFontFailed = false;
 
 Future<pw.Document> _newPdf() async {
   gPdfFontFailed = false;
+  pw.Font? regular;
+  pw.Font? bold;
+
+  // 1. محاولة تحميل الخط محلياً من Assets ليعمل 100% بدون إنترنت
   try {
-    final regular = await PdfGoogleFonts.cairoRegular();
-    final bold = await PdfGoogleFonts.cairoBold();
-    return pw.Document(
-        theme: pw.ThemeData.withFont(base: regular, bold: bold));
+    final regData = await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
+    regular = pw.Font.ttf(regData);
+    try {
+      final boldData = await rootBundle.load('assets/fonts/Cairo-Bold.ttf');
+      bold = pw.Font.ttf(boldData);
+    } catch (_) {
+      bold = regular;
+    }
   } catch (_) {
-    gPdfFontFailed = true;
+    // 2. إذا لم يكن مدمجاً في assets، تحميل الخط من Google Fonts عبر الإنترنت
+    try {
+      regular = await PdfGoogleFonts.cairoRegular();
+      bold = await PdfGoogleFonts.cairoBold();
+    } catch (_) {
+      try {
+        regular = await PdfGoogleFonts.notoSansArabicRegular();
+        bold = await PdfGoogleFonts.notoSansArabicBold();
+      } catch (_) {
+        gPdfFontFailed = true;
+      }
+    }
+  }
+
+  if (regular != null) {
+    bold ??= regular;
+    return pw.Document(
+      theme: pw.ThemeData.withFont(
+        base: regular,
+        bold: bold,
+        fontFallback: [regular, bold],
+      ),
+    );
+  } else {
+    // في حال انقطاع الإنترنت وعدم وجود الخط في الأصول
     return pw.Document();
   }
 }
 
+// خلية الجدول مع الكشف التلقائي عن النصوص العربية وضبط الاتجاه لمنع ظهور المربعات
 pw.Widget _pdfCell(String text,
     {bool bold = false, bool rtl = false, bool numeric = false}) {
+  final cleanText = plain(text);
+  final isAr = hasArabic(cleanText);
+  final textDir = (isAr || (rtl && !numeric))
+      ? pw.TextDirection.rtl
+      : pw.TextDirection.ltr;
+
   return pw.Padding(
     padding: const pw.EdgeInsets.all(4),
     child: pw.Text(
-      plain(text),
-      textDirection:
-          (rtl && !numeric) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+      cleanText,
+      textDirection: textDir,
       style: pw.TextStyle(
           fontSize: 10,
           fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal),
@@ -1860,7 +2414,6 @@ pw.Widget _pdfCell(String text,
   );
 }
 
-// سطر "عنوان: قيمة" مع إبقاء الرقم دائمًا من اليسار لليمين
 pw.Widget _pdfLine(String label, String value,
     {required bool rtl, bool big = false}) {
   final style = pw.TextStyle(
@@ -1916,7 +2469,7 @@ Future<void> shareWorkerWeekPdf(
     if (log != null && log.worked) {
       days++;
       base += w.dailyRate;
-      ot += log.overtimeHours * kOvertimeRate;
+      ot += log.overtimeHours * AppDatabase.overtimeRate;
       trans += log.transport;
       total += log.total(w.dailyRate);
     }
@@ -1942,7 +2495,7 @@ Future<void> shareWorkerWeekPdf(
             rtl ? pw.CrossAxisAlignment.end : pw.CrossAxisAlignment.start,
         children: [
           pw.Text('${tr('worker_report')}: ${w.name}',
-              textDirection: td,
+              textDirection: hasArabic(w.name) ? pw.TextDirection.rtl : td,
               style:
                   pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 4),
@@ -1952,11 +2505,11 @@ Future<void> shareWorkerWeekPdf(
           pw.Table(border: pw.TableBorder.all(), children: rows),
           pw.SizedBox(height: 14),
           _pdfLine(tr('work_days'), '$days', rtl: rtl),
-          _pdfLine(tr('sum_days'), fmtXof(base), rtl: rtl),
-          _pdfLine(tr('sum_overtime'), fmtXof(ot), rtl: rtl),
-          _pdfLine(tr('sum_transport'), fmtXof(trans), rtl: rtl),
+          _pdfLine(tr('sum_days'), fmtCurrency(base), rtl: rtl),
+          _pdfLine(tr('sum_overtime'), fmtCurrency(ot), rtl: rtl),
+          _pdfLine(tr('sum_transport'), fmtCurrency(trans), rtl: rtl),
           pw.SizedBox(height: 8),
-          _pdfLine(tr('weekly_total'), fmtXof(total), rtl: rtl, big: true),
+          _pdfLine(tr('weekly_total'), fmtCurrency(total), rtl: rtl, big: true),
         ],
       ),
     ),
@@ -1989,7 +2542,9 @@ Future<void> shareAllWeekPdf(
   final rows = <pw.TableRow>[pw.TableRow(children: order(header))];
   double grand = 0;
   final dayTotals = List<double>.filled(7, 0.0);
-  for (final w in AppDatabase.workers) {
+  final weekWorkers = AppDatabase.workersForWeek(ws);
+
+  for (final w in weekWorkers) {
     final cells = <pw.Widget>[_pdfCell(w.name, rtl: rtl)];
     for (int i = 0; i < 7; i++) {
       final log = w.logFor(addDays(ws, i));
@@ -2028,7 +2583,7 @@ Future<void> shareAllWeekPdf(
           pw.SizedBox(height: 12),
           pw.Table(border: pw.TableBorder.all(), children: rows),
           pw.SizedBox(height: 12),
-          _pdfLine(tr('grand_total'), fmtXof(grand), rtl: rtl, big: true),
+          _pdfLine(tr('grand_total'), fmtCurrency(grand), rtl: rtl, big: true),
         ],
       ),
     ),
@@ -2057,8 +2612,9 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final weekWorkers = AppDatabase.workersForWeek(_weekStart);
     double grand = 0;
-    for (final w in AppDatabase.workers) {
+    for (final w in weekWorkers) {
       grand += w.weekTotal(_weekStart);
     }
 
@@ -2067,7 +2623,7 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
           title: Text(t('weekly_title')),
           backgroundColor: Colors.indigo,
           iconTheme: const IconThemeData(color: Colors.white)),
-      body: AppDatabase.workers.isEmpty
+      body: weekWorkers.isEmpty
           ? Center(child: Text(t('no_data')))
           : Column(
               children: [
@@ -2086,7 +2642,7 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 16)),
                           subtitle: Text(
-                              '${t('joint_sub')}\n${t('total_word')}: ${fmtXof(grand)}'),
+                              '${t('joint_sub')}\n${t('total_word')}: ${fmtCurrency(grand)}'),
                           isThreeLine: true,
                           trailing: const Icon(Icons.arrow_forward_ios),
                           onTap: () async {
@@ -2103,16 +2659,35 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
                       Text(t('per_worker'),
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      ...AppDatabase.workers.map((worker) {
+                      ...weekWorkers.map((worker) {
                         final logs = worker.weekLogs(_weekStart);
                         final days =
                             logs.where((l) => l != null && l.worked).length;
                         return Card(
                           child: ListTile(
-                            title: Text(worker.name),
+                            title: Row(
+                              children: [
+                                Text(worker.name),
+                                if (worker.isArchived) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                        color: Colors.orange.shade100,
+                                        borderRadius:
+                                            BorderRadius.circular(4)),
+                                    child: Text(t('archived_tab'),
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.orange.shade900)),
+                                  ),
+                                ]
+                              ],
+                            ),
                             subtitle:
                                 Text('${t('work_days')}: ${ltr('$days')}'),
-                            trailing: Text(fmtXof(worker.weekTotal(_weekStart)),
+                            trailing: Text(fmtCurrency(worker.weekTotal(_weekStart)),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.indigo)),
@@ -2161,7 +2736,7 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final workers = AppDatabase.workers;
+    final workers = AppDatabase.workersForWeek(_weekStart);
     final lang = L10n.lang;
     double grand = 0;
     final dayTotals = List<double>.filled(7, 0.0);
@@ -2265,7 +2840,7 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold)),
                 ),
-                Text(fmtXof(grand),
+                Text(fmtCurrency(grand),
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -2306,7 +2881,7 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
     if (log == null) return t('not_logged');
     if (!log.worked) return t('holiday');
     final siteText = log.site.isEmpty ? '—' : log.site;
-    return '${t('site')}: $siteText\n${t('overtime_short')}: ${fmtNum(log.overtimeHours)} ${t('hour_short')} | ${t('transport_short')}: ${fmtXof(log.transport)}${log.note.isEmpty ? "" : "\n${log.note}"}';
+    return '${t('site')}: $siteText\n${t('overtime_short')}: ${fmtNum(log.overtimeHours)} ${t('hour_short')} | ${t('transport_short')}: ${fmtCurrency(log.transport)}${log.note.isEmpty ? "" : "\n${log.note}"}';
   }
 
   void _editDay(DateTime day) {
@@ -2375,7 +2950,8 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                 TextField(
                   controller: trCtrl,
                   enabled: worked,
-                  decoration: InputDecoration(labelText: t('transport')),
+                  decoration: InputDecoration(
+                      labelText: '${t('transport')} (${AppDatabase.currency})'),
                   keyboardType: TextInputType.number,
                 ),
                 TextField(
@@ -2408,7 +2984,7 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                   site: site,
                   overtimeHours: double.tryParse(otCtrl.text) ?? 0.0,
                   transport: double.tryParse(trCtrl.text) ?? 0.0,
-                  note: noteCtrl.text,
+                  note: noteCtrl.text.trim(),
                 );
                 Navigator.pop(dialogContext);
                 if (mounted) setState(() {});
@@ -2442,7 +3018,7 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
       if (l != null && l.worked) {
         daysWorked++;
         baseTotal += w.dailyRate;
-        overtimeTotal += l.overtimeHours * kOvertimeRate;
+        overtimeTotal += l.overtimeHours * AppDatabase.overtimeRate;
         transportTotal += l.transport;
       }
     }
@@ -2498,7 +3074,7 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                                 const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(_describe(log)),
                         trailing: Text(
-                            log == null ? '—' : fmtXof(log.total(w.dailyRate)),
+                            log == null ? '—' : fmtCurrency(log.total(w.dailyRate)),
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.indigo)),
@@ -2512,9 +3088,9 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                     child: Column(
                       children: [
                         _sumRow(t('work_days'), ltr('$daysWorked')),
-                        _sumRow(t('sum_days'), fmtXof(baseTotal)),
-                        _sumRow(t('sum_overtime'), fmtXof(overtimeTotal)),
-                        _sumRow(t('sum_transport'), fmtXof(transportTotal)),
+                        _sumRow(t('sum_days'), fmtCurrency(baseTotal)),
+                        _sumRow(t('sum_overtime'), fmtCurrency(overtimeTotal)),
+                        _sumRow(t('sum_transport'), fmtCurrency(transportTotal)),
                       ],
                     ),
                   ),
@@ -2533,7 +3109,7 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-                Text(fmtXof(total),
+                Text(fmtCurrency(total),
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
