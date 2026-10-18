@@ -6,17 +6,369 @@ import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 
-// ======================= ثوابت ودوال مساعدة =======================
+// ======================= الترجمة (عربي / فرنسي / إنجليزي) =======================
 
-const List<String> kDayNames = [
-  'الأحد',
-  'الاثنين',
-  'الثلاثاء',
-  'الأربعاء',
-  'الخميس',
-  'الجمعة',
-  'السبت'
-];
+class L10n {
+  static final ValueNotifier<String> notifier = ValueNotifier<String>('ar');
+  static String get lang => notifier.value;
+  static set lang(String v) => notifier.value = v;
+  static bool get isRtl => lang == 'ar';
+
+  static const List<String> codes = ['ar', 'fr', 'en'];
+  static const Map<String, String> names = {
+    'ar': 'العربية',
+    'fr': 'Français',
+    'en': 'English',
+  };
+
+  static int _idx(String l) => l == 'fr' ? 1 : (l == 'en' ? 2 : 0);
+
+  static String tr(String key, String l) {
+    final v = _s[key];
+    if (v == null) return key;
+    return v[_idx(l)];
+  }
+
+  static String t(String key) => tr(key, lang);
+
+  static const List<List<String>> _days = [
+    ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+    ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+    ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  ];
+
+  static String day(int i, [String? l]) => _days[_idx(l ?? lang)][i];
+
+  // [عربي, فرنسي, إنجليزي]
+  static const Map<String, List<String>> _s = {
+    'app_title': [
+      'WookFlow - إدارة الورش والعمال',
+      'WookFlow - Chantiers & ouvriers',
+      'WookFlow - Sites & workers'
+    ],
+    'manager': [
+      'مدير الورشة (Abidjan)',
+      'Chef de chantier (Abidjan)',
+      'Site manager (Abidjan)'
+    ],
+    'version': [
+      'نظام إدارة المشاريع v1.0.0',
+      'Gestion de projets v1.0.0',
+      'Project management v1.0.0'
+    ],
+    'language': ['اللغة', 'Langue', 'Language'],
+    'report_lang': ['لغة التقرير', 'Langue du rapport', 'Report language'],
+    'm_daily': [
+      'التقرير اليومي (حضور اليوم)',
+      'Rapport journalier (présence)',
+      'Daily report (attendance)'
+    ],
+    'm_add_worker': ['إضافة عامل جديد', 'Ajouter un ouvrier', 'Add worker'],
+    'm_delete_worker': ['حذف عامل', 'Supprimer un ouvrier', 'Delete worker'],
+    'm_sites': ['مواقع العمل (الورش)', 'Chantiers', 'Work sites'],
+    'm_delivered': [
+      'الورش المسلمة والمنتهية',
+      'Chantiers livrés / terminés',
+      'Delivered sites'
+    ],
+    'm_payment': [
+      'دفعة جديدة (حسابات الورش)',
+      'Nouveau paiement (comptes chantiers)',
+      'New payment (site accounts)'
+    ],
+    'm_workers': [
+      'قائمة العمال وتعديلهم',
+      'Liste des ouvriers / modifier',
+      'Workers list / edit'
+    ],
+    'm_weekly': [
+      'ملخص الأسبوع والتقارير',
+      'Résumé hebdo & rapports',
+      'Weekly summary & reports'
+    ],
+    'add_workers_first': [
+      'أضف عمالًا أولًا من القائمة الجانبية',
+      "Ajoutez d'abord des ouvriers depuis le menu",
+      'Add workers first from the side menu'
+    ],
+    'daily_btn': [
+      'التقرير اليومي (تسجيل حضور اليوم)',
+      'Rapport journalier (pointage du jour)',
+      "Daily report (today's attendance)"
+    ],
+    'card_workers_today': [
+      'العمال اليوم',
+      "Ouvriers aujourd'hui",
+      'Workers today'
+    ],
+    'card_active_sites': ['الورش النشطة', 'Chantiers actifs', 'Active sites'],
+    'card_hour_rate': ['سعر ساعة العمل', 'Taux horaire', 'Hourly rate'],
+    'card_weekly': ['ملخص الأسبوع', 'Résumé de la semaine', 'Weekly summary'],
+    'view_reports': ['عرض التقارير', 'Voir les rapports', 'View reports'],
+    'daily_title': ['التقرير اليومي', 'Rapport journalier', 'Daily report'],
+    'works': ['يعمل؟', 'Présent ?', 'Working?'],
+    'site': ['الورشة', 'Chantier', 'Site'],
+    'overtime': ['ساعات إضافية', 'Heures supp.', 'Overtime hours'],
+    'transport': ['أجور النقل (XOF)', 'Transport (XOF)', 'Transport (XOF)'],
+    'note': ['ملاحظة', 'Remarque', 'Note'],
+    'day_total': ['إجمالي اليوم', 'Total du jour', 'Day total'],
+    'save_close': [
+      'حفظ وإغلاق التقرير اليومي',
+      'Enregistrer et fermer',
+      'Save & close'
+    ],
+    'add_worker_title': ['إضافة عامل جديد', 'Nouvel ouvrier', 'New worker'],
+    'worker_name_req': [
+      'اسم العامل (إجباري)',
+      "Nom de l'ouvrier (obligatoire)",
+      'Worker name (required)'
+    ],
+    'enter_name': [
+      'يرجى إدخال اسم العامل',
+      'Veuillez saisir le nom',
+      'Please enter the name'
+    ],
+    'rate_req': [
+      'اليومية (إجباري) - الساعة الإضافية 1000 XOF',
+      'Salaire journalier (obligatoire) - heure supp. 1000 XOF',
+      'Daily wage (required) - overtime hour 1000 XOF'
+    ],
+    'enter_rate': [
+      'يرجى إدخال اليومية',
+      'Veuillez saisir le salaire',
+      'Please enter the wage'
+    ],
+    'phone_opt': [
+      'رقم الهاتف (اختياري)',
+      'Téléphone (facultatif)',
+      'Phone (optional)'
+    ],
+    'save_worker': [
+      'حفظ العامل',
+      "Enregistrer l'ouvrier",
+      'Save worker'
+    ],
+    'worker_saved': [
+      'تم إضافة العامل وحفظه',
+      'Ouvrier ajouté et enregistré',
+      'Worker added and saved'
+    ],
+    'save_failed': [
+      'فشل الحفظ',
+      "Échec de l'enregistrement",
+      'Save failed'
+    ],
+    'delete_title': ['حذف العمال', 'Supprimer des ouvriers', 'Delete workers'],
+    'deleted_ok': [
+      'تم حذف العمال المحددين بنجاح',
+      'Ouvriers supprimés avec succès',
+      'Selected workers deleted'
+    ],
+    'no_workers_now': [
+      'لا يوجد عمال مضافون حالياً',
+      "Aucun ouvrier pour le moment",
+      'No workers yet'
+    ],
+    'select_all': ['اختيار الجميع', 'Tout sélectionner', 'Select all'],
+    'daily_wage': ['اليومية', 'Salaire/jour', 'Daily wage'],
+    'phone': ['الهاتف', 'Tél.', 'Phone'],
+    'add_site_title': [
+      'إضافة موقع عمل جديد',
+      'Nouveau chantier',
+      'New work site'
+    ],
+    'site_name': ['اسم الموقع', 'Nom du chantier', 'Site name'],
+    'site_address': ['العنوان', 'Adresse', 'Address'],
+    'site_total': [
+      'الأجر الكامل للورشة',
+      'Montant total du chantier',
+      'Total contract amount'
+    ],
+    'cancel': ['إلغاء', 'Annuler', 'Cancel'],
+    'save': ['حفظ', 'Enregistrer', 'Save'],
+    'sites_title': [
+      'مواقع العمل النشطة',
+      'Chantiers actifs',
+      'Active work sites'
+    ],
+    'no_active_sites': [
+      'لا توجد ورش نشطة حالياً',
+      'Aucun chantier actif',
+      'No active sites'
+    ],
+    'total': ['الإجمالي', 'Total', 'Total'],
+    'deliver': ['تسليم الورشة', 'Livrer le chantier', 'Deliver site'],
+    'delivered_msg': [
+      'تم تسليم الورشة ونقلها للأرشيف',
+      'Chantier livré et archivé',
+      'Site delivered and archived'
+    ],
+    'delivered_title': [
+      'الورش المسلمة والمنتهية',
+      'Chantiers livrés / terminés',
+      'Delivered sites'
+    ],
+    'no_delivered': [
+      'لا توجد ورش مسلمة حتى الآن',
+      'Aucun chantier livré',
+      'No delivered sites yet'
+    ],
+    'contract_total': ['الأجر الإجمالي', 'Montant total', 'Contract total'],
+    'received': ['الواصل', 'Reçu', 'Received'],
+    'delivered_flag': ['تم التسليم', 'Livré', 'Delivered'],
+    'payments_title': [
+      'إدارة الدفعات والواصل',
+      'Gestion des paiements',
+      'Payments management'
+    ],
+    'no_sites_payment': [
+      'لا توجد ورش نشطة لإضافة دفعات',
+      'Aucun chantier actif pour ajouter un paiement',
+      'No active sites to add payments'
+    ],
+    'remaining': ['الباقي', 'Reste', 'Remaining'],
+    'add_payment_for': [
+      'إضافة دفعة لـ',
+      'Ajouter un paiement pour',
+      'Add payment for'
+    ],
+    'payments_sum': [
+      'مجموع الدفعات (الواصل)',
+      'Total des paiements (reçu)',
+      'Total payments (received)'
+    ],
+    'new_payment': [
+      'قيمة الدفعة الجديدة (XOF)',
+      'Nouveau paiement (XOF)',
+      'New payment (XOF)'
+    ],
+    'workers_list_title': [
+      'قائمة العمال وتعديل بياناتهم',
+      'Liste des ouvriers',
+      'Workers list'
+    ],
+    'no_workers': [
+      'لا يوجد عمال مضافون',
+      'Aucun ouvrier',
+      'No workers'
+    ],
+    'edit_worker': [
+      'تعديل بيانات العامل',
+      "Modifier l'ouvrier",
+      'Edit worker'
+    ],
+    'worker_name': ['اسم العامل', "Nom de l'ouvrier", 'Worker name'],
+    'daily_xof': [
+      'اليومية (XOF)',
+      'Salaire/jour (XOF)',
+      'Daily wage (XOF)'
+    ],
+    'phone_number': ['رقم الهاتف', 'Téléphone', 'Phone number'],
+    'save_edits': [
+      'حفظ التعديلات',
+      'Enregistrer les modifications',
+      'Save changes'
+    ],
+    'weekly_title': [
+      'ملخص الأسبوع والرواتب',
+      'Résumé hebdomadaire et salaires',
+      'Weekly summary & wages'
+    ],
+    'no_data': [
+      'لا توجد بيانات لعرض الملخص',
+      'Aucune donnée à afficher',
+      'No data to display'
+    ],
+    'week': ['الأسبوع', 'Semaine', 'Week'],
+    'joint_report': [
+      'التقرير المشترك لجميع العمال',
+      'Rapport commun de tous les ouvriers',
+      'Combined report for all workers'
+    ],
+    'joint_sub': [
+      'من الأحد إلى السبت',
+      'Du dimanche au samedi',
+      'Sunday to Saturday'
+    ],
+    'total_word': ['المجموع', 'Total', 'Total'],
+    'per_worker': [
+      'تقرير كل عامل على حدة',
+      'Rapport par ouvrier',
+      'Report per worker'
+    ],
+    'work_days': ['أيام العمل', 'Jours travaillés', 'Days worked'],
+    'worker_col': ['العامل', 'Ouvrier', 'Worker'],
+    'grand_total': [
+      'المجموع الكلي لجميع العمال',
+      'Total général de tous les ouvriers',
+      'Grand total of all workers'
+    ],
+    'worker_report': [
+      'تقرير العامل',
+      "Rapport de l'ouvrier",
+      'Worker report'
+    ],
+    'all_report': [
+      'التقرير الأسبوعي لجميع العمال',
+      'Rapport hebdomadaire de tous les ouvriers',
+      'Weekly report for all workers'
+    ],
+    'not_logged': [
+      'لم يُسجَّل (اضغط للتعديل)',
+      'Non renseigné (appuyer pour modifier)',
+      'Not recorded (tap to edit)'
+    ],
+    'holiday': ['عطلة', 'Repos', 'Day off'],
+    'overtime_short': ['إضافي', 'Heures supp.', 'Overtime'],
+    'transport_short': ['نقل', 'Transport', 'Transport'],
+    'hour_short': ['س', 'h', 'h'],
+    'delete_day': ['مسح اليوم', 'Effacer le jour', 'Clear day'],
+    'sum_days': [
+      'مجموع اليوميات',
+      'Total des journées',
+      'Total daily wages'
+    ],
+    'sum_overtime': [
+      'مجموع الإضافي',
+      'Total heures supp.',
+      'Total overtime'
+    ],
+    'sum_transport': [
+      'مجموع المواصلات',
+      'Total transport',
+      'Total transport'
+    ],
+    'weekly_total': [
+      'المجموع الأسبوعي',
+      'Total de la semaine',
+      'Weekly total'
+    ],
+    'amount': ['المبلغ', 'Montant', 'Amount'],
+    'day_col': ['اليوم', 'Jour', 'Day'],
+    'pdf_tip': [
+      'تنزيل ومشاركة PDF',
+      'Télécharger / partager PDF',
+      'Download / share PDF'
+    ],
+    'share_tip': [
+      'مشاركة كنص (واتساب)',
+      'Partager en texte (WhatsApp)',
+      'Share as text (WhatsApp)'
+    ],
+    'pdf_font_err': [
+      'تعذّر تحميل الخط العربي (يلزم إنترنت)، قد لا تظهر الحروف العربية في PDF',
+      'Police arabe indisponible (internet requis)',
+      'Arabic font unavailable (internet required)'
+    ],
+  };
+}
+
+String t(String key) => L10n.t(key);
+
+// ======================= دوال مساعدة =======================
+
+const String kLrm = '\u200E'; // علامة تثبّت اتجاه الأرقام من اليسار لليمين
+const String kNbsp = '\u00A0'; // مسافة لا تفصل الرقم
 const double kOvertimeRate = 1000;
 
 DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -32,20 +384,90 @@ DateTime weekStartOf(DateTime d) {
   return DateTime(day.year, day.month, day.day - (day.weekday % 7));
 }
 
-String fmtDate(DateTime d) => '${d.day}/${d.month}';
+String ltr(String s) => '$kLrm$s$kLrm';
 
-String fmtMoney(double v) {
-  final s = v.round().toString();
+String _grouped(double v) {
+  final s = v.round().abs().toString();
   final buf = StringBuffer();
   for (int i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
+    if (i > 0 && (s.length - i) % 3 == 0) buf.write(kNbsp);
     buf.write(s[i]);
   }
-  return buf.toString();
+  return '${v < 0 ? '-' : ''}${buf.toString()}';
 }
 
-String fmtNum(double v) =>
+String numStr(double v) =>
     v == v.roundToDouble() ? v.toInt().toString() : v.toString();
+
+String fmtMoney(double v) => ltr(_grouped(v));
+String fmtXof(double v) => ltr('${_grouped(v)}${kNbsp}XOF');
+String fmtNum(double v) => ltr(numStr(v));
+String fmtDate(DateTime d) => ltr('${d.day}/${d.month}');
+String fmtFullDate(DateTime d) => ltr('${d.day}/${d.month}/${d.year}');
+
+// تنظيف النص قبل وضعه في PDF
+String plain(String s) => s.replaceAll(kLrm, '').replaceAll(kNbsp, ' ');
+
+// ======================= نافذتا اختيار اللغة =======================
+
+Future<void> showLanguageDialog(
+    BuildContext context, VoidCallback onChanged) async {
+  final code = await showDialog<String>(
+    context: context,
+    builder: (ctx) => SimpleDialog(
+      title: Text(t('language')),
+      children: [
+        for (final c in L10n.codes)
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, c),
+            child: Row(
+              children: [
+                Icon(
+                    c == L10n.lang
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_off,
+                    color: Colors.indigo),
+                const SizedBox(width: 12),
+                Text(L10n.names[c]!, style: const TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
+  if (code != null && code != L10n.lang) {
+    L10n.lang = code;
+    await AppDatabase.saveLang();
+    onChanged();
+  }
+}
+
+Future<String?> pickReportLang(BuildContext context) {
+  return showDialog<String>(
+    context: context,
+    builder: (ctx) => SimpleDialog(
+      title: Text(t('report_lang')),
+      children: [
+        for (final c in L10n.codes)
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, c),
+            child: Row(
+              children: [
+                const Icon(Icons.description, color: Colors.indigo),
+                const SizedBox(width: 12),
+                Text(L10n.names[c]!,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: c == L10n.lang
+                            ? FontWeight.bold
+                            : FontWeight.normal)),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
+}
 
 // ======================= التشغيل =======================
 
@@ -60,22 +482,32 @@ class WookFlowApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'WookFlow - Chantier Manager',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF4F6F9),
-      ),
-      home: const MainDashboardWrapper(),
+    return ValueListenableBuilder<String>(
+      valueListenable: L10n.notifier,
+      builder: (context, lang, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'WookFlow',
+          theme: ThemeData(
+            primarySwatch: Colors.indigo,
+            useMaterial3: true,
+            scaffoldBackgroundColor: const Color(0xFFF4F6F9),
+          ),
+          // اتجاه ثابت حسب اللغة: عربي = من اليمين، فرنسي/إنجليزي = من اليسار
+          builder: (context, child) => Directionality(
+            textDirection:
+                lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+            child: child ?? const SizedBox.shrink(),
+          ),
+          home: const MainDashboardWrapper(),
+        );
+      },
     );
   }
 }
 
 // ======================= النماذج =======================
 
-// سجل يوم واحد لعامل
 class DayLog {
   bool worked;
   String site;
@@ -212,6 +644,10 @@ class AppDatabase {
       final workersStr = prefs.getString('workers_data');
       final sitesStr = prefs.getString('sites_data');
       lastPopupDate = prefs.getString('last_popup_date') ?? '';
+      final savedLang = prefs.getString('app_lang');
+      if (savedLang != null && L10n.codes.contains(savedLang)) {
+        L10n.lang = savedLang;
+      }
 
       if (workersStr != null) {
         final List decoded = jsonDecode(workersStr);
@@ -226,7 +662,7 @@ class AppDatabase {
             .toList();
       }
     } catch (e) {
-      lastError = 'خطأ في التحميل: $e';
+      lastError = 'Load error: $e';
     }
   }
 
@@ -239,18 +675,26 @@ class AppDatabase {
           'sites_data', jsonEncode(sites.map((e) => e.toJson()).toList()));
       final ok3 = await prefs.setString('last_popup_date', lastPopupDate);
       if (!(ok1 && ok2 && ok3)) {
-        lastError = 'فشل الحفظ في الذاكرة';
+        lastError = 'Save failed';
       } else {
         lastError = null;
       }
       return ok1 && ok2 && ok3;
     } catch (e) {
-      lastError = 'خطأ في الحفظ: $e';
+      lastError = 'Save error: $e';
       return false;
     }
   }
 
-  // هل نعرض نافذة التقرير اليومي تلقائيًا؟ (مرة واحدة كل يوم)
+  static Future<void> saveLang() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('app_lang', L10n.lang);
+    } catch (e) {
+      lastError = 'Save error: $e';
+    }
+  }
+
   static bool shouldShowDailyPopup() {
     return workers.isNotEmpty && lastPopupDate != dateKey(DateTime.now());
   }
@@ -260,7 +704,6 @@ class AppDatabase {
     await saveData();
   }
 
-  // يرجع سجل اليوم للعامل، وينشئه إن لم يكن موجودًا
   static DayLog ensureLog(Worker w, DateTime day) {
     final key = dateKey(day);
     final existing = w.logs[key];
@@ -287,7 +730,6 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
   @override
   void initState() {
     super.initState();
-    // يظهر تلقائيًا مرة واحدة فقط في اليوم
     _showDailyPopup = AppDatabase.shouldShowDailyPopup();
   }
 
@@ -299,8 +741,8 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
 
   void _openPopup() {
     if (AppDatabase.workers.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('أضف عمالًا أولًا من القائمة الجانبية')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t('add_workers_first'))));
       return;
     }
     setState(() => _showDailyPopup = true);
@@ -382,7 +824,7 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
-                const Text('يعمل؟'),
+                Text(t('works')),
                 Switch(
                   value: log.worked,
                   onChanged: (val) {
@@ -396,7 +838,7 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
               children: [
                 Expanded(
                   child: InputDecorator(
-                    decoration: const InputDecoration(labelText: 'الورشة'),
+                    decoration: InputDecoration(labelText: t('site')),
                     isEmpty: siteValue == null,
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
@@ -421,10 +863,9 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
                   child: TextFormField(
                     key: ValueKey('${worker.id}-ot'),
                     initialValue:
-                        log.overtimeHours == 0 ? '' : fmtNum(log.overtimeHours),
+                        log.overtimeHours == 0 ? '' : numStr(log.overtimeHours),
                     enabled: log.worked,
-                    decoration:
-                        const InputDecoration(labelText: 'ساعات إضافية'),
+                    decoration: InputDecoration(labelText: t('overtime')),
                     keyboardType: TextInputType.number,
                     onChanged: (val) {
                       setState(() =>
@@ -440,10 +881,10 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
                 Expanded(
                   child: TextFormField(
                     key: ValueKey('${worker.id}-tr'),
-                    initialValue: log.transport == 0 ? '' : fmtNum(log.transport),
+                    initialValue:
+                        log.transport == 0 ? '' : numStr(log.transport),
                     enabled: log.worked,
-                    decoration:
-                        const InputDecoration(labelText: 'أجور النقل (XOF)'),
+                    decoration: InputDecoration(labelText: t('transport')),
                     keyboardType: TextInputType.number,
                     onChanged: (val) {
                       setState(
@@ -458,7 +899,7 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
                     key: ValueKey('${worker.id}-note'),
                     initialValue: log.note,
                     enabled: log.worked,
-                    decoration: const InputDecoration(labelText: 'ملاحظة'),
+                    decoration: InputDecoration(labelText: t('note')),
                     onChanged: (val) {
                       log.note = val;
                       AppDatabase.saveData();
@@ -468,7 +909,7 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
               ],
             ),
             const SizedBox(height: 6),
-            Text('إجمالي اليوم: ${fmtMoney(log.total(worker.dailyRate))} XOF',
+            Text('${t('day_total')}: ${fmtXof(log.total(worker.dailyRate))}',
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.indigo)),
           ],
@@ -479,7 +920,7 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
 
   @override
   Widget build(BuildContext context) {
-    final dayName = kDayNames[_today.weekday % 7];
+    final dayName = L10n.day(_today.weekday % 7);
     return Container(
       color: Colors.black54,
       child: Center(
@@ -501,7 +942,7 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
                   children: [
                     Expanded(
                       child: Text(
-                          'التقرير اليومي - $dayName ${fmtDate(_today)}',
+                          '${t('daily_title')} - $dayName ${fmtDate(_today)}',
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -528,8 +969,9 @@ class _DailyReportPopupState extends State<DailyReportPopup> {
                       backgroundColor: Colors.indigo,
                       minimumSize: const Size(double.infinity, 50)),
                   onPressed: widget.onClose,
-                  child: const Text('حفظ وإغلاق التقرير اليومي',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: Text(t('save_close'),
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 16)),
                 ),
               ),
             ],
@@ -546,7 +988,9 @@ class MainDashboard extends StatelessWidget {
   final VoidCallback onDataUpdated;
   final VoidCallback onOpenDailyReport;
   const MainDashboard(
-      {super.key, required this.onDataUpdated, required this.onOpenDailyReport});
+      {super.key,
+      required this.onDataUpdated,
+      required this.onOpenDailyReport});
 
   @override
   Widget build(BuildContext context) {
@@ -557,27 +1001,35 @@ class MainDashboard extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WookFlow - إدارة الورش والعمال',
-            style: TextStyle(color: Colors.white)),
+        title: Text(t('app_title'),
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white, fontSize: 16)),
         backgroundColor: Colors.indigo,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            tooltip: t('language'),
+            onPressed: () => showLanguageDialog(context, onDataUpdated),
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const UserAccountsDrawerHeader(
-              accountName: Text('مدير الورشة (Abidjan)'),
-              accountEmail: Text('نظام إدارة المشاريع v1.0.0'),
-              currentAccountPicture: CircleAvatar(
+            UserAccountsDrawerHeader(
+              accountName: Text(t('manager')),
+              accountEmail: Text(t('version')),
+              currentAccountPicture: const CircleAvatar(
                   backgroundColor: Colors.white,
                   child:
                       Icon(Icons.engineering, size: 40, color: Colors.indigo)),
-              decoration: BoxDecoration(color: Colors.indigo),
+              decoration: const BoxDecoration(color: Colors.indigo),
             ),
             ListTile(
               leading: const Icon(Icons.today),
-              title: const Text('التقرير اليومي (حضور اليوم)'),
+              title: Text(t('m_daily')),
               onTap: () {
                 Navigator.pop(context);
                 onOpenDailyReport();
@@ -585,7 +1037,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.person_add),
-              title: const Text('1. إضافة عامل جديد'),
+              title: Text(t('m_add_worker')),
               onTap: () async {
                 Navigator.pop(context);
                 await Navigator.push(
@@ -597,7 +1049,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.person_remove),
-              title: const Text('3. حذف عامل'),
+              title: Text(t('m_delete_worker')),
               onTap: () async {
                 Navigator.pop(context);
                 await Navigator.push(
@@ -609,7 +1061,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.location_city),
-              title: const Text('4. اسماء مواقع العمل'),
+              title: Text(t('m_sites')),
               onTap: () async {
                 Navigator.pop(context);
                 await Navigator.push(context,
@@ -619,7 +1071,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.task_alt),
-              title: const Text('الورش المسلمة والمنتهية'),
+              title: Text(t('m_delivered')),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -630,7 +1082,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.payments),
-              title: const Text('5. دفعة جديدة (حسابات الورش)'),
+              title: Text(t('m_payment')),
               onTap: () async {
                 Navigator.pop(context);
                 await Navigator.push(
@@ -642,7 +1094,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.group),
-              title: const Text('6. قائمة العمال وتعديلهم'),
+              title: Text(t('m_workers')),
               onTap: () async {
                 Navigator.pop(context);
                 await Navigator.push(
@@ -654,7 +1106,7 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.summarize),
-              title: const Text('7. ملخص الأسبوع والتقارير'),
+              title: Text(t('m_weekly')),
               onTap: () async {
                 Navigator.pop(context);
                 await Navigator.push(
@@ -662,6 +1114,15 @@ class MainDashboard extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => const WeeklySummaryScreen()));
                 onDataUpdated();
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: Text('${t('language')}: ${L10n.names[L10n.lang]}'),
+              onTap: () {
+                Navigator.pop(context);
+                showLanguageDialog(context, onDataUpdated);
               },
             ),
           ],
@@ -677,8 +1138,8 @@ class MainDashboard extends StatelessWidget {
                   minimumSize: const Size(double.infinity, 56)),
               onPressed: onOpenDailyReport,
               icon: const Icon(Icons.today, color: Colors.white),
-              label: const Text('التقرير اليومي (تسجيل حضور اليوم)',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              label: Text(t('daily_btn'),
+                  style: const TextStyle(color: Colors.white, fontSize: 16)),
             ),
             const SizedBox(height: 16),
             Expanded(
@@ -687,18 +1148,19 @@ class MainDashboard extends StatelessWidget {
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 children: [
-                  _buildDashboardCard(context, 'العمال اليوم', '$workingToday',
-                      Icons.people, Colors.blue),
+                  _buildDashboardCard(context, t('card_workers_today'),
+                      ltr('$workingToday'), Icons.people, Colors.blue),
                   _buildDashboardCard(
                       context,
-                      'الورش النشطة',
-                      '${AppDatabase.sites.where((s) => !s.isDelivered).length}',
+                      t('card_active_sites'),
+                      ltr('${AppDatabase.sites.where((s) => !s.isDelivered).length}'),
                       Icons.apartment,
                       Colors.orange),
-                  _buildDashboardCard(context, 'سعر ساعة العمل', '1000 XOF',
-                      Icons.money, Colors.green),
-                  _buildDashboardCard(context, 'ملخص الأسبوع', 'عرض التقارير',
-                      Icons.bar_chart, Colors.purple, onTap: () async {
+                  _buildDashboardCard(context, t('card_hour_rate'),
+                      fmtXof(kOvertimeRate), Icons.money, Colors.green),
+                  _buildDashboardCard(context, t('card_weekly'),
+                      t('view_reports'), Icons.bar_chart, Colors.purple,
+                      onTap: () async {
                     await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -775,7 +1237,7 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('إضافة عامل جديد'),
+          title: Text(t('add_worker_title')),
           backgroundColor: Colors.indigo,
           iconTheme: const IconThemeData(color: Colors.white)),
       body: Padding(
@@ -786,27 +1248,24 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration:
-                    const InputDecoration(labelText: 'اسم العامل (إجباري)'),
+                decoration: InputDecoration(labelText: t('worker_name_req')),
                 validator: (value) => (value == null || value.isEmpty)
-                    ? 'يرجى إدخال اسم العامل'
+                    ? t('enter_name')
                     : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _rateController,
-                decoration: const InputDecoration(
-                    labelText: 'اليومية أو الأجر (إجباري) - (الساعة 1000 XOF)'),
+                decoration: InputDecoration(labelText: t('rate_req')),
                 keyboardType: TextInputType.number,
                 validator: (value) => (value == null || value.isEmpty)
-                    ? 'يرجى إدخال اليومية'
+                    ? t('enter_rate')
                     : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _phoneController,
-                decoration:
-                    const InputDecoration(labelText: 'رقم الهاتف (اختياري)'),
+                decoration: InputDecoration(labelText: t('phone_opt')),
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 24),
@@ -829,12 +1288,12 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
                     navigator.pop();
                     messenger.showSnackBar(SnackBar(
                         content: Text(ok
-                            ? 'تم إضافة العامل وحفظه'
-                            : 'فشل الحفظ: ${AppDatabase.lastError}')));
+                            ? t('worker_saved')
+                            : '${t('save_failed')}: ${AppDatabase.lastError}')));
                   }
                 },
-                child: const Text('حفظ العامل',
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: Text(t('save_worker'),
+                    style: const TextStyle(color: Colors.white, fontSize: 16)),
               ),
             ],
           ),
@@ -867,7 +1326,7 @@ class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('حذف العمال'),
+        title: Text(t('delete_title')),
         backgroundColor: Colors.indigo,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -882,19 +1341,19 @@ class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
               final ok = await AppDatabase.saveData();
               messenger.showSnackBar(SnackBar(
                   content: Text(ok
-                      ? 'تم حذف العمال المحددين بنجاح'
-                      : 'فشل الحفظ: ${AppDatabase.lastError}')));
+                      ? t('deleted_ok')
+                      : '${t('save_failed')}: ${AppDatabase.lastError}')));
             },
           ),
         ],
       ),
       body: AppDatabase.workers.isEmpty
-          ? const Center(child: Text('لا يوجد عمال مضافون حالياً'))
+          ? Center(child: Text(t('no_workers_now')))
           : Column(
               children: [
                 CheckboxListTile(
-                  title: const Text('اختيار الجميع',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(t('select_all'),
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   value: _selectAll,
                   onChanged: (val) {
                     setState(() {
@@ -912,7 +1371,7 @@ class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
                       return CheckboxListTile(
                         title: Text(worker.name),
                         subtitle: Text(
-                            'اليومية: ${fmtMoney(worker.dailyRate)} XOF | الهاتف: ${worker.phone}'),
+                            '${t('daily_wage')}: ${fmtXof(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
                         value: _selectedWorkers[worker.id] ?? false,
                         onChanged: (val) {
                           setState(() {
@@ -955,28 +1414,26 @@ class _SitesScreenState extends State<SitesScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('إضافة موقع عمل جديد'),
+        title: Text(t('add_site_title')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'اسم الموقع')),
+                decoration: InputDecoration(labelText: t('site_name'))),
             TextField(
                 controller: _locationController,
-                decoration:
-                    const InputDecoration(labelText: 'الموقع (العنوان)')),
+                decoration: InputDecoration(labelText: t('site_address'))),
             TextField(
                 controller: _amountController,
-                decoration: const InputDecoration(
-                    labelText: 'الأجر الكامل للورشة (Total)'),
+                decoration: InputDecoration(labelText: t('site_total')),
                 keyboardType: TextInputType.number),
           ],
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('إلغاء')),
+              child: Text(t('cancel'))),
           ElevatedButton(
             onPressed: () async {
               if (_nameController.text.isNotEmpty) {
@@ -996,7 +1453,7 @@ class _SitesScreenState extends State<SitesScreen> {
                 if (mounted) setState(() {});
               }
             },
-            child: const Text('حفظ'),
+            child: Text(t('save')),
           ),
         ],
       ),
@@ -1009,11 +1466,11 @@ class _SitesScreenState extends State<SitesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-          title: const Text('مواقع العمل النشطة'),
+          title: Text(t('sites_title')),
           backgroundColor: Colors.indigo,
           iconTheme: const IconThemeData(color: Colors.white)),
       body: activeSites.isEmpty
-          ? const Center(child: Text('لا توجد ورش نشطة حالياً'))
+          ? Center(child: Text(t('no_active_sites')))
           : ListView.builder(
               itemCount: activeSites.length,
               itemBuilder: (context, index) {
@@ -1024,7 +1481,7 @@ class _SitesScreenState extends State<SitesScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        'العنوان: ${site.location} | الإجمالي: ${fmtMoney(site.totalContractAmount)} XOF'),
+                        '${t('site_address')}: ${site.location} | ${t('total')}: ${fmtXof(site.totalContractAmount)}'),
                     trailing: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
@@ -1035,10 +1492,10 @@ class _SitesScreenState extends State<SitesScreen> {
                           site.isDelivered = true;
                         });
                         await AppDatabase.saveData();
-                        messenger.showSnackBar(const SnackBar(
-                            content: Text('تم تسليم الورشة ونقلها للأرشيف')));
+                        messenger.showSnackBar(
+                            SnackBar(content: Text(t('delivered_msg'))));
                       },
-                      child: const Text('تسليم الورشة'),
+                      child: Text(t('deliver')),
                     ),
                   ),
                 );
@@ -1063,11 +1520,11 @@ class DeliveredSitesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-          title: const Text('الورش المسلمة والمنتهية'),
+          title: Text(t('delivered_title')),
           backgroundColor: Colors.indigo,
           iconTheme: const IconThemeData(color: Colors.white)),
       body: deliveredSites.isEmpty
-          ? const Center(child: Text('لا توجد ورش مسلمة حتى الآن'))
+          ? Center(child: Text(t('no_delivered')))
           : ListView.builder(
               itemCount: deliveredSites.length,
               itemBuilder: (context, index) {
@@ -1081,7 +1538,7 @@ class DeliveredSitesScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.lineThrough)),
                     subtitle: Text(
-                        'العنوان: ${site.location} | الأجر الإجمالي: ${fmtMoney(site.totalContractAmount)} XOF\nالواصل: ${fmtMoney(site.totalPaid)} XOF (تم التسليم)'),
+                        '${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtXof(site.totalContractAmount)}\n${t('received')}: ${fmtXof(site.totalPaid)} (${t('delivered_flag')})'),
                     isThreeLine: true,
                   ),
                 );
@@ -1105,11 +1562,11 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
 
     return Scaffold(
       appBar: AppBar(
-          title: const Text('إدارة الدفعات والواصل'),
+          title: Text(t('payments_title')),
           backgroundColor: Colors.indigo,
           iconTheme: const IconThemeData(color: Colors.white)),
       body: activeSites.isEmpty
-          ? const Center(child: Text('لا توجد ورش نشطة لإضافة دفعات'))
+          ? Center(child: Text(t('no_sites_payment')))
           : ListView.builder(
               itemCount: activeSites.length,
               itemBuilder: (context, index) {
@@ -1120,7 +1577,8 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        'الإجمالي: ${fmtMoney(site.totalContractAmount)} | الواصل: ${fmtMoney(site.totalPaid)} | الباقي: ${fmtMoney(site.totalContractAmount - site.totalPaid)} XOF'),
+                        '${t('total')}: ${fmtXof(site.totalContractAmount)}\n${t('received')}: ${fmtXof(site.totalPaid)}\n${t('remaining')}: ${fmtXof(site.totalContractAmount - site.totalPaid)}'),
+                    isThreeLine: true,
                     trailing: IconButton(
                       icon: const Icon(Icons.add_card, color: Colors.indigo),
                       onPressed: () => _showPaymentDialog(context, site),
@@ -1137,23 +1595,21 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('إضافة دفعة لـ ${site.name}'),
+        title: Text('${t('add_payment_for')} ${site.name}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text('${t('contract_total')}: ${fmtXof(site.totalContractAmount)}'),
+            Text('${t('payments_sum')}: ${fmtXof(site.totalPaid)}'),
             Text(
-                'أجار الورشة الإجمالي: ${fmtMoney(site.totalContractAmount)} XOF'),
-            Text('مجموع الدفعات (الواصل): ${fmtMoney(site.totalPaid)} XOF'),
-            Text(
-                'الباقي: ${fmtMoney(site.totalContractAmount - site.totalPaid)} XOF',
+                '${t('remaining')}: ${fmtXof(site.totalContractAmount - site.totalPaid)}',
                 style: const TextStyle(
                     color: Colors.red, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             TextField(
               controller: paymentController,
-              decoration:
-                  const InputDecoration(labelText: 'قيمة الدفعة الجديدة (XOF)'),
+              decoration: InputDecoration(labelText: t('new_payment')),
               keyboardType: TextInputType.number,
             ),
           ],
@@ -1161,7 +1617,7 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('إلغاء')),
+              child: Text(t('cancel'))),
           ElevatedButton(
             onPressed: () async {
               final payment = double.tryParse(paymentController.text) ?? 0.0;
@@ -1172,7 +1628,7 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
               if (mounted) setState(() {});
               await AppDatabase.saveData();
             },
-            child: const Text('حفظ'),
+            child: Text(t('save')),
           ),
         ],
       ),
@@ -1194,11 +1650,11 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('قائمة العمال وتعديل بياناتهم'),
+          title: Text(t('workers_list_title')),
           backgroundColor: Colors.indigo,
           iconTheme: const IconThemeData(color: Colors.white)),
       body: AppDatabase.workers.isEmpty
-          ? const Center(child: Text('لا يوجد عمال مضافون'))
+          ? Center(child: Text(t('no_workers')))
           : ListView.builder(
               itemCount: AppDatabase.workers.length,
               itemBuilder: (context, index) {
@@ -1209,7 +1665,7 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
                     title: Text(worker.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        'اليومية: ${fmtMoney(worker.dailyRate)} XOF | الهاتف: ${worker.phone}'),
+                        '${t('daily_wage')}: ${fmtXof(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
                     trailing: const Icon(Icons.edit, color: Colors.indigo),
                     onTap: () => _editWorkerDialog(context, worker),
                   ),
@@ -1222,32 +1678,32 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
   void _editWorkerDialog(BuildContext context, Worker worker) {
     final nameController = TextEditingController(text: worker.name);
     final rateController =
-        TextEditingController(text: fmtNum(worker.dailyRate));
+        TextEditingController(text: numStr(worker.dailyRate));
     final phoneController = TextEditingController(text: worker.phone);
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('تعديل بيانات العامل'),
+        title: Text(t('edit_worker')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'اسم العامل')),
+                decoration: InputDecoration(labelText: t('worker_name'))),
             TextField(
                 controller: rateController,
-                decoration: const InputDecoration(labelText: 'اليومية (XOF)'),
+                decoration: InputDecoration(labelText: t('daily_xof')),
                 keyboardType: TextInputType.number),
             TextField(
                 controller: phoneController,
-                decoration: const InputDecoration(labelText: 'رقم الهاتف'),
+                decoration: InputDecoration(labelText: t('phone_number')),
                 keyboardType: TextInputType.phone),
           ],
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('إلغاء')),
+              child: Text(t('cancel'))),
           ElevatedButton(
             onPressed: () async {
               setState(() {
@@ -1259,7 +1715,7 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
               Navigator.pop(dialogContext);
               await AppDatabase.saveData();
             },
-            child: const Text('حفظ التعديلات'),
+            child: Text(t('save_edits')),
           ),
         ],
       ),
@@ -1269,7 +1725,6 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
 
 // ======================= التقارير الأسبوعية =======================
 
-// شريط التنقل بين الأسابيع
 class WeekNavigator extends StatelessWidget {
   final DateTime weekStart;
   final VoidCallback onPrev;
@@ -1286,168 +1741,306 @@ class WeekNavigator extends StatelessWidget {
     return Container(
       color: Colors.indigo.shade50,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-              icon: const Icon(Icons.chevron_left, color: Colors.indigo),
-              onPressed: onPrev),
-          Text(
-              'الأسبوع: ${fmtDate(weekStart)}/${weekStart.year}  ←  ${fmtDate(end)}/${end.year}',
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-          IconButton(
-              icon: const Icon(Icons.chevron_right, color: Colors.indigo),
-              onPressed: onNext),
-        ],
+      // ترتيب الأزرار ثابت (يسار = أسبوع سابق، يمين = أسبوع لاحق) مهما كانت اللغة
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+                icon: const Icon(Icons.chevron_left, color: Colors.indigo),
+                onPressed: onPrev),
+            Flexible(
+              child: Text(
+                '${t('week')}: ${fmtFullDate(weekStart)} - ${fmtFullDate(end)}',
+                textAlign: TextAlign.center,
+                textDirection:
+                    L10n.isRtl ? TextDirection.rtl : TextDirection.ltr,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            IconButton(
+                icon: const Icon(Icons.chevron_right, color: Colors.indigo),
+                onPressed: onNext),
+          ],
+        ),
       ),
     );
   }
 }
 
-String _dayCellText(DayLog? log, double rate) {
+String dayCellText(DayLog? log, double rate, String lang) {
   if (log == null) return '';
-  if (!log.worked) return 'عطلة';
+  if (!log.worked) return L10n.tr('holiday', lang);
   return fmtMoney(log.total(rate));
 }
 
-String buildWorkerWeekText(Worker w, DateTime ws) {
+String buildWorkerWeekText(Worker w, DateTime ws, String lang) {
+  String tr(String k) => L10n.tr(k, lang);
   final sb = StringBuffer();
-  sb.writeln('📊 تقرير العامل: ${w.name}');
-  sb.writeln('📅 الأسبوع: ${fmtDate(ws)} → ${fmtDate(addDays(ws, 6))}');
+  sb.writeln('📊 ${tr('worker_report')}: ${w.name}');
+  sb.writeln('📅 ${tr('week')}: ${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}');
   sb.writeln('');
-  double total = 0;
+  double total = 0, base = 0, ot = 0, trans = 0;
+  int days = 0;
   for (int i = 0; i < 7; i++) {
     final d = addDays(ws, i);
     final log = w.logFor(d);
-    final label = '${kDayNames[i]} ${fmtDate(d)}';
+    final label = '${L10n.day(i, lang)} ${fmtDate(d)}';
     if (log == null) {
       sb.writeln('$label: —');
     } else if (!log.worked) {
-      sb.writeln('$label: عطلة');
+      sb.writeln('$label: ${tr('holiday')}');
     } else {
-      final t = log.total(w.dailyRate);
-      total += t;
+      final dayTotal = log.total(w.dailyRate);
+      total += dayTotal;
+      base += w.dailyRate;
+      ot += log.overtimeHours * kOvertimeRate;
+      trans += log.transport;
+      days++;
       sb.writeln(
-          '$label: ${log.site.isEmpty ? "" : "${log.site} | "}إضافي ${fmtNum(log.overtimeHours)}س | نقل ${fmtMoney(log.transport)} = ${fmtMoney(t)}');
+          '$label: ${log.site.isEmpty ? "" : "${log.site} | "}${tr('overtime_short')} ${fmtNum(log.overtimeHours)}${tr('hour_short')} | ${tr('transport_short')} ${fmtMoney(log.transport)} = ${fmtXof(dayTotal)}${log.note.isEmpty ? "" : " | ${log.note}"}');
     }
   }
   sb.writeln('');
-  sb.writeln('💰 المجموع الأسبوعي: ${fmtMoney(total)} XOF');
+  sb.writeln('${tr('work_days')}: ${ltr('$days')}');
+  sb.writeln('${tr('sum_days')}: ${fmtXof(base)}');
+  sb.writeln('${tr('sum_overtime')}: ${fmtXof(ot)}');
+  sb.writeln('${tr('sum_transport')}: ${fmtXof(trans)}');
+  sb.writeln('💰 ${tr('weekly_total')}: ${fmtXof(total)}');
   return sb.toString();
 }
 
-String buildAllWeekText(DateTime ws) {
+String buildAllWeekText(DateTime ws, String lang) {
+  String tr(String k) => L10n.tr(k, lang);
   final sb = StringBuffer();
-  sb.writeln('📊 التقرير الأسبوعي لجميع العمال');
-  sb.writeln('📅 ${fmtDate(ws)} → ${fmtDate(addDays(ws, 6))}');
+  sb.writeln('📊 ${tr('all_report')}');
+  sb.writeln('📅 ${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}');
   sb.writeln('');
   double grand = 0;
   for (final w in AppDatabase.workers) {
-    final t = w.weekTotal(ws);
-    grand += t;
-    sb.writeln('👷 ${w.name}: ${fmtMoney(t)} XOF');
+    final tot = w.weekTotal(ws);
+    grand += tot;
+    sb.writeln('👷 ${w.name}: ${fmtXof(tot)}');
   }
   sb.writeln('');
-  sb.writeln('💰 المجموع الكلي: ${fmtMoney(grand)} XOF');
+  sb.writeln('💰 ${tr('grand_total')}: ${fmtXof(grand)}');
   return sb.toString();
 }
 
-pw.Widget _pdfCell(String t, {bool bold = false}) => pw.Padding(
-      padding: const pw.EdgeInsets.all(4),
-      child: pw.Text(t,
-          style: pw.TextStyle(
-              fontSize: 10,
-              fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal)),
-    );
+// ---------- PDF ----------
 
-Future<void> shareWorkerWeekPdf(Worker w, DateTime ws) async {
-  final pdf = pw.Document();
+bool gPdfFontFailed = false;
+
+Future<pw.Document> _newPdf() async {
+  gPdfFontFailed = false;
+  try {
+    final regular = await PdfGoogleFonts.cairoRegular();
+    final bold = await PdfGoogleFonts.cairoBold();
+    return pw.Document(
+        theme: pw.ThemeData.withFont(base: regular, bold: bold));
+  } catch (_) {
+    gPdfFontFailed = true;
+    return pw.Document();
+  }
+}
+
+pw.Widget _pdfCell(String text,
+    {bool bold = false, bool rtl = false, bool numeric = false}) {
+  return pw.Padding(
+    padding: const pw.EdgeInsets.all(4),
+    child: pw.Text(
+      plain(text),
+      textDirection:
+          (rtl && !numeric) ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+      style: pw.TextStyle(
+          fontSize: 10,
+          fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal),
+    ),
+  );
+}
+
+// سطر "عنوان: قيمة" مع إبقاء الرقم دائمًا من اليسار لليمين
+pw.Widget _pdfLine(String label, String value,
+    {required bool rtl, bool big = false}) {
+  final style = pw.TextStyle(
+      fontSize: big ? 15 : 11,
+      fontWeight: big ? pw.FontWeight.bold : pw.FontWeight.normal);
+  final labelW = pw.Text('$label:',
+      textDirection: rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+      style: style);
+  final valueW = pw.Text(plain(value),
+      textDirection: pw.TextDirection.ltr, style: style);
+  return pw.Padding(
+    padding: const pw.EdgeInsets.only(top: 3),
+    child: pw.Row(
+      mainAxisSize: pw.MainAxisSize.min,
+      children: rtl
+          ? [valueW, pw.SizedBox(width: 6), labelW]
+          : [labelW, pw.SizedBox(width: 6), valueW],
+    ),
+  );
+}
+
+Future<void> shareWorkerWeekPdf(
+    BuildContext context, Worker w, DateTime ws, String lang) async {
+  final messenger = ScaffoldMessenger.of(context);
+  String tr(String k) => L10n.tr(k, lang);
+  final rtl = lang == 'ar';
+  final td = rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
+  final pdf = await _newPdf();
+
+  List<pw.Widget> order(List<pw.Widget> c) => rtl ? c.reversed.toList() : c;
+
   final rows = <pw.TableRow>[
-    pw.TableRow(children: [
-      _pdfCell('اليوم', bold: true),
-      _pdfCell('الورشة', bold: true),
-      _pdfCell('إضافي', bold: true),
-      _pdfCell('نقل', bold: true),
-      _pdfCell('المبلغ', bold: true),
-    ]),
+    pw.TableRow(
+      children: order(<pw.Widget>[
+        _pdfCell(tr('day_col'), bold: true, rtl: rtl),
+        _pdfCell(tr('site'), bold: true, rtl: rtl),
+        _pdfCell(tr('overtime_short'), bold: true, rtl: rtl),
+        _pdfCell(tr('transport_short'), bold: true, rtl: rtl),
+        _pdfCell(tr('amount'), bold: true, rtl: rtl),
+      ]),
+    ),
   ];
+
+  double base = 0, ot = 0, trans = 0, total = 0;
+  int days = 0;
   for (int i = 0; i < 7; i++) {
     final d = addDays(ws, i);
     final log = w.logFor(d);
-    rows.add(pw.TableRow(children: [
-      _pdfCell('${kDayNames[i]} ${fmtDate(d)}'),
-      _pdfCell(log == null ? '-' : (log.worked ? log.site : 'عطلة')),
-      _pdfCell(log != null && log.worked ? fmtNum(log.overtimeHours) : '-'),
-      _pdfCell(log != null && log.worked ? fmtMoney(log.transport) : '-'),
-      _pdfCell(log == null ? '-' : fmtMoney(log.total(w.dailyRate))),
-    ]));
+    String siteText = '-';
+    if (log != null) {
+      siteText = log.worked ? (log.site.isEmpty ? '-' : log.site) : tr('holiday');
+    }
+    if (log != null && log.worked) {
+      days++;
+      base += w.dailyRate;
+      ot += log.overtimeHours * kOvertimeRate;
+      trans += log.transport;
+      total += log.total(w.dailyRate);
+    }
+    rows.add(pw.TableRow(
+      children: order(<pw.Widget>[
+        _pdfCell('${L10n.day(i, lang)} ${fmtDate(d)}', rtl: rtl),
+        _pdfCell(siteText, rtl: rtl),
+        _pdfCell(log != null && log.worked ? fmtNum(log.overtimeHours) : '-',
+            numeric: true),
+        _pdfCell(log != null && log.worked ? fmtMoney(log.transport) : '-',
+            numeric: true),
+        _pdfCell(log == null ? '-' : fmtMoney(log.total(w.dailyRate)),
+            numeric: true),
+      ]),
+    ));
   }
+
   pdf.addPage(
     pw.Page(
+      margin: const pw.EdgeInsets.all(28),
       build: (pw.Context ctx) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        crossAxisAlignment:
+            rtl ? pw.CrossAxisAlignment.end : pw.CrossAxisAlignment.start,
         children: [
-          pw.Text('${w.name} - ${fmtDate(ws)} / ${fmtDate(addDays(ws, 6))}',
+          pw.Text('${tr('worker_report')}: ${w.name}',
+              textDirection: td,
               style:
                   pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 4),
+          _pdfLine(tr('week'), '${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}',
+              rtl: rtl),
           pw.SizedBox(height: 14),
           pw.Table(border: pw.TableBorder.all(), children: rows),
           pw.SizedBox(height: 14),
-          pw.Text('TOTAL: ${fmtMoney(w.weekTotal(ws))} XOF',
-              style:
-                  pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          _pdfLine(tr('work_days'), '$days', rtl: rtl),
+          _pdfLine(tr('sum_days'), fmtXof(base), rtl: rtl),
+          _pdfLine(tr('sum_overtime'), fmtXof(ot), rtl: rtl),
+          _pdfLine(tr('sum_transport'), fmtXof(trans), rtl: rtl),
+          pw.SizedBox(height: 8),
+          _pdfLine(tr('weekly_total'), fmtXof(total), rtl: rtl, big: true),
         ],
       ),
     ),
   );
+
   await Printing.sharePdf(
       bytes: await pdf.save(), filename: 'report_${w.name}.pdf');
+  if (gPdfFontFailed) {
+    messenger.showSnackBar(SnackBar(content: Text(t('pdf_font_err'))));
+  }
 }
 
-Future<void> shareAllWeekPdf(DateTime ws) async {
-  final pdf = pw.Document();
-  final header = <pw.Widget>[_pdfCell('Worker', bold: true)];
-  for (int i = 0; i < 7; i++) {
-    header.add(_pdfCell('${kDayNames[i]}\n${fmtDate(addDays(ws, i))}',
-        bold: true));
-  }
-  header.add(_pdfCell('TOTAL', bold: true));
+Future<void> shareAllWeekPdf(
+    BuildContext context, DateTime ws, String lang) async {
+  final messenger = ScaffoldMessenger.of(context);
+  String tr(String k) => L10n.tr(k, lang);
+  final rtl = lang == 'ar';
+  final td = rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
+  final pdf = await _newPdf();
 
-  final rows = <pw.TableRow>[pw.TableRow(children: header)];
+  List<pw.Widget> order(List<pw.Widget> c) => rtl ? c.reversed.toList() : c;
+
+  final header = <pw.Widget>[_pdfCell(tr('worker_col'), bold: true, rtl: rtl)];
+  for (int i = 0; i < 7; i++) {
+    header.add(_pdfCell('${L10n.day(i, lang)}\n${fmtDate(addDays(ws, i))}',
+        bold: true, rtl: rtl));
+  }
+  header.add(_pdfCell(tr('total_word'), bold: true, rtl: rtl));
+
+  final rows = <pw.TableRow>[pw.TableRow(children: order(header))];
   double grand = 0;
+  final dayTotals = List<double>.filled(7, 0.0);
   for (final w in AppDatabase.workers) {
-    final cells = <pw.Widget>[_pdfCell(w.name)];
+    final cells = <pw.Widget>[_pdfCell(w.name, rtl: rtl)];
     for (int i = 0; i < 7; i++) {
       final log = w.logFor(addDays(ws, i));
-      cells.add(_pdfCell(_dayCellText(log, w.dailyRate)));
+      dayTotals[i] += log?.total(w.dailyRate) ?? 0.0;
+      cells.add(_pdfCell(dayCellText(log, w.dailyRate, lang),
+          rtl: rtl, numeric: log != null && log.worked));
     }
-    final t = w.weekTotal(ws);
-    grand += t;
-    cells.add(_pdfCell(fmtMoney(t), bold: true));
-    rows.add(pw.TableRow(children: cells));
+    final tot = w.weekTotal(ws);
+    grand += tot;
+    cells.add(_pdfCell(fmtMoney(tot), bold: true, numeric: true));
+    rows.add(pw.TableRow(children: order(cells)));
   }
+
+  final totalCells = <pw.Widget>[_pdfCell(tr('total_word'), bold: true, rtl: rtl)];
+  for (int i = 0; i < 7; i++) {
+    totalCells.add(_pdfCell(fmtMoney(dayTotals[i]), bold: true, numeric: true));
+  }
+  totalCells.add(_pdfCell(fmtMoney(grand), bold: true, numeric: true));
+  rows.add(pw.TableRow(children: order(totalCells)));
 
   pdf.addPage(
     pw.Page(
       pageFormat: PdfPageFormat.a4.landscape,
+      margin: const pw.EdgeInsets.all(24),
       build: (pw.Context ctx) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        crossAxisAlignment:
+            rtl ? pw.CrossAxisAlignment.end : pw.CrossAxisAlignment.start,
         children: [
-          pw.Text('${fmtDate(ws)} / ${fmtDate(addDays(ws, 6))}',
+          pw.Text(tr('all_report'),
+              textDirection: td,
               style:
                   pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 4),
+          _pdfLine(tr('week'), '${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}',
+              rtl: rtl),
           pw.SizedBox(height: 12),
           pw.Table(border: pw.TableBorder.all(), children: rows),
           pw.SizedBox(height: 12),
-          pw.Text('GRAND TOTAL: ${fmtMoney(grand)} XOF',
-              style:
-                  pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          _pdfLine(tr('grand_total'), fmtXof(grand), rtl: rtl, big: true),
         ],
       ),
     ),
   );
+
   await Printing.sharePdf(bytes: await pdf.save(), filename: 'weekly_all.pdf');
+  if (gPdfFontFailed) {
+    messenger.showSnackBar(SnackBar(content: Text(t('pdf_font_err'))));
+  }
 }
+
+// ---------- شاشات التقارير ----------
 
 class WeeklySummaryScreen extends StatefulWidget {
   const WeeklySummaryScreen({super.key});
@@ -1471,11 +2064,11 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-          title: const Text('ملخص الأسبوع والرواتب'),
+          title: Text(t('weekly_title')),
           backgroundColor: Colors.indigo,
           iconTheme: const IconThemeData(color: Colors.white)),
       body: AppDatabase.workers.isEmpty
-          ? const Center(child: Text('لا توجد بيانات لعرض الملخص'))
+          ? Center(child: Text(t('no_data')))
           : Column(
               children: [
                 WeekNavigator(
@@ -1489,26 +2082,26 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
                       Card(
                         color: Colors.indigo.shade50,
                         child: ListTile(
-                          title: const Text('1. التقرير المشترك لجميع العمال',
-                              style: TextStyle(
+                          title: Text(t('joint_report'),
+                              style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 16)),
                           subtitle: Text(
-                              'كل أيام الأسبوع (الأحد → السبت) | المجموع: ${fmtMoney(grand)} XOF'),
+                              '${t('joint_sub')}\n${t('total_word')}: ${fmtXof(grand)}'),
+                          isThreeLine: true,
                           trailing: const Icon(Icons.arrow_forward_ios),
                           onTap: () async {
                             await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        AllWorkersWeekScreen(
-                                            weekStart: _weekStart)));
+                                    builder: (context) => AllWorkersWeekScreen(
+                                        weekStart: _weekStart)));
                             setState(() {});
                           },
                         ),
                       ),
                       const SizedBox(height: 10),
-                      const Text('2. تقرير كل عامل على حدة:',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(t('per_worker'),
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       ...AppDatabase.workers.map((worker) {
                         final logs = worker.weekLogs(_weekStart);
@@ -1517,9 +2110,9 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
                         return Card(
                           child: ListTile(
                             title: Text(worker.name),
-                            subtitle: Text('أيام العمل: $days'),
-                            trailing: Text(
-                                '${fmtMoney(worker.weekTotal(_weekStart))} XOF',
+                            subtitle:
+                                Text('${t('work_days')}: ${ltr('$days')}'),
+                            trailing: Text(fmtXof(worker.weekTotal(_weekStart)),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.indigo)),
@@ -1569,6 +2162,7 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
   @override
   Widget build(BuildContext context) {
     final workers = AppDatabase.workers;
+    final lang = L10n.lang;
     double grand = 0;
     final dayTotals = List<double>.filled(7, 0.0);
     for (final w in workers) {
@@ -1581,19 +2175,27 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('التقرير المشترك لجميع العمال'),
+        title: Text(t('joint_report')),
         backgroundColor: Colors.indigo,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
-            tooltip: 'PDF',
-            onPressed: () => shareAllWeekPdf(_weekStart),
+            tooltip: t('pdf_tip'),
+            onPressed: () async {
+              final rl = await pickReportLang(context);
+              if (rl == null || !mounted) return;
+              await shareAllWeekPdf(context, _weekStart, rl);
+            },
           ),
           IconButton(
             icon: const Icon(Icons.share),
-            tooltip: 'مشاركة كرسالة',
-            onPressed: () => Share.share(buildAllWeekText(_weekStart)),
+            tooltip: t('share_tip'),
+            onPressed: () async {
+              final rl = await pickReportLang(context);
+              if (rl == null) return;
+              await Share.share(buildAllWeekText(_weekStart, rl));
+            },
           ),
         ],
       ),
@@ -1611,14 +2213,14 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
                   columnSpacing: 14,
                   headingRowHeight: 60,
                   columns: [
-                    const DataColumn(label: Text('العامل')),
+                    DataColumn(label: Text(t('worker_col'))),
                     for (int i = 0; i < 7; i++)
                       DataColumn(
                         label: Text(
-                            '${kDayNames[i]}\n${fmtDate(addDays(_weekStart, i))}',
+                            '${L10n.day(i)}\n${fmtDate(addDays(_weekStart, i))}',
                             textAlign: TextAlign.center),
                       ),
-                    const DataColumn(label: Text('المجموع')),
+                    DataColumn(label: Text(t('total_word'))),
                   ],
                   rows: [
                     ...workers.map((w) => DataRow(cells: [
@@ -1626,17 +2228,18 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold))),
                           for (int i = 0; i < 7; i++)
-                            DataCell(Text(_dayCellText(
+                            DataCell(Text(dayCellText(
                                 w.logFor(addDays(_weekStart, i)),
-                                w.dailyRate))),
+                                w.dailyRate,
+                                lang))),
                           DataCell(Text(fmtMoney(w.weekTotal(_weekStart)),
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.indigo))),
                         ])),
                     DataRow(cells: [
-                      const DataCell(Text('المجموع',
-                          style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataCell(Text(t('total_word'),
+                          style: const TextStyle(fontWeight: FontWeight.bold))),
                       for (int i = 0; i < 7; i++)
                         DataCell(Text(fmtMoney(dayTotals[i]),
                             style: const TextStyle(
@@ -1657,10 +2260,12 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('المجموع الكلي لجميع العمال:',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text('${fmtMoney(grand)} XOF',
+                Expanded(
+                  child: Text('${t('grand_total')}:',
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                ),
+                Text(fmtXof(grand),
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -1698,9 +2303,10 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
       setState(() => _weekStart = addDays(_weekStart, 7 * weeks));
 
   String _describe(DayLog? log) {
-    if (log == null) return 'لم يُسجَّل (اضغط للتعديل)';
-    if (!log.worked) return 'عطلة';
-    return 'الورشة: ${log.site.isEmpty ? "—" : log.site}\nإضافي: ${fmtNum(log.overtimeHours)} س | نقل: ${fmtMoney(log.transport)} XOF';
+    if (log == null) return t('not_logged');
+    if (!log.worked) return t('holiday');
+    final siteText = log.site.isEmpty ? '—' : log.site;
+    return '${t('site')}: $siteText\n${t('overtime_short')}: ${fmtNum(log.overtimeHours)} ${t('hour_short')} | ${t('transport_short')}: ${fmtXof(log.transport)}${log.note.isEmpty ? "" : "\n${log.note}"}';
   }
 
   void _editDay(DateTime day) {
@@ -1720,18 +2326,18 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
     final otCtrl = TextEditingController(
         text: (existing == null || existing.overtimeHours == 0)
             ? ''
-            : fmtNum(existing.overtimeHours));
+            : numStr(existing.overtimeHours));
     final trCtrl = TextEditingController(
         text: (existing == null || existing.transport == 0)
             ? ''
-            : fmtNum(existing.transport));
+            : numStr(existing.transport));
     final noteCtrl = TextEditingController(text: existing?.note ?? '');
 
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (ctx, setD) => AlertDialog(
-          title: Text('${kDayNames[day.weekday % 7]} ${fmtDate(day)} - ${w.name}'),
+          title: Text('${L10n.day(day.weekday % 7)} ${fmtDate(day)} - ${w.name}'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1739,15 +2345,14 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('يعمل؟'),
+                    Text(t('works')),
                     Switch(
-                        value: worked,
-                        onChanged: (v) => setD(() => worked = v)),
+                        value: worked, onChanged: (v) => setD(() => worked = v)),
                   ],
                 ),
                 if (names.isNotEmpty)
                   InputDecorator(
-                    decoration: const InputDecoration(labelText: 'الورشة'),
+                    decoration: InputDecoration(labelText: t('site')),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         isExpanded: true,
@@ -1764,20 +2369,19 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                 TextField(
                   controller: otCtrl,
                   enabled: worked,
-                  decoration: const InputDecoration(labelText: 'ساعات إضافية'),
+                  decoration: InputDecoration(labelText: t('overtime')),
                   keyboardType: TextInputType.number,
                 ),
                 TextField(
                   controller: trCtrl,
                   enabled: worked,
-                  decoration:
-                      const InputDecoration(labelText: 'أجور النقل (XOF)'),
+                  decoration: InputDecoration(labelText: t('transport')),
                   keyboardType: TextInputType.number,
                 ),
                 TextField(
                   controller: noteCtrl,
                   enabled: worked,
-                  decoration: const InputDecoration(labelText: 'ملاحظة'),
+                  decoration: InputDecoration(labelText: t('note')),
                 ),
               ],
             ),
@@ -1791,12 +2395,12 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                   if (mounted) setState(() {});
                   await AppDatabase.saveData();
                 },
-                child:
-                    const Text('مسح اليوم', style: TextStyle(color: Colors.red)),
+                child: Text(t('delete_day'),
+                    style: const TextStyle(color: Colors.red)),
               ),
             TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('إلغاء')),
+                child: Text(t('cancel'))),
             ElevatedButton(
               onPressed: () async {
                 w.logs[key] = DayLog(
@@ -1810,13 +2414,21 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                 if (mounted) setState(() {});
                 await AppDatabase.saveData();
               },
-              child: const Text('حفظ'),
+              child: Text(t('save')),
             ),
           ],
         ),
       ),
     );
   }
+
+  Widget _sumRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [Text(label), Text(value)],
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -1838,19 +2450,28 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('تقرير: ${w.name}'),
+        title: Text('${t('worker_report')}: ${w.name}',
+            overflow: TextOverflow.ellipsis),
         backgroundColor: Colors.indigo,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
-            onPressed: () => shareWorkerWeekPdf(w, _weekStart),
-            tooltip: 'تنزيل ومشاركة PDF',
+            tooltip: t('pdf_tip'),
+            onPressed: () async {
+              final rl = await pickReportLang(context);
+              if (rl == null || !mounted) return;
+              await shareWorkerWeekPdf(context, w, _weekStart, rl);
+            },
           ),
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: () => Share.share(buildWorkerWeekText(w, _weekStart)),
-            tooltip: 'مشاركة كرسالة عبر واتساب',
+            tooltip: t('share_tip'),
+            onPressed: () async {
+              final rl = await pickReportLang(context);
+              if (rl == null) return;
+              await Share.share(buildWorkerWeekText(w, _weekStart, rl));
+            },
           ),
         ],
       ),
@@ -1872,14 +2493,12 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                       color: d == today ? Colors.indigo.shade50 : null,
                       child: ListTile(
                         isThreeLine: log != null && log.worked,
-                        title: Text('${kDayNames[i]}  ${fmtDate(d)}',
+                        title: Text('${L10n.day(i)}  ${fmtDate(d)}',
                             style:
                                 const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(_describe(log)),
                         trailing: Text(
-                            log == null
-                                ? '—'
-                                : '${fmtMoney(log.total(w.dailyRate))} XOF',
+                            log == null ? '—' : fmtXof(log.total(w.dailyRate)),
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.indigo)),
@@ -1892,13 +2511,10 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       children: [
-                        _sumRow('أيام العمل', '$daysWorked يوم'),
-                        _sumRow('مجموع اليوميات',
-                            '${fmtMoney(baseTotal)} XOF'),
-                        _sumRow('مجموع الإضافي',
-                            '${fmtMoney(overtimeTotal)} XOF'),
-                        _sumRow('مجموع المواصلات',
-                            '${fmtMoney(transportTotal)} XOF'),
+                        _sumRow(t('work_days'), ltr('$daysWorked')),
+                        _sumRow(t('sum_days'), fmtXof(baseTotal)),
+                        _sumRow(t('sum_overtime'), fmtXof(overtimeTotal)),
+                        _sumRow(t('sum_transport'), fmtXof(transportTotal)),
                       ],
                     ),
                   ),
@@ -1912,10 +2528,12 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('المجموع الأسبوعي:',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text('${fmtMoney(total)} XOF',
+                Expanded(
+                  child: Text('${t('weekly_total')}:',
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+                Text(fmtXof(total),
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -1927,12 +2545,4 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
       ),
     );
   }
-
-  Widget _sumRow(String label, String value) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text(label), Text(value)],
-        ),
-      );
 }
