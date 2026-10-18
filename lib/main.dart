@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppDatabase.loadData(); // تحميل البيانات فور إقلاع التطبيق لضمان عدم ضياعها
   runApp(const WookFlowApp());
 }
 
@@ -114,8 +120,8 @@ class AppDatabase {
   static Future<void> saveData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString('workers_data', jsonEncode(workers.map((e) => e.toJson()).toList()));
-      prefs.setString('sites_data', jsonEncode(sites.map((e) => e.toJson()).toList()));
+      await prefs.setString('workers_data', jsonEncode(workers.map((e) => e.toJson()).toList()));
+      await prefs.setString('sites_data', jsonEncode(sites.map((e) => e.toJson()).toList()));
     } catch (_) {}
   }
 }
@@ -133,13 +139,9 @@ class _MainDashboardWrapperState extends State<MainDashboardWrapper> {
   @override
   void initState() {
     super.initState();
-    AppDatabase.loadData().then((_) {
-      setState(() {
-        if (AppDatabase.workers.isNotEmpty) {
-          _showDailyPopup = true;
-        }
-      });
-    });
+    if (AppDatabase.workers.isNotEmpty) {
+      _showDailyPopup = true;
+    }
   }
 
   @override
@@ -897,6 +899,46 @@ class WorkerDetailReportScreen extends StatelessWidget {
   final Worker worker;
   const WorkerDetailReportScreen({super.key, required this.worker});
 
+  Future<void> _generateAndSharePdf(BuildContext context) async {
+    final pdf = pw.Document();
+    double totalEarned = worker.isActiveToday ? worker.dailyRate + (worker.overtimeHours * 1000) + worker.transportAllowance : 0;
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('تقرير أسبوعي للعامل: ${worker.name}', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 20),
+              pw.Text('الورشة الحالية: ${worker.currentSite}'),
+              pw.Text('الحالة اليومية: ${worker.isActiveToday ? "يعمل" : "عطلة"}'),
+              pw.Text('الأجر اليومي: ${worker.dailyRate} XOF'),
+              pw.Text('الساعات الإضافية: ${worker.overtimeHours} ساعة (${worker.overtimeHours * 1000} XOF)'),
+              pw.Text('بدل المواصلات: ${worker.transportAllowance} XOF'),
+              pw.SizedBox(height: 20),
+              pw.Divider(),
+              pw.Text('المجموع الكامل: $totalEarned XOF', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            ],
+          );
+        },
+      ),
+    );
+
+    await Printing.sharePdf(bytes: await pdf.save(), filename: 'report_${worker.name}.pdf');
+  }
+
+  void _shareTextReport() {
+    double totalEarned = worker.isActiveToday ? worker.dailyRate + (worker.overtimeHours * 1000) + worker.transportAllowance : 0;
+    String text = '📊 تقرير العامل: ${worker.name}\n'
+        '🏠 الورشة: ${worker.currentSite}\n'
+        '💼 الحالة: ${worker.isActiveToday ? "يعمل" : "عطلة"}\n'
+        '⏰ الساعات الإضافية: ${worker.overtimeHours}\n'
+        '🚗 أجور النقل: ${worker.transportAllowance} XOF\n'
+        '💰 المجموع الكامل: $totalEarned XOF';
+    Share.share(text);
+  }
+
   @override
   Widget build(BuildContext context) {
     double totalEarned = worker.isActiveToday ? worker.dailyRate + (worker.overtimeHours * 1000) + worker.transportAllowance : 0;
@@ -909,15 +951,13 @@ class WorkerDetailReportScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تنزيل ملف PDF بنجاح')));
-            },
+            onPressed: () => _generateAndSharePdf(context),
+            tooltip: 'تنزيل ومشاركة PDF',
           ),
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('جاهز للمشاركة عبر الواتساب')));
-            },
+            onPressed: _shareTextReport,
+            tooltip: 'مشاركة كرسالة عبر واتساب',
           ),
         ],
       ),
