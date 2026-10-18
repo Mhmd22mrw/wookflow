@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'dart:async';
 
 void main() {
   runApp(const WookFlowApp());
@@ -37,7 +35,6 @@ class _WookFlowAppState extends State<WookFlowApp> {
   }
 }
 
-// نموذج البيانات الأساسي
 class Worker {
   String id;
   String name;
@@ -78,7 +75,6 @@ class WorkSite {
   });
 }
 
-// ذاكرة المؤقتة للتطبيق (Mock Database)
 class AppData {
   static List<Worker> workers = [
     Worker(id: '1', name: 'أحمد كوني', dailyRate: 8000, phone: '+225 07000000', currentSite: 'ورشة أسان'),
@@ -91,7 +87,6 @@ class AppData {
   ];
 }
 
-// واجهة التحقق اليومي (تظهر مرة كل 24 ساعة)
 class DailyCheckInWrapper extends StatefulWidget {
   final Function(String) onLanguageChanged;
   final Locale currentLocale;
@@ -133,7 +128,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.between,
                           children: [
-                            const Text('تسجيل الحضور اليومي (كل 24 ساعة)', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            const Text('تسجيل الحضور اليومي (كل 24 ساعة)', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                             IconButton(
                               icon: const Icon(Icons.close, color: Colors.white),
                               onPressed: () => setState(() => _showDailyPopup = false),
@@ -147,7 +142,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                           itemBuilder: (context, index) {
                             final worker = AppData.workers[index];
                             return StatefulBuilder(
-                              builder: (context, setومState) {
+                              builder: (context, setStateItem) {
                                 return Card(
                                   margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   child: Padding(
@@ -165,7 +160,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                                                 Switch(
                                                   value: worker.isActiveToday,
                                                   onChanged: (val) {
-                                                    setومState(() => worker.isActiveToday = val);
+                                                    setStateItem(() => worker.isActiveToday = val);
                                                     setState(() {});
                                                   },
                                                 ),
@@ -179,7 +174,7 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
                                               child: DropdownButtonFormField<String>(
                                                 value: worker.currentSite,
                                                 items: AppData.sites.map((s) => DropdownMenuItem(value: s.name, child: Text(s.name))).toList(),
-                                                onChanged: worker.isActiveToday ? (val) => setومState(() => worker.currentSite = val!) : null,
+                                                onChanged: worker.isActiveToday ? (val) => setStateItem(() => worker.currentSite = val!) : null,
                                                 decoration: const InputDecoration(labelText: 'الورشة'),
                                               ),
                                             ),
@@ -242,7 +237,6 @@ class _DailyCheckInWrapperState extends State<DailyCheckInWrapper> {
   }
 }
 
-// الواجهة الرئيسية والقائمة الجانبية
 class MainDashboard extends StatelessWidget {
   final Function(String) onLanguageChanged;
   const MainDashboard({super.key, required this.onLanguageChanged});
@@ -261,7 +255,7 @@ class MainDashboard extends StatelessWidget {
           children: [
             const UserAccountsDrawerHeader(
               accountName: Text('مدير الورشة (Abidjan)'),
-              accountText: Text('نظام إدارة المشاريع الميدانية'),
+              accountSubtitle: Text('نظام إدارة المشاريع الميدانية'),
               currentAccountPicture: CircleAvatar(backgroundColor: Colors.white, child: Icon(Icons.engineering, size: 40, color: Colors.indigo)),
               decoration: BoxDecoration(color: Colors.indigo),
               accountEmail: Text('v1.0.0'),
@@ -364,7 +358,6 @@ class MainDashboard extends StatelessWidget {
   }
 }
 
-// 1. إضافة عامل جديد
 class AddWorkerScreen extends StatefulWidget {
   const AddWorkerScreen({super.key});
 
@@ -375,7 +368,7 @@ class AddWorkerScreen extends StatefulWidget {
 class _AddWorkerScreenState extends State<AddWorkerScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _rateController = TextEditingController(text: '8000'); // افتراضي يومية 8 ساعات = 8000
+  final TextEditingController _rateController = TextEditingController(text: '8000');
   final TextEditingController _phoneController = TextEditingController();
 
   @override
@@ -431,7 +424,6 @@ class _AddWorkerScreenState extends State<AddWorkerScreen> {
   }
 }
 
-// 3. حذف عامل (مع مربعات اختيار وزر سلة مهملات)
 class DeleteWorkerScreen extends StatefulWidget {
   const DeleteWorkerScreen({super.key});
 
@@ -460,7 +452,7 @@ class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete, color: Colors.redAccent),
+            icon: const Icon(Icons.delete, color: Colors.white),
             onPressed: () {
               setState(() {
                 AppData.workers.removeWhere((w) => _selectedWorkers[w.id] == true);
@@ -507,7 +499,6 @@ class _DeleteWorkerScreenState extends State<DeleteWorkerScreen> {
   }
 }
 
-// 4. مواقع العمل
 class SitesScreen extends StatefulWidget {
   const SitesScreen({super.key});
 
@@ -584,7 +575,6 @@ class _SitesScreenState extends State<SitesScreen> {
   }
 }
 
-// 5. دفعة جديدة (حسابات الورش)
 class NewPaymentScreen extends StatelessWidget {
   const NewPaymentScreen({super.key});
 
@@ -650,7 +640,6 @@ class NewPaymentScreen extends StatelessWidget {
   }
 }
 
-// 6. قائمة العمال وتعديلهم
 class WorkersListScreen extends StatefulWidget {
   const WorkersListScreen({super.key});
 
@@ -713,7 +702,6 @@ class _WorkersListScreenState extends State<WorkersListScreen> {
   }
 }
 
-// 7. ملخص الأسبوع
 class WeeklySummaryScreen extends StatelessWidget {
   const WeeklySummaryScreen({super.key});
 
@@ -750,7 +738,6 @@ class WeeklySummaryScreen extends StatelessWidget {
   }
 }
 
-// تفاصيل يوميات جميع العمال مع المجموع
 class AllWorkersDailyLogScreen extends StatelessWidget {
   const AllWorkersDailyLogScreen({super.key});
 
@@ -793,7 +780,6 @@ class AllWorkersDailyLogScreen extends StatelessWidget {
   }
 }
 
-// تقرير تفصيلي لكل عامل مع خيار PDF أو مشاركة واتساب
 class WorkerDetailReportScreen extends StatelessWidget {
   final Worker worker;
   const WorkerDetailReportScreen({super.key, required this.worker});
@@ -841,7 +827,7 @@ class WorkerDetailReportScreen extends StatelessWidget {
               trailing: Text('${worker.overtimeHours * 1000} XOF'),
             ),
             ListTile(
-              title: const Text('بدل المواصلات'),
+              title: const Test('بدل المواصلات'),
               subtitle: const Text('أجار الطريق والنقل'),
               trailing: Text('${worker.transportAllowance} XOF'),
             ),
