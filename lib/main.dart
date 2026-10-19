@@ -49,12 +49,13 @@ class L10n {
       'WookFlow - Sites & workers'
     ],
     'manager': ['مدير الورشة', 'Chef de chantier', 'Site manager'],
-    'version': ['نظام إدارة المشاريع v1.3.0', 'Gestion de projets v1.3.0', 'Project management v1.3.0'],
+    'version': ['نظام إدارة المشاريع v1.4.0', 'Gestion de projets v1.4.0', 'Project management v1.4.0'],
     'language': ['اللغة', 'Langue', 'Language'],
     'report_lang': ['لغة التقرير', 'Langue du rapport', 'Report language'],
     'm_daily': ['التقرير اليومي (حضور اليوم)', 'Rapport journalier (présence)', 'Daily report (attendance)'],
     'm_add_worker': ['إضافة عامل جديد', 'Ajouter un ouvrier', 'Add worker'],
     'm_delete_worker': ['إدارة وأرشفة العمال', 'Gérer / archiver ouvriers', 'Manage / archive workers'],
+    'm_worker_advance': ['تقديم سلفة لعامل', 'Avance sur salaire', 'Worker advance'],
     'm_sites': ['مواقع العمل (الورش النشطة)', 'Chantiers actifs', 'Active work sites'],
     'm_delivered': ['الورش المسلمة والمنتهية', 'Chantiers livrés / terminés', 'Delivered sites'],
     'm_payment': ['دفعة جديدة (حسابات الورش)', 'Nouveau paiement (comptes chantiers)', 'New payment (site accounts)'],
@@ -78,6 +79,7 @@ class L10n {
     'card_payments_manage': ['إدارة الدفعات', 'Gestion paiements', 'Manage payments'],
     'card_hour_rate': ['سعر ساعة الإضافي', 'Taux heure supp.', 'Overtime rate/h'],
     'card_weekly': ['ملخص الأسبوع', 'Résumé de la semaine', 'Weekly summary'],
+    'card_advances': ['سلف العمال', 'Avances ouvriers', 'Worker advances'],
     'view_reports': ['عرض التقارير', 'Voir les rapports', 'View reports'],
     'daily_title': ['التقرير اليومي', 'Rapport journalier', 'Daily report'],
     'works': ['يعمل؟', 'Présent ?', 'Working?'],
@@ -135,7 +137,7 @@ class L10n {
     'delivered_title': ['الورش المسلمة والمنتهية', 'Chantiers livrés / terminés', 'Delivered sites'],
     'no_delivered': ['لا توجد ورش مسلمة حتى الآن', 'Aucun chantier livré', 'No delivered sites yet'],
     'contract_total': ['الأجر الإجمالي', 'Montant total', 'Contract total'],
-    'received': ['الواصل', 'Reçu', 'Received'],
+    'received': ['الواصل (المقبوض)', 'Reçu (Encaissé)', 'Received'],
     'delivered_flag': ['تم التسليم', 'Livré', 'Delivered'],
     'reopen_site': ['إعادة فتح الورشة للنشطة', 'Rouvrir le chantier (actif)', 'Reopen site (make active)'],
     'reopen_confirm_title': ['إعادة فتح الورشة', 'Rouvrir le chantier', 'Reopen work site'],
@@ -196,6 +198,10 @@ class L10n {
     'sum_overtime': ['مجموع الإضافي', 'Total heures supp.', 'Total overtime'],
     'sum_transport': ['مجموع المواصلات', 'Total transport', 'Total transport'],
     'weekly_total': ['المجموع الأسبوعي', 'Total de la semaine', 'Weekly total'],
+    'gross_total': ['إجمالي المستحق', 'Total brut', 'Gross total'],
+    'total_advances': ['مجموع السلف', 'Total des avances', 'Total advances'],
+    'advances_deducted': ['خصم السلف', 'Déduction avances', 'Advances deduction'],
+    'net_total': ['صافي الراتب المستحق', 'Net à payer', 'Net payable'],
     'amount': ['المبلغ', 'Montant', 'Amount'],
     'day_col': ['اليوم', 'Jour', 'Day'],
     'pdf_tip': ['تنزيل ومشاركة PDF', 'Télécharger / partager PDF', 'Download / share PDF'],
@@ -230,6 +236,7 @@ class L10n {
     'clear_logs_confirm': ['هل أنت متأكد من مسح سجل الحركات بالكامل؟', 'Voulez-vous effacer tout le journal ?', 'Are you sure you want to clear all logs?'],
     'filter_all': ['الكل', 'Tous', 'All'],
     'filter_payments': ['الدفعات', 'Paiements', 'Payments'],
+    'filter_advances': ['سلف العمال', 'Avances', 'Advances'],
     'filter_sites': ['الورش', 'Chantiers', 'Sites'],
     'filter_workers': ['العمال', 'Ouvriers', 'Workers'],
     'filter_attendance': ['الحضور', 'Présence', 'Attendance'],
@@ -265,10 +272,34 @@ class L10n {
     'second_party': ['الطرف الثاني (المقاول)', 'Deuxième partie (Sous-traitant)', 'Second Party (Contractor)'],
     'signature_first': ['توقيع الطرف الأول', 'Signature 1ère partie', 'First party signature'],
     'signature_second': ['توقيع الطرف الثاني', 'Signature 2ème partie', 'Second party signature'],
+    'add_contract_payment': ['تسديد دفعة للمقاول', 'Payer un acompte au sous-traitant', 'Pay contractor installment'],
+    'contract_paid': ['الواصل للمقاول', 'Acomptes versés', 'Paid to contractor'],
+    'contract_remaining': ['المتبقي للمقاول', 'Reste à payer', 'Remaining to contractor'],
+    'contract_already_paid': ['تم سداد كامل قيمة العقد، لا يوجد متبقي لإضافة دفعات', 'Le contrat est déjà entièrement payé', 'Contract already fully paid, no remaining balance'],
+    'contract_payment_saved': ['تم تسجيل دفعة المقاول بنجاح', 'Paiement au sous-traitant enregistré', 'Contractor payment recorded successfully'],
+    'last_contract_payment': ['آخر دفعة للمقاول', 'Dernier versement au sous-traitant', 'Last contractor payment'],
+    'undo_contract_payment': ['إلغاء آخر دفعة للمقاول', 'Annuler dernier versement', 'Undo last contractor payment'],
+    'contract_payment_undone': ['تم إلغاء آخر دفعة بنجاح وتعديل رصيد العقد', 'Dernier versement annulé avec succès', 'Last payment undone successfully'],
+    'contract_finish_unpaid_warning': ['تنبيه: يوجد متبقي غير مسدد للمقاول، هل تريد سداد المتبقي الآن أم إنهاء العقد بالرصيد الحالي؟', 'Attention : Solde impayé. Solder maintenant ou clôturer ?', 'Warning: Unpaid balance remaining. Settle now or finish with current balance?'],
+    'worker_advances_title': ['سلف ودفعات العمال', 'Avances sur salaire des ouvriers', 'Worker advances on wages'],
+    'give_advance': ['تقديم سلفة', 'Donner une avance', 'Give advance'],
+    'advance_amount': ['قيمة السلفة', 'Montant de l’avance', 'Advance amount'],
+    'advance_date': ['تاريخ السلفة', 'Date de l’avance', 'Advance date'],
+    'advance_note': ['ملاحظة / سبب السلفة (اختياري)', 'Motif de l’avance (facultatif)', 'Advance note (optional)'],
+    'save_advance_finish': ['إنهاء وحفظ السلفة', 'Enregistrer et terminer', 'Finish & save advance'],
+    'advance_saved_ok': ['تم تسجيل السلفة وخصمها من الحساب بنجاح', 'Avance enregistrée et déduite', 'Advance recorded and deducted successfully'],
+    'no_advances': ['لا توجد سلف مسجلة لهذا العامل', 'Aucune avance enregistrée', 'No advances recorded for this worker'],
+    'delete_advance': ['حذف السلفة', 'Supprimer l’avance', 'Delete advance'],
+    'delete_advance_confirm': ['هل تريد حذف هذه السلفة وإلغاء خصمها؟', 'Voulez-vous annuler et supprimer cette avance ?', 'Delete and restore this advance?'],
+    'advance_deleted_msg': ['تم حذف السلفة بنجاح', 'Avance supprimée avec succès', 'Advance deleted successfully'],
+    'select_worker_for_advance': ['اختر العامل لتقديم سلفة:', 'Sélectionnez un ouvrier pour l’avance :', 'Select worker for advance:'],
+    'enter_advance_amount': ['يرجى إدخال مبلغ السلفة', 'Veuillez saisir le montant de l’avance', 'Please enter advance amount'],
+    'advances_history': ['سجل السلف السابقة', 'Historique des avances', 'Advances history'],
   };
 }
 
 String t(String key) => L10n.t(key);
+
 
 // ======================= دوال مساعدة نقية بدون أخطاء الرموز =======================
 
@@ -327,9 +358,39 @@ bool hasArabic(String text) {
 
 // ======================= النماذج البرمجية =======================
 
+class WorkerAdvance {
+  String id;
+  DateTime date;
+  double amount;
+  String note;
+
+  WorkerAdvance({
+    required this.id,
+    required this.date,
+    required this.amount,
+    this.note = '',
+  });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'date': date.toIso8601String(),
+        'amount': amount,
+        'note': note,
+      };
+
+  factory WorkerAdvance.fromJson(Map<String, dynamic> json) => WorkerAdvance(
+        id: (json['id'] ?? '').toString(),
+        date: json['date'] != null
+            ? DateTime.tryParse(json['date'].toString()) ?? DateTime.now()
+            : DateTime.now(),
+        amount: ((json['amount'] ?? 0.0) as num).toDouble(),
+        note: (json['note'] ?? '').toString(),
+      );
+}
+
 class ActivityLog {
   String id;
-  String category; // 'payments', 'sites', 'workers', 'attendance', 'contracts', 'pdf', 'backup'
+  String category; // 'payments', 'advances', 'sites', 'workers', 'attendance', 'contracts', 'pdf', 'backup'
   String title;
   String details;
   DateTime timestamp;
@@ -404,6 +465,7 @@ class Worker {
   String phone;
   bool isArchived;
   Map<String, DayLog> logs;
+  List<WorkerAdvance> advances;
 
   Worker({
     required this.id,
@@ -412,15 +474,35 @@ class Worker {
     this.phone = '',
     this.isArchived = false,
     Map<String, DayLog>? logs,
-  }) : logs = logs ?? {};
+    List<WorkerAdvance>? advances,
+  })  : logs = logs ?? {},
+        advances = advances ?? [];
 
   DayLog? logFor(DateTime d) => logs[dateKey(d)];
 
   List<DayLog?> weekLogs(DateTime weekStart) =>
       List.generate(7, (i) => logs[dateKey(addDays(weekStart, i))]);
 
-  double weekTotal(DateTime weekStart) => weekLogs(weekStart)
+  List<WorkerAdvance> weekAdvances(DateTime weekStart) {
+    final ws = dateOnly(weekStart);
+    final we = addDays(ws, 6);
+    return advances.where((a) {
+      final d = dateOnly(a.date);
+      return (d.isAtSameMomentAs(ws) || d.isAfter(ws)) &&
+          (d.isAtSameMomentAs(we) || d.isBefore(we));
+    }).toList();
+  }
+
+  double weekAdvancesTotal(DateTime weekStart) =>
+      weekAdvances(weekStart).fold<double>(0.0, (s, a) => s + a.amount);
+
+  double weekGrossTotal(DateTime weekStart) => weekLogs(weekStart)
       .fold<double>(0.0, (s, l) => s + (l?.total(dailyRate) ?? 0.0));
+
+  double weekNetTotal(DateTime weekStart) =>
+      weekGrossTotal(weekStart) - weekAdvancesTotal(weekStart);
+
+  double weekTotal(DateTime weekStart) => weekNetTotal(weekStart);
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -429,6 +511,7 @@ class Worker {
         'phone': phone,
         'isArchived': isArchived,
         'logs': logs.map((k, v) => MapEntry(k, v.toJson())),
+        'advances': advances.map((a) => a.toJson()).toList(),
       };
 
   factory Worker.fromJson(Map<String, dynamic> json) {
@@ -439,6 +522,15 @@ class Worker {
         logs[k.toString()] = DayLog.fromJson(Map<String, dynamic>.from(v));
       });
     }
+    final advList = <WorkerAdvance>[];
+    final rawAdv = json['advances'];
+    if (rawAdv is List) {
+      for (final a in rawAdv) {
+        if (a is Map) {
+          advList.add(WorkerAdvance.fromJson(Map<String, dynamic>.from(a)));
+        }
+      }
+    }
     return Worker(
       id: (json['id'] ?? '').toString(),
       name: (json['name'] ?? '').toString(),
@@ -446,6 +538,7 @@ class Worker {
       phone: (json['phone'] ?? '').toString(),
       isArchived: json['isArchived'] ?? false,
       logs: logs,
+      advances: advList,
     );
   }
 }
@@ -498,7 +591,6 @@ class WorkSite {
       );
 }
 
-// نموذج عقد المقاول
 class WorkContract {
   String id;
   String siteId;
@@ -510,6 +602,8 @@ class WorkContract {
   String note;
   DateTime date;
   bool isFinished;
+  double totalPaid;
+  List<double> paymentHistory;
 
   WorkContract({
     required this.id,
@@ -522,7 +616,11 @@ class WorkContract {
     this.note = '',
     required this.date,
     this.isFinished = false,
-  });
+    this.totalPaid = 0.0,
+    List<double>? paymentHistory,
+  }) : paymentHistory = paymentHistory ?? [];
+
+  double get remaining => (amount - totalPaid).clamp(0.0, double.infinity);
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -535,6 +633,8 @@ class WorkContract {
         'note': note,
         'date': date.toIso8601String(),
         'isFinished': isFinished,
+        'totalPaid': totalPaid,
+        'paymentHistory': paymentHistory,
       };
 
   factory WorkContract.fromJson(Map<String, dynamic> json) => WorkContract(
@@ -550,6 +650,11 @@ class WorkContract {
             ? DateTime.tryParse(json['date'].toString()) ?? DateTime.now()
             : DateTime.now(),
         isFinished: json['isFinished'] ?? false,
+        totalPaid: ((json['totalPaid'] ?? 0.0) as num).toDouble(),
+        paymentHistory: (json['paymentHistory'] as List?)
+                ?.map((e) => (e as num).toDouble())
+                .toList() ??
+            [],
       );
 }
 
@@ -581,7 +686,9 @@ class AppDatabase {
     return workers.where((w) {
       if (!w.isArchived) return true;
       final logs = w.weekLogs(ws);
-      return logs.any((l) => l != null);
+      final hasLogs = logs.any((l) => l != null);
+      final hasAdvs = w.weekAdvances(ws).isNotEmpty;
+      return hasLogs || hasAdvs;
     }).toList();
   }
 
@@ -713,7 +820,7 @@ class AppDatabase {
 
   static String exportBackupJson() {
     final data = {
-      'version': '1.3',
+      'version': '1.4',
       'currency': currency,
       'overtimeRate': overtimeRate,
       'workers': workers.map((w) => w.toJson()).toList(),
@@ -752,6 +859,7 @@ class AppDatabase {
     }
   }
 }
+
 
 // ======================= النوافذ المساعدة =======================
 
@@ -1386,6 +1494,19 @@ class MainDashboard extends StatelessWidget {
             ),
             ListTile(
               dense: true,
+              leading: const Icon(Icons.price_change, color: Colors.deepOrange),
+              title: Text(t('m_worker_advance')),
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WorkerAdvancesScreen()));
+                onDataUpdated();
+              },
+            ),
+            ListTile(
+              dense: true,
               leading: const Icon(Icons.person_add, color: Colors.indigo),
               title: Text(t('m_add_worker')),
               onTap: () async {
@@ -1612,6 +1733,19 @@ class MainDashboard extends StatelessWidget {
                       onTap: onOpenDailyReport),
                   _buildDashboardCard(
                       context,
+                      t('card_advances'),
+                      t('give_advance'),
+                      Icons.price_change,
+                      Colors.deepOrange,
+                      onTap: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const WorkerAdvancesScreen()));
+                    onDataUpdated();
+                  }),
+                  _buildDashboardCard(
+                      context,
                       t('card_active_sites'),
                       ltr('${AppDatabase.sites.where((s) => !s.isDelivered).length}'),
                       Icons.apartment,
@@ -1675,9 +1809,6 @@ class MainDashboard extends StatelessWidget {
                             builder: (context) => const NewPaymentScreen()));
                     onDataUpdated();
                   }),
-                  _buildDashboardCard(context, t('card_hour_rate'),
-                      fmtCurrency(AppDatabase.overtimeRate), Icons.schedule, Colors.green,
-                      onTap: () => showCurrencyDialog(context, onDataUpdated)),
                   _buildDashboardCard(context, t('card_weekly'),
                       t('view_reports'), Icons.bar_chart, Colors.purple,
                       onTap: () async {
@@ -1734,6 +1865,7 @@ class MainDashboard extends StatelessWidget {
   }
 }
 
+
 // ======================= إضافة وإدارة العمال =======================
 
 class AddWorkerScreen extends StatefulWidget {
@@ -1746,7 +1878,6 @@ class AddWorkerScreen extends StatefulWidget {
 class _AddWorkerScreenState extends State<AddWorkerScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  // يبدأ فارغاً تماماً كما طلب المستخدم
   final TextEditingController _rateController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
@@ -2017,7 +2148,381 @@ class _ManageWorkersScreenState extends State<ManageWorkersScreen>
   }
 }
 
-// ======================= مواقع العمل (الورش) مع تعديل المدفوع وإلغاء آخر دفعة =======================
+// ======================= شاشة سلف ودفعات العمال =======================
+
+class WorkerAdvancesScreen extends StatefulWidget {
+  const WorkerAdvancesScreen({super.key});
+
+  @override
+  State<WorkerAdvancesScreen> createState() => _WorkerAdvancesScreenState();
+}
+
+class _WorkerAdvancesScreenState extends State<WorkerAdvancesScreen> {
+  void _openGiveAdvanceDialog(Worker worker) {
+    final amountCtrl = TextEditingController();
+    final noteCtrl = TextEditingController();
+    DateTime advanceDate = dateOnly(DateTime.now());
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (ctx, setD) => AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.price_change, color: Colors.deepOrange),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '${t('give_advance')}: ${worker.name}',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.indigo.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)}'),
+                      Text('${t('advance_date')}: ${fmtDate(advanceDate)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: amountCtrl,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: '${t('advance_amount')} (${AppDatabase.currency})',
+                    hintText: t('enter_advance_amount'),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.monetization_on, color: Colors.deepOrange),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: noteCtrl,
+                  decoration: InputDecoration(
+                    labelText: t('advance_note'),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.note_alt_outlined),
+                  ),
+                ),
+                if (worker.advances.isNotEmpty) ...[
+                  const Divider(height: 24),
+                  Text(t('advances_history'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.indigo)),
+                  const SizedBox(height: 6),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 140),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: worker.advances.length,
+                      itemBuilder: (context, idx) {
+                        final adv = worker.advances[worker.advances.length - 1 - idx];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('${fmtDate(adv.date)}: ${fmtCurrency(adv.amount)}${adv.note.isNotEmpty ? " (${adv.note})" : ""}',
+                                  style: const TextStyle(fontSize: 12)),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                                tooltip: t('delete_advance'),
+                                onPressed: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (c) => AlertDialog(
+                                      title: Text(t('delete_advance')),
+                                      content: Text(t('delete_advance_confirm')),
+                                      actions: [
+                                        TextButton(onPressed: () => Navigator.pop(c, false), child: Text(t('cancel'))),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                          onPressed: () => Navigator.pop(c, true),
+                                          child: Text(t('confirm'), style: const TextStyle(color: Colors.white)),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirm == true) {
+                                    worker.advances.removeWhere((a) => a.id == adv.id);
+                                    AppDatabase.logActivity('advances', 'حذف سلفة عامل',
+                                        '${worker.name}: تم حذف سلفة ${fmtCurrency(adv.amount)} المؤرخة ${fmtDate(adv.date)}');
+                                    await AppDatabase.saveData();
+                                    setD(() {});
+                                    setState(() {});
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: Text(t('cancel')),
+            ),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange),
+              icon: const Icon(Icons.check, color: Colors.white),
+              label: Text(t('save_advance_finish'),
+                  style: const TextStyle(color: Colors.white)),
+              onPressed: () async {
+                final amt = double.tryParse(amountCtrl.text) ?? 0.0;
+                if (amt <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(t('enter_advance_amount'))),
+                  );
+                  return;
+                }
+                final newAdv = WorkerAdvance(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  date: advanceDate,
+                  amount: amt,
+                  note: noteCtrl.text.trim(),
+                );
+                worker.advances.add(newAdv);
+                AppDatabase.logActivity('advances', 'تقديم سلفة لعامل',
+                    '${worker.name}: تم تقديم سلفة بقيمة ${fmtCurrency(amt)}${noteCtrl.text.trim().isNotEmpty ? " (" + noteCtrl.text.trim() + ")" : ""}');
+                Navigator.pop(dialogCtx);
+                setState(() {});
+                await AppDatabase.saveData();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(t('advance_saved_ok'))),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final activeWorkers = AppDatabase.activeWorkers;
+    final currentWeek = weekStartOf(DateTime.now());
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(t('worker_advances_title')),
+        backgroundColor: Colors.indigo,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: activeWorkers.isEmpty
+          ? Center(child: Text(t('no_active_workers')))
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  color: Colors.deepOrange.shade50,
+                  width: double.infinity,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.deepOrange),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          t('select_worker_for_advance'),
+                          style: TextStyle(
+                              color: Colors.deepOrange.shade900,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: activeWorkers.length,
+                    itemBuilder: (ctx, idx) {
+                      final worker = activeWorkers[idx];
+                      final weekAdv = worker.weekAdvancesTotal(currentWeek);
+                      final totalAdv = worker.advances.fold<double>(0.0, (s, a) => s + a.amount);
+                      return Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.deepOrange.shade100,
+                            child: const Icon(Icons.person, color: Colors.deepOrange),
+                          ),
+                          title: Text(worker.name,
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                              '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)}
+${t('card_weekly')} (${t('total_advances')}): ${fmtCurrency(weekAdv)} | ${t('total')}: ${fmtCurrency(totalAdv)}'),
+                          isThreeLine: true,
+                          trailing: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepOrange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            icon: const Icon(Icons.add, size: 16),
+                            label: Text(t('give_advance')),
+                            onPressed: () => _openGiveAdvanceDialog(worker),
+                          ),
+                          onTap: () => _openGiveAdvanceDialog(worker),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+class WorkersListScreen extends StatefulWidget {
+  const WorkersListScreen({super.key});
+
+  @override
+  State<WorkersListScreen> createState() => _WorkersListScreenState();
+}
+
+class _WorkersListScreenState extends State<WorkersListScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final allWorkers = AppDatabase.workers;
+
+    return Scaffold(
+      appBar: AppBar(
+          title: Text(t('workers_list_title')),
+          backgroundColor: Colors.indigo,
+          iconTheme: const IconThemeData(color: Colors.white)),
+      body: allWorkers.isEmpty
+          ? Center(child: Text(t('no_workers')))
+          : ListView.builder(
+              itemCount: allWorkers.length,
+              itemBuilder: (context, index) {
+                final worker = allWorkers[index];
+                return Card(
+                  margin: const EdgeInsets.all(8),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          worker.isArchived ? Colors.grey : Colors.indigo,
+                      child: Icon(
+                        worker.isArchived
+                            ? Icons.person_off
+                            : Icons.person,
+                        color: Colors.white,
+                      ),
+                    ),
+                    title: Row(
+                      children: [
+                        Text(worker.name,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        if (worker.isArchived) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                                color: Colors.orange.shade100,
+                                borderRadius: BorderRadius.circular(4)),
+                            child: Text(t('archived_tab'),
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.orange.shade900)),
+                          ),
+                        ]
+                      ],
+                    ),
+                    subtitle: Text(
+                        '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
+                    trailing: const Icon(Icons.edit, color: Colors.indigo),
+                    onTap: () => _editWorkerDialog(context, worker),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+
+  void _editWorkerDialog(BuildContext context, Worker worker) {
+    final nameController = TextEditingController(text: worker.name);
+    final rateController =
+        TextEditingController(text: numStr(worker.dailyRate));
+    final phoneController = TextEditingController(text: worker.phone);
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(t('edit_worker')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: t('worker_name'))),
+            TextField(
+                controller: rateController,
+                decoration: InputDecoration(
+                    labelText: '${t('daily_wage')} (${AppDatabase.currency})'),
+                keyboardType: TextInputType.number),
+            TextField(
+                controller: phoneController,
+                decoration: InputDecoration(labelText: t('phone_number')),
+                keyboardType: TextInputType.phone),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(t('cancel'))),
+          ElevatedButton(
+            onPressed: () async {
+              setState(() {
+                worker.name = nameController.text.trim();
+                worker.dailyRate =
+                    double.tryParse(rateController.text) ?? worker.dailyRate;
+                worker.phone = phoneController.text.trim();
+              });
+              AppDatabase.logActivity('workers', 'تعديل بيانات عامل',
+                  'تم تعديل بيانات العامل ${worker.name}');
+              Navigator.pop(dialogContext);
+              await AppDatabase.saveData();
+            },
+            child: Text(t('save_edits')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+// ======================= مواقع العمل (الورش) =======================
 
 class SitesScreen extends StatefulWidget {
   const SitesScreen({super.key});
@@ -2127,8 +2632,6 @@ class _SitesScreenState extends State<SitesScreen> {
                   keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 12),
-
-                // قسم تعديل المبلغ المدفوع (الواصل) وإلغاء آخر دفعة
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -2192,7 +2695,6 @@ class _SitesScreenState extends State<SitesScreen> {
                     ],
                   ),
                 ),
-
                 const Divider(height: 24),
                 Text(t('add_extra_amount'),
                     style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo)),
@@ -2506,7 +3008,6 @@ class _SitesScreenState extends State<SitesScreen> {
   }
 }
 
-// قائمة الورش المسلمة مع خيار الحذف وزر إعادة الفتح
 class DeliveredSitesScreen extends StatefulWidget {
   const DeliveredSitesScreen({super.key});
 
@@ -2638,7 +3139,7 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
   }
 }
 
-// ======================= إدارة الدفعات مع فحص المتبقي وبدء الحقل فارغاً =======================
+// ======================= إدارة دفعات الورش =======================
 
 class NewPaymentScreen extends StatefulWidget {
   const NewPaymentScreen({super.key});
@@ -2670,7 +3171,9 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)}\n${t('remaining')}: ${fmtCurrency(remaining)}'),
+                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}
+${t('received')}: ${fmtCurrency(site.totalPaid)}
+${t('remaining')}: ${fmtCurrency(remaining)}'),
                     isThreeLine: true,
                     trailing: IconButton(
                       icon: const Icon(Icons.add_card, color: Colors.indigo),
@@ -2693,7 +3196,6 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
       return;
     }
 
-    // الحقل يبدأ فارغاً تماماً كما طلب المستخدم بدلاً من كتابة المتبقي تلقائياً
     final paymentController = TextEditingController();
     String? errorText;
 
@@ -2789,7 +3291,6 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
 
 // ======================= نظام إدارة عقود المقاولين =======================
 
-// 1. إبرام عقد جديد
 class NewContractScreen extends StatefulWidget {
   const NewContractScreen({super.key});
 
@@ -2847,7 +3348,6 @@ class _NewContractScreenState extends State<NewContractScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // اختيار الورشة
               Text(t('select_site_for_contract'),
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 6),
@@ -2874,7 +3374,6 @@ class _NewContractScreenState extends State<NewContractScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-
               TextFormField(
                 controller: _contractorController,
                 decoration: InputDecoration(
@@ -2885,7 +3384,6 @@ class _NewContractScreenState extends State<NewContractScreen> {
                 validator: (val) => (val == null || val.trim().isEmpty) ? 'يرجى إدخال اسم المقاول' : null,
               ),
               const SizedBox(height: 12),
-
               TextFormField(
                 controller: _phoneController,
                 decoration: InputDecoration(
@@ -2896,7 +3394,6 @@ class _NewContractScreenState extends State<NewContractScreen> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 12),
-
               TextFormField(
                 controller: _amountController,
                 decoration: InputDecoration(
@@ -2908,8 +3405,6 @@ class _NewContractScreenState extends State<NewContractScreen> {
                 validator: (val) => (val == null || val.trim().isEmpty) ? 'يرجى إدخال مبلغ العقد' : null,
               ),
               const SizedBox(height: 14),
-
-              // نوع العقد (كامل أو جزئي)
               Text(t('contract_type'), style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               Row(
@@ -2933,7 +3428,6 @@ class _NewContractScreenState extends State<NewContractScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-
               TextFormField(
                 controller: _noteController,
                 maxLines: 3,
@@ -2944,7 +3438,6 @@ class _NewContractScreenState extends State<NewContractScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo,
@@ -2989,7 +3482,6 @@ class _NewContractScreenState extends State<NewContractScreen> {
   }
 }
 
-// 2. قائمة العقود الحالية مع التعديل والتصدير والإنهاء والحذف
 class ActiveContractsScreen extends StatefulWidget {
   const ActiveContractsScreen({super.key});
 
@@ -2998,10 +3490,158 @@ class ActiveContractsScreen extends StatefulWidget {
 }
 
 class _ActiveContractsScreenState extends State<ActiveContractsScreen> {
+  void _showContractPaymentDialog(WorkContract contract) {
+    final remaining = contract.remaining;
+    if (remaining <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t('contract_already_paid'))),
+      );
+      return;
+    }
+
+    final paymentCtrl = TextEditingController();
+    String? errorText;
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (ctx, setD) => AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.payments, color: Colors.green),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '${t('add_contract_payment')} - ${contract.contractorName}',
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${t('site')}: ${contract.siteName}'),
+                Text('${t('contract_amount')}: ${fmtCurrency(contract.amount)}'),
+                Text('${t('contract_paid')}: ${fmtCurrency(contract.totalPaid)}'),
+                Text('${t('contract_remaining')}: ${fmtCurrency(remaining)}',
+                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: paymentCtrl,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: '${t('new_payment')} (${AppDatabase.currency})',
+                    hintText: 'أدخل قيمة الدفعة',
+                    errorText: errorText,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.monetization_on, color: Colors.green),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) {
+                    final entered = double.tryParse(val) ?? 0.0;
+                    if (entered > remaining) {
+                      setD(() => errorText =
+                          '${t('payment_exceeds_remaining')} (${fmtCurrency(remaining)})');
+                    } else {
+                      setD(() => errorText = null);
+                    }
+                  },
+                ),
+                const SizedBox(height: 6),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    icon: const Icon(Icons.flash_on, size: 16),
+                    label: Text(t('pay_remaining_all')),
+                    onPressed: () {
+                      setD(() {
+                        paymentCtrl.text = numStr(remaining);
+                        errorText = null;
+                      });
+                    },
+                  ),
+                ),
+                if (contract.paymentHistory.isNotEmpty) ...[
+                  const Divider(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '${t('last_contract_payment')}: ${fmtCurrency(contract.paymentHistory.last)}',
+                          style: const TextStyle(fontSize: 11, color: Colors.blueGrey),
+                        ),
+                      ),
+                      TextButton.icon(
+                        style: TextButton.styleFrom(foregroundColor: Colors.red),
+                        icon: const Icon(Icons.undo, size: 16),
+                        label: Text(t('undo_contract_payment'), style: const TextStyle(fontSize: 11)),
+                        onPressed: () {
+                          final lastAmt = contract.paymentHistory.removeLast();
+                          contract.totalPaid = (contract.totalPaid - lastAmt).clamp(0.0, contract.amount);
+                          paymentCtrl.text = '';
+                          setD(() {});
+                          AppDatabase.logActivity('contracts', 'إلغاء دفعة مقاول',
+                              'عقد ${contract.contractorName} (${contract.siteName}): تم إلغاء دفعة ${fmtCurrency(lastAmt)} | المدفوع: ${fmtCurrency(contract.totalPaid)}');
+                          AppDatabase.saveData();
+                          setState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(t('contract_payment_undone'))),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: Text(t('cancel')),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              onPressed: () async {
+                final payment = double.tryParse(paymentCtrl.text) ?? 0.0;
+                if (payment <= 0) {
+                  setD(() => errorText = t('invalid_payment_amount'));
+                  return;
+                }
+                if (payment > remaining) {
+                  setD(() => errorText =
+                      '${t('payment_exceeds_remaining')} (${fmtCurrency(remaining)})');
+                  return;
+                }
+
+                contract.totalPaid += payment;
+                contract.paymentHistory.add(payment);
+                AppDatabase.logActivity('contracts', 'تسديد دفعة للمقاول',
+                    'عقد ${contract.contractorName} (${contract.siteName}): دفعة ${fmtCurrency(payment)} | الواصل: ${fmtCurrency(contract.totalPaid)} | المتبقي: ${fmtCurrency(contract.remaining)}');
+                Navigator.pop(dialogCtx);
+                setState(() {});
+                await AppDatabase.saveData();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(t('contract_payment_saved'))),
+                );
+              },
+              child: Text(t('save'), style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _editContract(WorkContract contract) {
     final contractorCtrl = TextEditingController(text: contract.contractorName);
     final phoneCtrl = TextEditingController(text: contract.phone);
     final amountCtrl = TextEditingController(text: numStr(contract.amount));
+    final paidCtrl = TextEditingController(text: numStr(contract.totalPaid));
     final noteCtrl = TextEditingController(text: contract.note);
     String type = contract.contractType;
 
@@ -3017,6 +3657,7 @@ class _ActiveContractsScreenState extends State<ActiveContractsScreen> {
                 TextField(controller: contractorCtrl, decoration: InputDecoration(labelText: t('contractor_name'))),
                 TextField(controller: phoneCtrl, decoration: InputDecoration(labelText: t('contractor_phone'))),
                 TextField(controller: amountCtrl, decoration: InputDecoration(labelText: '${t('contract_amount')} (${AppDatabase.currency})'), keyboardType: TextInputType.number),
+                TextField(controller: paidCtrl, decoration: InputDecoration(labelText: '${t('contract_paid')} (${AppDatabase.currency})'), keyboardType: TextInputType.number),
                 Row(
                   children: [
                     Radio<String>(value: 'عقد كامل', groupValue: type, onChanged: (v) => setD(() => type = v!)),
@@ -3037,6 +3678,7 @@ class _ActiveContractsScreenState extends State<ActiveContractsScreen> {
                 contract.contractorName = contractorCtrl.text.trim();
                 contract.phone = phoneCtrl.text.trim();
                 contract.amount = double.tryParse(amountCtrl.text) ?? contract.amount;
+                contract.totalPaid = (double.tryParse(paidCtrl.text) ?? contract.totalPaid).clamp(0.0, contract.amount);
                 contract.contractType = type;
                 contract.note = noteCtrl.text.trim();
                 AppDatabase.logActivity('contracts', 'تعديل عقد', 'تم تعديل بيانات عقد المقاول ${contract.contractorName}');
@@ -3053,27 +3695,77 @@ class _ActiveContractsScreenState extends State<ActiveContractsScreen> {
   }
 
   void _finishContract(WorkContract contract) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t('finish_contract')),
-        content: Text(t('finish_contract_confirm')),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t('cancel'))),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(t('confirm'), style: const TextStyle(color: Colors.white)),
+    final remaining = contract.remaining;
+    if (remaining > 0) {
+      final choice = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(t('finish_contract')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t('contract_finish_unpaid_warning')),
+              const SizedBox(height: 8),
+              Text('${t('contract_remaining')}: ${fmtCurrency(remaining)}',
+                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            ],
           ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, 'cancel'), child: Text(t('cancel'))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              onPressed: () => Navigator.pop(ctx, 'settle'),
+              child: Text(t('settle_and_finish'), style: const TextStyle(color: Colors.white, fontSize: 12)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+              onPressed: () => Navigator.pop(ctx, 'keep'),
+              child: Text(t('finish_with_remaining'), style: const TextStyle(color: Colors.white, fontSize: 12)),
+            ),
+          ],
+        ),
+      );
 
-    if (confirm == true) {
-      setState(() => contract.isFinished = true);
-      AppDatabase.logActivity('contracts', 'إنهاء عقد مقاولة', 'تم إنهاء عقد المقاول ${contract.contractorName} لورشة ${contract.siteName}');
-      await AppDatabase.saveData();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t('contract_finished_msg'))));
+      if (choice == 'settle') {
+        contract.totalPaid = contract.amount;
+        contract.isFinished = true;
+        AppDatabase.logActivity('contracts', 'إنهاء عقد وسداد المتبقي',
+            'تم تسديد كامل متبقي عقد المقاول ${contract.contractorName} (${fmtCurrency(remaining)}) وإنهاؤه');
+        await AppDatabase.saveData();
+        setState(() {});
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t('contract_finished_msg'))));
+      } else if (choice == 'keep') {
+        contract.isFinished = true;
+        AppDatabase.logActivity('contracts', 'إنهاء عقد مع رصيد متبقي',
+            'تم إنهاء عقد المقاول ${contract.contractorName} مع بقاء رصيد غير مسدد ${fmtCurrency(remaining)}');
+        await AppDatabase.saveData();
+        setState(() {});
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t('contract_finished_msg'))));
+      }
+    } else {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(t('finish_contract')),
+          content: Text(t('finish_contract_confirm')),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t('cancel'))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t('confirm'), style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+
+      if (confirm == true) {
+        setState(() => contract.isFinished = true);
+        AppDatabase.logActivity('contracts', 'إنهاء عقد مقاولة', 'تم إنهاء عقد المقاول ${contract.contractorName} لورشة ${contract.siteName}');
+        await AppDatabase.saveData();
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(t('contract_finished_msg'))));
+      }
     }
   }
 
@@ -3117,6 +3809,7 @@ class _ActiveContractsScreenState extends State<ActiveContractsScreen> {
               itemCount: active.length,
               itemBuilder: (ctx, idx) {
                 final c = active[idx];
+                final remaining = c.remaining;
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: Padding(
@@ -3139,8 +3832,23 @@ class _ActiveContractsScreenState extends State<ActiveContractsScreen> {
                         ),
                         Text('${t('site')}: ${c.siteName}', style: const TextStyle(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 4),
-                        Text('${t('contract_amount')}: ${fmtCurrency(c.amount)}',
-                            style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('${t('contract_amount')}: ${fmtCurrency(c.amount)}',
+                                style: const TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold)),
+                            Text('${t('contract_paid')}: ${fmtCurrency(c.totalPaid)}',
+                                style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${t('contract_remaining')}: ${fmtCurrency(remaining)}',
+                          style: TextStyle(
+                            color: remaining > 0 ? Colors.red : Colors.teal,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         if (c.phone.isNotEmpty) Text('${t('phone')}: ${ltr(c.phone)}'),
                         Text('${t('contract_date')}: ${fmtDate(c.date)}'),
                         if (c.note.isNotEmpty) ...[
@@ -3152,9 +3860,18 @@ class _ActiveContractsScreenState extends State<ActiveContractsScreen> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             IconButton(
+                              icon: const Icon(Icons.add_card, color: Colors.green),
+                              tooltip: t('add_contract_payment'),
+                              onPressed: () => _showContractPaymentDialog(c),
+                            ),
+                            IconButton(
                               icon: const Icon(Icons.picture_as_pdf, color: Colors.indigo),
                               tooltip: t('share_contract_pdf'),
-                              onPressed: () => shareContractPdf(context, c),
+                              onPressed: () async {
+                                final rl = await pickReportLang(context);
+                                if (rl == null || !mounted) return;
+                                await shareContractPdf(context, c, rl);
+                              },
                             ),
                             IconButton(
                               icon: const Icon(Icons.edit, color: Colors.indigo),
@@ -3183,7 +3900,6 @@ class _ActiveContractsScreenState extends State<ActiveContractsScreen> {
   }
 }
 
-// 3. قائمة العقود المنتهية
 class FinishedContractsScreen extends StatefulWidget {
   const FinishedContractsScreen({super.key});
 
@@ -3239,16 +3955,27 @@ class _FinishedContractsScreenState extends State<FinishedContractsScreen> {
               itemCount: finished.length,
               itemBuilder: (ctx, idx) {
                 final c = finished[idx];
+                final remaining = c.remaining;
                 return Card(
                   margin: const EdgeInsets.all(8),
                   color: Colors.grey.shade100,
                   child: ListTile(
                     title: Text(c.contractorName, style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.lineThrough)),
-                    subtitle: Text('${t('site')}: ${c.siteName} | ${t('contract_amount')}: ${fmtCurrency(c.amount)}\n${c.contractType} (${fmtDate(c.date)})'),
+                    subtitle: Text('${t('site')}: ${c.siteName} | ${t('contract_amount')}: ${fmtCurrency(c.amount)} | ${t('contract_paid')}: ${fmtCurrency(c.totalPaid)}${remaining > 0 ? " | " + t('contract_remaining') + ": " + fmtCurrency(remaining) : ""}
+${c.contractType} (${fmtDate(c.date)})'),
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        IconButton(
+                          icon: const Icon(Icons.picture_as_pdf, color: Colors.indigo),
+                          tooltip: t('share_contract_pdf'),
+                          onPressed: () async {
+                            final rl = await pickReportLang(context);
+                            if (rl == null || !mounted) return;
+                            await shareContractPdf(context, c, rl);
+                          },
+                        ),
                         IconButton(
                           icon: const Icon(Icons.replay, color: Colors.indigo),
                           tooltip: t('reopen_contract'),
@@ -3268,6 +3995,7 @@ class _FinishedContractsScreenState extends State<FinishedContractsScreen> {
     );
   }
 }
+
 
 // ======================= ملخص وتحليل الورش والأرباح =======================
 
@@ -3582,6 +4310,8 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
     switch (cat) {
       case 'payments':
         return Colors.green;
+      case 'advances':
+        return Colors.deepOrange;
       case 'sites':
         return Colors.orange.shade800;
       case 'contracts':
@@ -3603,6 +4333,8 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
     switch (cat) {
       case 'payments':
         return Icons.payments;
+      case 'advances':
+        return Icons.price_change;
       case 'sites':
         return Icons.apartment;
       case 'contracts':
@@ -3672,6 +4404,7 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
               children: [
                 _filterChip('all', t('filter_all')),
                 _filterChip('payments', t('filter_payments')),
+                _filterChip('advances', t('filter_advances')),
                 _filterChip('sites', t('filter_sites')),
                 _filterChip('contracts', t('filter_contracts')),
                 _filterChip('workers', t('filter_workers')),
@@ -3749,126 +4482,6 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
   }
 }
 
-// ======================= قائمة العمال وتعديلهم =======================
-
-class WorkersListScreen extends StatefulWidget {
-  const WorkersListScreen({super.key});
-
-  @override
-  State<WorkersListScreen> createState() => _WorkersListScreenState();
-}
-
-class _WorkersListScreenState extends State<WorkersListScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final allWorkers = AppDatabase.workers;
-
-    return Scaffold(
-      appBar: AppBar(
-          title: Text(t('workers_list_title')),
-          backgroundColor: Colors.indigo,
-          iconTheme: const IconThemeData(color: Colors.white)),
-      body: allWorkers.isEmpty
-          ? Center(child: Text(t('no_workers')))
-          : ListView.builder(
-              itemCount: allWorkers.length,
-              itemBuilder: (context, index) {
-                final worker = allWorkers[index];
-                return Card(
-                  margin: const EdgeInsets.all(8),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                          worker.isArchived ? Colors.grey : Colors.indigo,
-                      child: Icon(
-                        worker.isArchived
-                            ? Icons.person_off
-                            : Icons.person,
-                        color: Colors.white,
-                      ),
-                    ),
-                    title: Row(
-                      children: [
-                        Text(worker.name,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        if (worker.isArchived) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                                color: Colors.orange.shade100,
-                                borderRadius: BorderRadius.circular(4)),
-                            child: Text(t('archived_tab'),
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.orange.shade900)),
-                          ),
-                        ]
-                      ],
-                    ),
-                    subtitle: Text(
-                        '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)} | ${t('phone')}: ${ltr(worker.phone)}'),
-                    trailing: const Icon(Icons.edit, color: Colors.indigo),
-                    onTap: () => _editWorkerDialog(context, worker),
-                  ),
-                );
-              },
-            ),
-    );
-  }
-
-  void _editWorkerDialog(BuildContext context, Worker worker) {
-    final nameController = TextEditingController(text: worker.name);
-    final rateController =
-        TextEditingController(text: numStr(worker.dailyRate));
-    final phoneController = TextEditingController(text: worker.phone);
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(t('edit_worker')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: t('worker_name'))),
-            TextField(
-                controller: rateController,
-                decoration: InputDecoration(
-                    labelText: '${t('daily_wage')} (${AppDatabase.currency})'),
-                keyboardType: TextInputType.number),
-            TextField(
-                controller: phoneController,
-                decoration: InputDecoration(labelText: t('phone_number')),
-                keyboardType: TextInputType.phone),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(t('cancel'))),
-          ElevatedButton(
-            onPressed: () async {
-              setState(() {
-                worker.name = nameController.text.trim();
-                worker.dailyRate =
-                    double.tryParse(rateController.text) ?? worker.dailyRate;
-                worker.phone = phoneController.text.trim();
-              });
-              AppDatabase.logActivity('workers', 'تعديل بيانات عامل',
-                  'تم تعديل بيانات العامل ${worker.name}');
-              Navigator.pop(dialogContext);
-              await AppDatabase.saveData();
-            },
-            child: Text(t('save_edits')),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ======================= التقارير الأسبوعية =======================
 
@@ -3927,7 +4540,7 @@ String buildWorkerWeekText(Worker w, DateTime ws, String lang) {
   sb.writeln('📊 ${tr('worker_report')}: ${w.name}');
   sb.writeln('📅 ${tr('week')}: ${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}');
   sb.writeln('');
-  double total = 0, base = 0, ot = 0, trans = 0;
+  double base = 0, ot = 0, trans = 0;
   int days = 0;
   for (int i = 0; i < 7; i++) {
     final d = addDays(ws, i);
@@ -3939,7 +4552,6 @@ String buildWorkerWeekText(Worker w, DateTime ws, String lang) {
       sb.writeln('$label: ${tr('holiday')}');
     } else {
       final dayTotal = log.total(w.dailyRate);
-      total += dayTotal;
       base += w.dailyRate;
       ot += log.overtimeHours * AppDatabase.overtimeRate;
       trans += log.transport;
@@ -3948,12 +4560,20 @@ String buildWorkerWeekText(Worker w, DateTime ws, String lang) {
           '$label: ${log.site.isEmpty ? "" : "${log.site} | "}${tr('overtime_short')} ${fmtNum(log.overtimeHours)}${tr('hour_short')} | ${tr('transport_short')} ${fmtMoney(log.transport)} = ${fmtCurrency(dayTotal)}${log.note.isEmpty ? "" : " | ${log.note}"}');
     }
   }
+  final gross = w.weekGrossTotal(ws);
+  final advances = w.weekAdvancesTotal(ws);
+  final net = w.weekNetTotal(ws);
+
   sb.writeln('');
   sb.writeln('${tr('work_days')}: ${ltr('$days')}');
   sb.writeln('${tr('sum_days')}: ${fmtCurrency(base)}');
   sb.writeln('${tr('sum_overtime')}: ${fmtCurrency(ot)}');
   sb.writeln('${tr('sum_transport')}: ${fmtCurrency(trans)}');
-  sb.writeln('💰 ${tr('weekly_total')}: ${fmtCurrency(total)}');
+  sb.writeln('${tr('gross_total')}: ${fmtCurrency(gross)}');
+  if (advances > 0) {
+    sb.writeln('${tr('advances_deducted')}: -${fmtCurrency(advances)}');
+  }
+  sb.writeln('💰 ${tr('net_total')}: ${fmtCurrency(net)}');
   return sb.toString();
 }
 
@@ -3963,21 +4583,29 @@ String buildAllWeekText(DateTime ws, String lang) {
   sb.writeln('📊 ${tr('all_report')}');
   sb.writeln('📅 ${fmtDate(ws)} - ${fmtDate(addDays(ws, 6))}');
   sb.writeln('');
-  double grand = 0;
+  double grandGross = 0;
+  double grandAdv = 0;
+  double grandNet = 0;
   final weekWorkers = AppDatabase.workersForWeek(ws);
   for (final w in weekWorkers) {
-    final tot = w.weekTotal(ws);
-    grand += tot;
-    sb.writeln('👷 ${w.name}: ${fmtCurrency(tot)}');
+    final g = w.weekGrossTotal(ws);
+    final a = w.weekAdvancesTotal(ws);
+    final n = w.weekNetTotal(ws);
+    grandGross += g;
+    grandAdv += a;
+    grandNet += n;
+    sb.writeln('👷 ${w.name}: ${tr('gross_total')} ${fmtCurrency(g)}${a > 0 ? " | " + tr('advances_deducted') + " -" + fmtCurrency(a) : ""} = ${tr('net_total')} ${fmtCurrency(n)}');
   }
   sb.writeln('');
-  sb.writeln('💰 ${tr('grand_total')}: ${fmtCurrency(grand)}');
+  sb.writeln('${tr('gross_total')}: ${fmtCurrency(grandGross)}');
+  if (grandAdv > 0) sb.writeln('${tr('total_advances')}: -${fmtCurrency(grandAdv)}');
+  sb.writeln('💰 ${tr('grand_total')} (${tr('net_total')}): ${fmtCurrency(grandNet)}');
   return sb.toString();
 }
 
-// ---------- محرك إنشاء الـ PDF مع خط ثنائي مدمج (عربي ولاتيني) بدون إنترنت نهائياً ----------
+// ---------- محرك إنشاء الـ PDF مع خط ثنائي مدمج بدون إنترنت ----------
 
-const String _kArabicFontGzB64 = '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';
+const String _kArabicFontGzB64 = 'H4sIAAZk1WoC/5R9CUBU1f7/Oefud7Y7GzDMwMwwwLCIjCAiinLDJTUXKvcSccOlFBJ3LFwSNDU0xZWUTE3NzMxnYG4laS5tT6znU1+vpPK9yHzv2abM9X/OvQOi9X6/379xmJk7Z84953u+y+f7Pd/vCUAAgAX/oYHn4Z69evvfSpgFQNN2fLXm4bxBj1duLZ8MwA89AfB+/PDjQ3Knf/H8CwCabACweQMeGtxnVdmlmwDaxwOADgx6PDXthZ43OAC+isW/Hzpu6pji7p/3uoY/zwcA2sbNmuEBk6OyALiO+4dKYfHEqc90nDUFgK9X4favTxxTUgw4/ABNG/Bn/cSn5xZ+96+ez+C27QD4KDBpwpjxcfVfLwedAfB+v/B7/GgWfP/yYQv/F/j3D39u1gHwR5wGgBnjf+e8y54YmK7g5mQ3peFm1v4eY/C1kY4+9qNHzuB2/gT7h4P064Uq7u3u06b17/3q2C979V7a/5UXu3fsPnXgW78/t+/D2X9b8eWq7z9dse3A7+r+5/X5X65cvfFw+X296/97wKj3F49d/eW6bavL/vXxW79+vvz3/pM2LH120cLH49Z88+mS7a+1z583f8Vrs3u89/7ilS/m/qV2X8V7X6xfuGv1m+tffu4vLy187pWls1/b+drqffNWv/B/D6z880vzFi359rW/PLfy9WV/fLbnwsXPPzd/3oL5/5Wz4M0Vry7+w6+vLp33hxfmvvfV/O9Xv7Tki8Wvvz39tT8tXPjcsm+/Xv70+l9W//HPL7244rUlL7z+2uJ5z/3b2gVf7H7v6V/9bv7rq/50aO3rn7647PlXfrFswevvLVn0/C+Wz5v33tqFn/372rWvrH7/6/dWPvf80ud+sfzZ15e98O6yVxctfWnR1z++u/C55X/85YpFz73+2or/98v5r7/5wrvfLFz49muf/XvhwuWvrfrDkmeff37Z/2v9e8W3K5fP+f1Ly97+ZOGC55b94fefL57z7IsL/vf5389f/s2rr72y4tVff7741ddef/Wll1b/x9uvvfba8gVvvfz2ymWv/Gv58uXLV3z68tKlS5e/8+H/A1/b2YvYPAAA';
 
 bool gPdfFontFailed = false;
 
@@ -3985,7 +4613,6 @@ Future<pw.Document> _newPdf() async {
   gPdfFontFailed = false;
   pw.Font? regular;
 
-  // 1. الخط الثنائي المدمج مباشرة بالكود (يدعم العربية والحروف اللاتينية الفرنسية والإنجليزية والأرقام)
   try {
     final fontBytes = gzip.decode(base64Decode(_kArabicFontGzB64));
     final byteData = ByteData.view(Uint8List.fromList(fontBytes).buffer);
@@ -4059,7 +4686,6 @@ pw.Widget _pdfLine(String label, String value,
 
 Future<void> shareWorkerWeekPdf(
     BuildContext context, Worker w, DateTime ws, String lang) async {
-  final messenger = ScaffoldMessenger.of(context);
   String tr(String k) => L10n.tr(k, lang);
   final rtl = lang == 'ar';
   final td = rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
@@ -4106,6 +4732,10 @@ Future<void> shareWorkerWeekPdf(
     ));
   }
 
+  final gross = w.weekGrossTotal(ws);
+  final advances = w.weekAdvancesTotal(ws);
+  final net = w.weekNetTotal(ws);
+
   pdf.addPage(
     pw.Page(
       margin: const pw.EdgeInsets.all(28),
@@ -4125,8 +4755,11 @@ Future<void> shareWorkerWeekPdf(
           _pdfLine(tr('sum_days'), fmtCurrency(base), rtl: rtl),
           _pdfLine(tr('sum_overtime'), fmtCurrency(ot), rtl: rtl),
           _pdfLine(tr('sum_transport'), fmtCurrency(trans), rtl: rtl),
+          _pdfLine(tr('gross_total'), fmtCurrency(gross), rtl: rtl),
+          if (advances > 0)
+            _pdfLine(tr('advances_deducted'), '- ${fmtCurrency(advances)}', rtl: rtl),
           pw.SizedBox(height: 8),
-          _pdfLine(tr('weekly_total'), fmtCurrency(total), rtl: rtl, big: true),
+          _pdfLine(tr('net_total'), fmtCurrency(net), rtl: rtl, big: true),
         ],
       ),
     ),
@@ -4152,10 +4785,14 @@ Future<void> shareAllWeekPdf(
     header.add(_pdfCell('${L10n.day(i, lang)}\n${fmtDate(addDays(ws, i))}',
         bold: true, rtl: rtl));
   }
-  header.add(_pdfCell(tr('total_word'), bold: true, rtl: rtl));
+  header.add(_pdfCell(tr('gross_total'), bold: true, rtl: rtl));
+  header.add(_pdfCell(tr('total_advances'), bold: true, rtl: rtl));
+  header.add(_pdfCell(tr('net_total'), bold: true, rtl: rtl));
 
   final rows = <pw.TableRow>[pw.TableRow(children: order(header))];
-  double grand = 0;
+  double grandGross = 0;
+  double grandAdv = 0;
+  double grandNet = 0;
   final dayTotals = List<double>.filled(7, 0.0);
   final weekWorkers = AppDatabase.workersForWeek(ws);
 
@@ -4167,9 +4804,16 @@ Future<void> shareAllWeekPdf(
       cells.add(_pdfCell(dayCellText(log, w.dailyRate, lang),
           rtl: rtl, numeric: log != null && log.worked));
     }
-    final tot = w.weekTotal(ws);
-    grand += tot;
-    cells.add(_pdfCell(fmtMoney(tot), bold: true, numeric: true));
+    final g = w.weekGrossTotal(ws);
+    final a = w.weekAdvancesTotal(ws);
+    final n = w.weekNetTotal(ws);
+    grandGross += g;
+    grandAdv += a;
+    grandNet += n;
+
+    cells.add(_pdfCell(fmtMoney(g), numeric: true));
+    cells.add(_pdfCell(a > 0 ? fmtMoney(a) : '-', numeric: true));
+    cells.add(_pdfCell(fmtMoney(n), bold: true, numeric: true));
     rows.add(pw.TableRow(children: order(cells)));
   }
 
@@ -4177,7 +4821,9 @@ Future<void> shareAllWeekPdf(
   for (int i = 0; i < 7; i++) {
     totalCells.add(_pdfCell(fmtMoney(dayTotals[i]), bold: true, numeric: true));
   }
-  totalCells.add(_pdfCell(fmtMoney(grand), bold: true, numeric: true));
+  totalCells.add(_pdfCell(fmtMoney(grandGross), bold: true, numeric: true));
+  totalCells.add(_pdfCell(fmtMoney(grandAdv), bold: true, numeric: true));
+  totalCells.add(_pdfCell(fmtMoney(grandNet), bold: true, numeric: true));
   rows.add(pw.TableRow(children: order(totalCells)));
 
   pdf.addPage(
@@ -4196,20 +4842,23 @@ Future<void> shareAllWeekPdf(
           pw.SizedBox(height: 12),
           pw.Table(border: pw.TableBorder.all(), children: rows),
           pw.SizedBox(height: 12),
-          _pdfLine(tr('grand_total'), fmtCurrency(grand), rtl: rtl, big: true),
+          _pdfLine('${tr('grand_total')} (${tr('net_total')})', fmtCurrency(grandNet), rtl: rtl, big: true),
         ],
       ),
     ),
   );
 
   AppDatabase.logActivity('pdf', 'تصدير تقرير أسبوعي لجميع العمال PDF',
-      'تم تصدير التقرير المشترك للأسبوع ${fmtDate(ws)} بمبلغ إجمالي ${fmtCurrency(grand)}');
+      'تم تصدير التقرير المشترك للأسبوع ${fmtDate(ws)} بمبلغ إجمالي صافي ${fmtCurrency(grandNet)}');
 
   await Printing.sharePdf(bytes: await pdf.save(), filename: 'weekly_all.pdf');
 }
 
-// تصدير ومشاركة عقد المقاول كـ PDF رسمي
-Future<void> shareContractPdf(BuildContext context, WorkContract c) async {
+// تصدير ومشاركة عقد المقاول كـ PDF رسمي مع دعم 3 لغات وعرض المدفوع والمتبقي
+Future<void> shareContractPdf(BuildContext context, WorkContract c, String lang) async {
+  String tr(String k) => L10n.tr(k, lang);
+  final rtl = lang == 'ar';
+  final td = rtl ? pw.TextDirection.rtl : pw.TextDirection.ltr;
   final pdf = await _newPdf();
 
   pdf.addPage(
@@ -4226,44 +4875,46 @@ Future<void> shareContractPdf(BuildContext context, WorkContract c) async {
             ),
             child: pw.Column(
               children: [
-                pw.Text(t('contract_doc_title'),
-                    textDirection: pw.TextDirection.rtl,
+                pw.Text(tr('contract_doc_title'),
+                    textDirection: td,
                     style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 4),
-                pw.Text('${t('contract_date')}: ${fmtFullDate(c.date)}',
-                    textDirection: pw.TextDirection.rtl,
+                pw.Text('${tr('contract_date')}: ${fmtFullDate(c.date)}',
+                    textDirection: td,
                     style: const pw.TextStyle(fontSize: 11)),
               ],
             ),
           ),
           pw.SizedBox(height: 20),
 
-          pw.Text('${t('first_party')}: إدارة مشروع WookFlow',
-              textDirection: pw.TextDirection.rtl,
+          pw.Text('${tr('first_party')}: WookFlow Management',
+              textDirection: td,
               style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 6),
-          pw.Text('${t('second_party')}: ${c.contractorName} ${c.phone.isNotEmpty ? "(${c.phone})" : ""}',
-              textDirection: pw.TextDirection.rtl,
+          pw.Text('${tr('second_party')}: ${c.contractorName} ${c.phone.isNotEmpty ? "(${c.phone})" : ""}',
+              textDirection: td,
               style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
           pw.SizedBox(height: 12),
           pw.Divider(),
 
           pw.SizedBox(height: 8),
-          _pdfLine(t('site'), c.siteName, rtl: true, big: true),
-          _pdfLine(t('contract_type'), c.contractType, rtl: true),
-          _pdfLine(t('contract_amount'), fmtCurrency(c.amount), rtl: true, big: true),
+          _pdfLine(tr('site'), c.siteName, rtl: rtl, big: true),
+          _pdfLine(tr('contract_type'), c.contractType == 'عقد جزئي' ? tr('contract_type_partial') : tr('contract_type_full'), rtl: rtl),
+          _pdfLine(tr('contract_amount'), fmtCurrency(c.amount), rtl: rtl, big: true),
+          _pdfLine(tr('contract_paid'), fmtCurrency(c.totalPaid), rtl: rtl),
+          _pdfLine(tr('contract_remaining'), fmtCurrency(c.remaining), rtl: rtl, big: true),
           pw.SizedBox(height: 12),
 
           if (c.note.isNotEmpty) ...[
-            pw.Text('${t('contract_notes')}:',
-                textDirection: pw.TextDirection.rtl,
+            pw.Text('${tr('contract_notes')}:',
+                textDirection: td,
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 13)),
             pw.SizedBox(height: 4),
             pw.Container(
               padding: const pw.EdgeInsets.all(8),
               decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.grey400)),
               child: pw.Text(c.note,
-                  textDirection: pw.TextDirection.rtl,
+                  textDirection: td,
                   style: const pw.TextStyle(fontSize: 11)),
             ),
             pw.SizedBox(height: 24),
@@ -4275,16 +4926,16 @@ Future<void> shareContractPdf(BuildContext context, WorkContract c) async {
             children: [
               pw.Column(
                 children: [
-                  pw.Text(t('signature_second'), textDirection: pw.TextDirection.rtl),
+                  pw.Text(tr('signature_first'), textDirection: td),
                   pw.SizedBox(height: 40),
-                  pw.Text('................................', textDirection: pw.TextDirection.rtl),
+                  pw.Text('................................', textDirection: td),
                 ],
               ),
               pw.Column(
                 children: [
-                  pw.Text(t('signature_first'), textDirection: pw.TextDirection.rtl),
+                  pw.Text(tr('signature_second'), textDirection: td),
                   pw.SizedBox(height: 40),
-                  pw.Text('................................', textDirection: pw.TextDirection.rtl),
+                  pw.Text('................................', textDirection: td),
                 ],
               ),
             ],
@@ -4295,10 +4946,13 @@ Future<void> shareContractPdf(BuildContext context, WorkContract c) async {
   );
 
   AppDatabase.logActivity('contracts', 'تصدير عقد مقاول PDF',
-      'تم تصدير وثيقة عقد المقاول ${c.contractorName} لورشة ${c.siteName}');
+      'تم تصدير وثيقة عقد المقاول ${c.contractorName} لورشة ${c.siteName} بلغة ($lang)');
 
   await Printing.sharePdf(bytes: await pdf.save(), filename: 'contract_${c.contractorName}.pdf');
 }
+
+
+// ======================= واجهات التقارير الأسبوعية =======================
 
 class WeeklySummaryScreen extends StatefulWidget {
   const WeeklySummaryScreen({super.key});
@@ -4316,9 +4970,13 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
   @override
   Widget build(BuildContext context) {
     final weekWorkers = AppDatabase.workersForWeek(_weekStart);
-    double grand = 0;
+    double grandGross = 0;
+    double grandAdv = 0;
+    double grandNet = 0;
     for (final w in weekWorkers) {
-      grand += w.weekTotal(_weekStart);
+      grandGross += w.weekGrossTotal(_weekStart);
+      grandAdv += w.weekAdvancesTotal(_weekStart);
+      grandNet += w.weekNetTotal(_weekStart);
     }
 
     return Scaffold(
@@ -4345,7 +5003,7 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 16)),
                           subtitle: Text(
-                              '${t('joint_sub')}\n${t('total_word')}: ${fmtCurrency(grand)}'),
+                              '${t('joint_sub')}\n${t('gross_total')}: ${fmtCurrency(grandGross)}${grandAdv > 0 ? " | " + t('total_advances') + ": -" + fmtCurrency(grandAdv) : ""}\n${t('net_total')}: ${fmtCurrency(grandNet)}'),
                           isThreeLine: true,
                           trailing: const Icon(Icons.arrow_forward_ios),
                           onTap: () async {
@@ -4366,6 +5024,10 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
                         final logs = worker.weekLogs(_weekStart);
                         final days =
                             logs.where((l) => l != null && l.worked).length;
+                        final gross = worker.weekGrossTotal(_weekStart);
+                        final adv = worker.weekAdvancesTotal(_weekStart);
+                        final net = worker.weekNetTotal(_weekStart);
+
                         return Card(
                           child: ListTile(
                             title: Row(
@@ -4388,12 +5050,20 @@ class _WeeklySummaryScreenState extends State<WeeklySummaryScreen> {
                                 ]
                               ],
                             ),
-                            subtitle:
-                                Text('${t('work_days')}: ${ltr('$days')}'),
-                            trailing: Text(fmtCurrency(worker.weekTotal(_weekStart)),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.indigo)),
+                            subtitle: Text(
+                                '${t('work_days')}: ${ltr('$days')} | ${t('gross_total')}: ${fmtCurrency(gross)}${adv > 0 ? " | " + t('total_advances') + ": -" + fmtCurrency(adv) : ""}'),
+                            isThreeLine: true,
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(t('net_total'), style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                                Text(fmtCurrency(net),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.indigo)),
+                              ],
+                            ),
                             onTap: () async {
                               await Navigator.push(
                                   context,
@@ -4440,10 +5110,14 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
   Widget build(BuildContext context) {
     final workers = AppDatabase.workersForWeek(_weekStart);
     final lang = L10n.lang;
-    double grand = 0;
+    double grandGross = 0;
+    double grandAdv = 0;
+    double grandNet = 0;
     final dayTotals = List<double>.filled(7, 0.0);
     for (final w in workers) {
-      grand += w.weekTotal(_weekStart);
+      grandGross += w.weekGrossTotal(_weekStart);
+      grandAdv += w.weekAdvancesTotal(_weekStart);
+      grandNet += w.weekNetTotal(_weekStart);
       for (int i = 0; i < 7; i++) {
         dayTotals[i] +=
             w.logFor(addDays(_weekStart, i))?.total(w.dailyRate) ?? 0.0;
@@ -4497,31 +5171,45 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
                             '${L10n.day(i)}\n${fmtDate(addDays(_weekStart, i))}',
                             textAlign: TextAlign.center),
                       ),
-                    DataColumn(label: Text(t('total_word'))),
+                    DataColumn(label: Text(t('gross_total'))),
+                    DataColumn(label: Text(t('total_advances'))),
+                    DataColumn(label: Text(t('net_total'))),
                   ],
                   rows: [
-                    ...workers.map((w) => DataRow(cells: [
-                          DataCell(Text(w.name,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold))),
-                          for (int i = 0; i < 7; i++)
-                            DataCell(Text(dayCellText(
-                                w.logFor(addDays(_weekStart, i)),
-                                w.dailyRate,
-                                lang))),
-                          DataCell(Text(fmtMoney(w.weekTotal(_weekStart)),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.indigo))),
-                        ])),
+                    ...workers.map((w) {
+                      final g = w.weekGrossTotal(_weekStart);
+                      final a = w.weekAdvancesTotal(_weekStart);
+                      final n = w.weekNetTotal(_weekStart);
+                      return DataRow(cells: [
+                        DataCell(Text(w.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold))),
+                        for (int i = 0; i < 7; i++)
+                          DataCell(Text(dayCellText(
+                              w.logFor(addDays(_weekStart, i)),
+                              w.dailyRate,
+                              lang))),
+                        DataCell(Text(fmtMoney(g))),
+                        DataCell(Text(a > 0 ? fmtMoney(a) : '-',
+                            style: TextStyle(color: a > 0 ? Colors.deepOrange : null))),
+                        DataCell(Text(fmtMoney(n),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.indigo))),
+                      ]);
+                    }),
                     DataRow(cells: [
                       DataCell(Text(t('total_word'),
                           style: const TextStyle(fontWeight: FontWeight.bold))),
                       for (int i = 0; i < 7; i++)
                         DataCell(Text(fmtMoney(dayTotals[i]),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold))),
-                      DataCell(Text(fmtMoney(grand),
+                            style: const TextStyle(fontWeight: FontWeight.bold))),
+                      DataCell(Text(fmtMoney(grandGross),
+                          style: const TextStyle(fontWeight: FontWeight.bold))),
+                      DataCell(Text(fmtMoney(grandAdv),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange))),
+                      DataCell(Text(fmtMoney(grandNet),
                           style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.indigo))),
@@ -4538,11 +5226,11 @@ class _AllWorkersWeekScreenState extends State<AllWorkersWeekScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text('${t('grand_total')}:',
+                  child: Text('${t('grand_total')} (${t('net_total')}):',
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold)),
                 ),
-                Text(fmtCurrency(grand),
+                Text(fmtCurrency(grandNet),
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -4703,11 +5391,14 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
     );
   }
 
-  Widget _sumRow(String label, String value) => Padding(
+  Widget _sumRow(String label, String value, {bool isBold = false, Color? color}) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text(label), Text(value)],
+          children: [
+            Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+            Text(value, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color)),
+          ],
         ),
       );
 
@@ -4715,6 +5406,7 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
   Widget build(BuildContext context) {
     final w = widget.worker;
     final logs = w.weekLogs(_weekStart);
+    final weekAdvs = w.weekAdvances(_weekStart);
     final today = dateOnly(DateTime.now());
 
     int daysWorked = 0;
@@ -4727,7 +5419,9 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
         transportTotal += l.transport;
       }
     }
-    final total = w.weekTotal(_weekStart);
+    final grossTotal = w.weekGrossTotal(_weekStart);
+    final advancesTotal = w.weekAdvancesTotal(_weekStart);
+    final netTotal = w.weekNetTotal(_weekStart);
 
     return Scaffold(
       appBar: AppBar(
@@ -4787,6 +5481,41 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                       ),
                     );
                   }),
+                if (weekAdvs.isNotEmpty) ...[
+                  Card(
+                    color: Colors.deepOrange.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(t('total_advances'),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange)),
+                              Text(fmtCurrency(advancesTotal),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange)),
+                            ],
+                          ),
+                          const Divider(),
+                          ...weekAdvs.map((adv) => Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('📌 ${fmtDate(adv.date)}${adv.note.isNotEmpty ? " (" + adv.note + ")" : ""}',
+                                        style: const TextStyle(fontSize: 12)),
+                                    Text('- ${fmtCurrency(adv.amount)}',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.red)),
+                                  ],
+                                ),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
@@ -4796,6 +5525,10 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
                         _sumRow(t('sum_days'), fmtCurrency(baseTotal)),
                         _sumRow(t('sum_overtime'), fmtCurrency(overtimeTotal)),
                         _sumRow(t('sum_transport'), fmtCurrency(transportTotal)),
+                        const Divider(),
+                        _sumRow(t('gross_total'), fmtCurrency(grossTotal), isBold: true),
+                        if (advancesTotal > 0)
+                          _sumRow(t('advances_deducted'), '- ${fmtCurrency(advancesTotal)}', color: Colors.red, isBold: true),
                       ],
                     ),
                   ),
@@ -4810,11 +5543,11 @@ class _WorkerWeekReportScreenState extends State<WorkerWeekReportScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text('${t('weekly_total')}:',
+                  child: Text('${t('net_total')}:',
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-                Text(fmtCurrency(total),
+                Text(fmtCurrency(netTotal),
                     style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
