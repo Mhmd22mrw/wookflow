@@ -1,4 +1,4 @@
-name: Build Flutter APK Automatically
+Name: Build Flutter APK Automatically
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
           fi
 
           cd temp_app
-          flutter pub add shared_preferences:2.2.3 pdf printing share_plus
+          flutter pub add shared_preferences:2.2.3 pdf printing share_plus google_sign_in http
           flutter pub add "override:shared_preferences_android:2.2.4"
           flutter pub add dev:flutter_launcher_icons
           flutter pub get
@@ -84,10 +84,6 @@ jobs:
 
           dart run flutter_launcher_icons
           sed -i 's/android:label="[^"]*"/android:label="WookFlow"/' android/app/src/main/AndroidManifest.xml
-      - name: Get dependencies
-        run: |
-          flutter clean
-          flutter pub get
 
       - name: 7. Build Release APK
         run: |
