@@ -1,4 +1,4 @@
-Name: Build Flutter APK Automatically
+name: Build Flutter APK Automatically
 
 on:
   push:
