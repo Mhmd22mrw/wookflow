@@ -54,7 +54,7 @@ jobs:
           fi
 
           cd temp_app
-          flutter pub add shared_preferences:2.2.3 pdf printing share_plus google_sign_in http
+          flutter pub add shared_preferences:2.2.3 pdf printing share_plus "google_sign_in:^6.2.2" http
           flutter pub add "override:shared_preferences_android:2.2.4"
           flutter pub add dev:flutter_launcher_icons
           flutter pub get
