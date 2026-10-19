@@ -2376,8 +2376,7 @@ class _WorkerAdvancesScreenState extends State<WorkerAdvancesScreen> {
                           title: Text(worker.name,
                               style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text(
-                              '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)}
-${t('card_weekly')} (${t('total_advances')}): ${fmtCurrency(weekAdv)} | ${t('total')}: ${fmtCurrency(totalAdv)}'),
+                              '${t('daily_wage')}: ${fmtCurrency(worker.dailyRate)}\n${t('card_weekly')} (${t('total_advances')}): ${fmtCurrency(weekAdv)} | ${t('total')}: ${fmtCurrency(totalAdv)}'),
                           isThreeLine: true,
                           trailing: ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
@@ -3171,9 +3170,7 @@ class _NewPaymentScreenState extends State<NewPaymentScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}
-${t('received')}: ${fmtCurrency(site.totalPaid)}
-${t('remaining')}: ${fmtCurrency(remaining)}'),
+                        '${t('total')}: ${fmtCurrency(site.totalContractAmount)}\n${t('received')}: ${fmtCurrency(site.totalPaid)}\n${t('remaining')}: ${fmtCurrency(remaining)}'),
                     isThreeLine: true,
                     trailing: IconButton(
                       icon: const Icon(Icons.add_card, color: Colors.indigo),
@@ -3961,8 +3958,7 @@ class _FinishedContractsScreenState extends State<FinishedContractsScreen> {
                   color: Colors.grey.shade100,
                   child: ListTile(
                     title: Text(c.contractorName, style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.lineThrough)),
-                    subtitle: Text('${t('site')}: ${c.siteName} | ${t('contract_amount')}: ${fmtCurrency(c.amount)} | ${t('contract_paid')}: ${fmtCurrency(c.totalPaid)}${remaining > 0 ? " | " + t('contract_remaining') + ": " + fmtCurrency(remaining) : ""}
-${c.contractType} (${fmtDate(c.date)})'),
+                    subtitle: Text('${t('site')}: ${c.siteName} | ${t('contract_amount')}: ${fmtCurrency(c.amount)} | ${t('contract_paid')}: ${fmtCurrency(c.totalPaid)}${remaining > 0 ? " | " + t('contract_remaining') + ": " + fmtCurrency(remaining) : ""}\n${c.contractType} (${fmtDate(c.date)})'),
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
