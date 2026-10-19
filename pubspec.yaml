@@ -14,9 +14,8 @@ dependencies:
   pdf: ^3.10.8
   printing: ^5.13.1
   share_plus: ^9.0.0
-    google_sign_in: any
+  google_sign_in: any
   http: ^1.2.2
-
 
 dev_dependencies:
   flutter_test:
