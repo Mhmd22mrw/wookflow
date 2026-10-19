@@ -2270,7 +2270,7 @@ class _SitesScreenState extends State<SitesScreen> {
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text(t('confirm_delivery_title')),
-          content: Text('${t(\'confirm_delivery_paid_body\')} (${site.name})'),
+          content: Text("${t('confirm_delivery_paid_body')} (${site.name})"),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
@@ -2412,7 +2412,7 @@ class _SitesScreenState extends State<SitesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t('delete_site_title')),
-        content: Text('${t(\'delete_site_confirm_msg\')} (${site.name})'),
+        content: Text("${t('delete_site_confirm_msg')} (${site.name})"),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -2464,7 +2464,7 @@ class _SitesScreenState extends State<SitesScreen> {
                     title: Text(site.name,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(
-                        '${t(\'site_address\')}: ${site.location} | ${t(\'total\')}: ${fmtCurrency(site.totalContractAmount)} | ${t(\'received\')}: ${fmtCurrency(site.totalPaid)} | ${t(\'remaining\')}: ${fmtCurrency(remaining)}'),
+                        "${t('site_address')}: ${site.location} | ${t('total')}: ${fmtCurrency(site.totalContractAmount)} | ${t('received')}: ${fmtCurrency(site.totalPaid)} | ${t('remaining')}: ${fmtCurrency(remaining)}"),
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -2520,7 +2520,7 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t('reopen_confirm_title')),
-        content: Text('${t(\'reopen_confirm_msg\')} (${site.name})'),
+        content: Text("${t('reopen_confirm_msg')} (${site.name})"),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -2556,7 +2556,7 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(t('delete_delivered_site')),
-        content: Text('${t(\'delete_delivered_confirm_msg\')} (${site.name})'),
+        content: Text("${t('delete_delivered_confirm_msg')} (${site.name})"),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -2612,7 +2612,7 @@ class _DeliveredSitesScreenState extends State<DeliveredSitesScreen> {
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.lineThrough)),
                     subtitle: Text(
-                        '${t(\'site_address\')}: ${site.location} | ${t(\'contract_total\')}: ${fmtCurrency(site.totalContractAmount)} | ${t(\'received\')}: ${fmtCurrency(site.totalPaid)}${remaining > 0 ? " | " + t(\'remaining\') + ": " + fmtCurrency(remaining) : ""} (${t(\'delivered_flag\')})${site.deliveryNote.isNotEmpty ? " | " + t(\'delivery_note_prefix\') + ": " + site.deliveryNote : ""}'),
+                        "${t('site_address')}: ${site.location} | ${t('contract_total')}: ${fmtCurrency(site.totalContractAmount)} | ${t('received')}: ${fmtCurrency(site.totalPaid)}${remaining > 0 ? ' | ' + t('remaining') + ': ' + fmtCurrency(remaining) : ''} (${t('delivered_flag')})${site.deliveryNote.isNotEmpty ? ' | ' + t('delivery_note_prefix') + ': ' + site.deliveryNote : ''}"),
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
