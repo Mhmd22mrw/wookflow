@@ -4341,9 +4341,9 @@ class _SiteAnalyticsScreenState extends State<SiteAnalyticsScreen> {
                     color: Colors.indigo)),
             const SizedBox(height: 8),
             workerBreakdown.isEmpty
-                ? const Card(
+                ? Card(
                     child: Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       child: Center(
                         child: Text(t('no_attendance_for_site')),
                       ),
