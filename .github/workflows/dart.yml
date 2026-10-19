@@ -84,6 +84,11 @@ jobs:
 
           dart run flutter_launcher_icons
           sed -i 's/android:label="[^"]*"/android:label="WookFlow"/' android/app/src/main/AndroidManifest.xml
+      - name: Get dependencies
+        run: |
+          flutter clean
+          flutter pub get
+
       - name: 7. Build Release APK
         run: |
           cd temp_app
