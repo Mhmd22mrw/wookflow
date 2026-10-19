@@ -10,10 +10,13 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
+  shared_preferences: ^2.2.3
+  pdf: ^3.10.8
+  printing: ^5.13.1
+  share_plus: ^9.0.0
   google_sign_in: ^6.2.2
   googleapis: ^13.2.0
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
-
 
 dev_dependencies:
   flutter_test:
@@ -25,4 +28,3 @@ flutter:
   assets:
     - assets/fonts/Cairo-Regular.ttf
     - assets/fonts/Cairo-Bold.ttf
-
