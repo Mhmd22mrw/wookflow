@@ -3396,7 +3396,7 @@ class _SiteAnalyticsScreenState extends State<SiteAnalyticsScreen> {
                             return DropdownMenuItem<WorkSite>(
                               value: s,
                               child: Text(
-                                '${s.name} ${s.isDelivered ? "($${t('delivered_flag')})" : ""}',
+                                '${s.name} ${s.isDelivered ? "(${t('delivered_flag')})" : ""}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: s.isDelivered
