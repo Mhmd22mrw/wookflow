@@ -1,3 +1,6 @@
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/drive/v3.dart' as drive;
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -376,6 +379,15 @@ class L10n {
     'تعديل قيمة العقد': ['تعديل قيمة العقد', 'Modification montant contrat', 'Edit contract amount'],
     'استعادة نسخة احتياطية': ['استعادة نسخة احتياطية', 'Restauration sauvegarde', 'Restore backup'],
     'تصدير نسخة احتياطية': ['تصدير نسخة احتياطية', 'Export sauvegarde', 'Export backup'],
+    'link_google_drive': ['ربط حساب Google للنسخ التلقائي', 'Lier un compte Google pour la sauvegarde auto', 'Link Google account for auto backup'],
+    'auto_backup_enabled': ['النسخ الاحتياطي التلقائي: مفعّل عند إغلاق التطبيق 🟢', 'Sauvegarde auto activée à la fermeture 🟢', 'Auto backup active upon closing app 🟢'],
+    'sign_out': ['تسجيل الخروج', 'Déconnexion', 'Sign out'],
+    'backup_to_drive': ['النسخ الاحتياطي في Google Drive', 'Sauvegarder sur Google Drive', 'Backup to Google Drive'],
+    'restore_from_drive': ['الاستعادة من Google Drive', 'Restaurer depuis Google Drive', 'Restore from Google Drive'],
+    'drive_backup_success': ['تم حفظ النسخة الاحتياطية على Google Drive بنجاح!', 'Sauvegarde réussie sur Google Drive !', 'Backup saved to Google Drive successfully!'],
+    'drive_restore_success': ['تمت استعادة البيانات من Google Drive بنجاح!', 'Données restaurées depuis Google Drive avec succès !', 'Data restored from Google Drive successfully!'],
+    'drive_no_backup': ['لم يتم العثور على أي نسخة احتياطية في Google Drive', 'Aucune sauvegarde trouvée sur Google Drive', 'No backup found on Google Drive'],
+    'drive_syncing': ['جارٍ الاتصال بـ Google Drive...', 'Connexion à Google Drive en cours...', 'Connecting to Google Drive...'],
   };
 }
 
@@ -1281,117 +1293,404 @@ Future<void> showCurrencyDialog(
   );
 }
 
+
+// ======================= خدمة Google Drive السحابية =======================
+
+class GoogleDriveService {
+  static final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      drive.DriveApi.driveAppdataScope,
+    ],
+  );
+
+  static final ValueNotifier<GoogleSignInAccount?> currentUserNotifier =
+      ValueNotifier<GoogleSignInAccount?>(null);
+  static bool _isSyncing = false;
+  static DateTime? lastAutoBackupTime;
+
+  static Future<void> init() async {
+    try {
+      final account = await _googleSignIn.signInSilently();
+      currentUserNotifier.value = account;
+    } catch (_) {}
+  }
+
+  static Future<GoogleSignInAccount?> signIn() async {
+    try {
+      final account = await _googleSignIn.signIn();
+      currentUserNotifier.value = account;
+      if (account != null) {
+        uploadBackupSilently();
+      }
+      return account;
+    } catch (e) {
+      debugPrint('Google Sign-In error: $e');
+      return null;
+    }
+  }
+
+  static Future<void> signOut() async {
+    try {
+      await _googleSignIn.signOut();
+      currentUserNotifier.value = null;
+    } catch (_) {}
+  }
+
+  static Future<bool> uploadBackupSilently() async {
+    if (_isSyncing) return false;
+    _isSyncing = true;
+    try {
+      GoogleSignInAccount? account = currentUserNotifier.value;
+      account ??= await _googleSignIn.signInSilently();
+      if (account == null) return false;
+      currentUserNotifier.value = account;
+
+      final client = await _googleSignIn.authenticatedClient();
+      if (client == null) return false;
+
+      final driveApi = drive.DriveApi(client);
+      final jsonStr = AppDatabase.exportBackupJson();
+      final bytes = utf8.encode(jsonStr);
+
+      final fileList = await driveApi.files.list(
+        spaces: 'appDataFolder',
+        q: "name = 'wookflow_backup.json' and trashed = false",
+        $fields: 'files(id, name)',
+      );
+
+      final media = drive.Media(
+        Stream.value(bytes),
+        bytes.length,
+        contentType: 'application/json',
+      );
+
+      if (fileList.files != null && fileList.files!.isNotEmpty) {
+        final fileId = fileList.files!.first.id!;
+        await driveApi.files.update(
+          drive.File(),
+          fileId,
+          uploadMedia: media,
+        );
+      } else {
+        final driveFile = drive.File()
+          ..name = 'wookflow_backup.json'
+          ..parents = ['appDataFolder'];
+        await driveApi.files.create(
+          driveFile,
+          uploadMedia: media,
+        );
+      }
+      lastAutoBackupTime = DateTime.now();
+      return true;
+    } catch (e) {
+      debugPrint('Silent auto backup error: $e');
+      return false;
+    } finally {
+      _isSyncing = false;
+    }
+  }
+
+  static Future<bool> uploadBackup() async {
+    final res = await uploadBackupSilently();
+    if (res) {
+      AppDatabase.logActivity('backup', 'act_backup_export', 'Google Drive');
+    }
+    return res;
+  }
+
+  static Future<bool> restoreBackup() async {
+    try {
+      GoogleSignInAccount? account = currentUserNotifier.value;
+      account ??= await _googleSignIn.signInSilently();
+      account ??= await _googleSignIn.signIn();
+      if (account == null) return false;
+      currentUserNotifier.value = account;
+
+      final client = await _googleSignIn.authenticatedClient();
+      if (client == null) return false;
+
+      final driveApi = drive.DriveApi(client);
+
+      final fileList = await driveApi.files.list(
+        spaces: 'appDataFolder',
+        q: "name = 'wookflow_backup.json' and trashed = false",
+        $fields: 'files(id, name, modifiedTime)',
+      );
+
+      if (fileList.files == null || fileList.files!.isEmpty) {
+        AppDatabase.lastError = t('drive_no_backup');
+        return false;
+      }
+
+      final fileId = fileList.files!.first.id!;
+      final media = await driveApi.files.get(
+        fileId,
+        downloadOptions: drive.DownloadOptions.fullMedia,
+      ) as drive.Media;
+
+      final List<int> dataStore = [];
+      await for (final data in media.stream) {
+        dataStore.addAll(data);
+      }
+      final jsonStr = utf8.decode(dataStore);
+      return await AppDatabase.importBackupJson(jsonStr);
+    } catch (e) {
+      AppDatabase.lastError = '$e';
+      return false;
+    }
+  }
+}
+
 Future<void> showBackupDialog(
     BuildContext context, VoidCallback onDataUpdated) async {
   final importController = TextEditingController();
+  bool isLoading = false;
 
   await showDialog(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(t('backup_menu')),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton.icon(
-              icon: const Icon(Icons.share, color: Colors.white),
-              label: Text(t('export_backup'),
-                  style: const TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
-              onPressed: () async {
-                final jsonStr = AppDatabase.exportBackupJson();
-                await Share.share(jsonStr,
-                    subject: 'WookFlow Backup ${dateKey(DateTime.now())}');
-              },
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.copy, color: Colors.indigo),
-              label: Text(t('copy_backup')),
-              onPressed: () async {
-                final jsonStr = AppDatabase.exportBackupJson();
-                await Clipboard.setData(ClipboardData(text: jsonStr));
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t('backup_copied'))),
-                  );
-                }
-              },
-            ),
-            const SizedBox(height: 14),
-            const Divider(),
-            const SizedBox(height: 6),
-            Text(t('import_backup'),
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: importController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: t('paste_json'),
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.content_paste, color: Colors.teal),
-              label: Text(t('paste_from_clipboard')),
-              onPressed: () async {
-                final data = await Clipboard.getData('text/plain');
-                if (data != null && data.text != null && data.text!.isNotEmpty) {
-                  importController.text = data.text!;
-                  final ok = await AppDatabase.importBackupJson(data.text!);
-                  if (ctx.mounted) Navigator.pop(ctx);
-                  if (ok) {
-                    onDataUpdated();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(t('restore_done'))),
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setD) => AlertDialog(
+        title: Text(t('backup_menu')),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (isLoading)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Column(
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 10),
+                      Text(t('drive_syncing'),
+                          style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    ],
+                  ),
+                )
+              else ...[
+                // بطاقة حساب Google المرتبط والنسخ التلقائي
+                ValueListenableBuilder<GoogleSignInAccount?>(
+                  valueListenable: GoogleDriveService.currentUserNotifier,
+                  builder: (context, user, _) {
+                    if (user != null) {
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.green.shade300),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    user.email,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold, fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.logout, size: 18, color: Colors.red),
+                                  tooltip: t('sign_out'),
+                                  onPressed: () async {
+                                    await GoogleDriveService.signOut();
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              t('auto_backup_enabled'),
+                              style: TextStyle(
+                                  color: Colors.green.shade800,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return OutlinedButton.icon(
+                        icon: const Icon(Icons.account_circle, color: Colors.blue),
+                        label: Text(t('link_google_drive')),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                        onPressed: () async {
+                          setD(() => isLoading = true);
+                          await GoogleDriveService.signIn();
+                          setD(() => isLoading = false);
+                        },
                       );
                     }
-                  } else {
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                // أزرار Google Drive
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.cloud_upload, color: Colors.white),
+                  label: Text(t('backup_to_drive'),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue.shade700),
+                  onPressed: () async {
+                    setD(() => isLoading = true);
+                    final ok = await GoogleDriveService.uploadBackup();
+                    setD(() => isLoading = false);
                     if (context.mounted) {
+                      Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${t('restore_err')}: ${AppDatabase.lastError ?? ""}')),
+                        SnackBar(
+                          backgroundColor: ok ? Colors.green : Colors.red,
+                          content: Text(ok ? t('drive_backup_success') : '${t('restore_err')}: ${AppDatabase.lastError ?? ""}'),
+                        ),
                       );
                     }
-                  }
-                }
-              },
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.download, color: Colors.white),
-              label: Text(t('confirm'),
-                  style: const TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-              onPressed: () async {
-                final ok = await AppDatabase.importBackupJson(importController.text);
-                if (ctx.mounted) Navigator.pop(ctx);
-                if (ok) {
-                  onDataUpdated();
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(t('restore_done'))),
-                    );
-                  }
-                } else {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${t('restore_err')}: ${AppDatabase.lastError ?? ""}')),
-                    );
-                  }
-                }
-              },
-            ),
-          ],
+                  },
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.cloud_download, color: Colors.white),
+                  label: Text(t('restore_from_drive'),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal.shade700),
+                  onPressed: () async {
+                    setD(() => isLoading = true);
+                    final ok = await GoogleDriveService.restoreBackup();
+                    setD(() => isLoading = false);
+                    if (context.mounted) {
+                      Navigator.pop(ctx);
+                      if (ok) {
+                        onDataUpdated();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: Colors.green,
+                            content: Text(t('drive_restore_success')),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text('${t('restore_err')}: ${AppDatabase.lastError ?? ""}'),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+                const SizedBox(height: 14),
+                const Divider(),
+                const SizedBox(height: 6),
+
+                // خيارات النسخ المحلي واليدوي
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.share, color: Colors.white),
+                  label: Text(t('export_backup'),
+                      style: const TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+                  onPressed: () async {
+                    final jsonStr = AppDatabase.exportBackupJson();
+                    await Share.share(jsonStr,
+                        subject: 'WookFlow Backup ${dateKey(DateTime.now())}');
+                  },
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.copy, color: Colors.indigo),
+                  label: Text(t('copy_backup')),
+                  onPressed: () async {
+                    final jsonStr = AppDatabase.exportBackupJson();
+                    await Clipboard.setData(ClipboardData(text: jsonStr));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(t('backup_copied'))),
+                      );
+                    }
+                  },
+                ),
+                const SizedBox(height: 14),
+                const Divider(),
+                const SizedBox(height: 6),
+                Text(t('import_backup'),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: importController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: t('paste_json'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.content_paste, color: Colors.teal),
+                  label: Text(t('paste_from_clipboard')),
+                  onPressed: () async {
+                    final data = await Clipboard.getData('text/plain');
+                    if (data != null && data.text != null && data.text!.isNotEmpty) {
+                      importController.text = data.text!;
+                      final ok = await AppDatabase.importBackupJson(data.text!);
+                      if (ctx.mounted) Navigator.pop(ctx);
+                      if (ok) {
+                        onDataUpdated();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(t('restore_done'))),
+                          );
+                        }
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('${t('restore_err')}: ${AppDatabase.lastError ?? ""}')),
+                          );
+                        }
+                      }
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.download, color: Colors.white),
+                  label: Text(t('confirm'),
+                      style: const TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                  onPressed: () async {
+                    final ok = await AppDatabase.importBackupJson(importController.text);
+                    if (ctx.mounted) Navigator.pop(ctx);
+                    if (ok) {
+                      onDataUpdated();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(t('restore_done'))),
+                        );
+                      }
+                    } else {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('${t('restore_err')}: ${AppDatabase.lastError ?? ""}')),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ],
+            ],
+          ),
         ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: Text(t('cancel'))),
+        ],
       ),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(ctx), child: Text(t('cancel'))),
-      ],
     ),
   );
 }
