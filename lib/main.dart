@@ -1,6 +1,5 @@
+import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1299,7 +1298,7 @@ Future<void> showCurrencyDialog(
 class GoogleDriveService {
   static final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
-      drive.DriveApi.driveAppdataScope,
+      'https://www.googleapis.com/auth/drive.appdata',
     ],
   );
 
@@ -1345,45 +1344,68 @@ class GoogleDriveService {
       if (account == null) return false;
       currentUserNotifier.value = account;
 
-      final client = await _googleSignIn.authenticatedClient();
-      if (client == null) return false;
-
-      final driveApi = drive.DriveApi(client);
+      final authHeaders = await account.authHeaders;
       final jsonStr = AppDatabase.exportBackupJson();
-      final bytes = utf8.encode(jsonStr);
 
-      final fileList = await driveApi.files.list(
-        spaces: 'appDataFolder',
-        q: "name = 'wookflow_backup.json' and trashed = false",
-        $fields: 'files(id, name)',
-      );
-
-      final media = drive.Media(
-        Stream.value(bytes),
-        bytes.length,
-        contentType: 'application/json',
-      );
-
-      if (fileList.files != null && fileList.files!.isNotEmpty) {
-        final fileId = fileList.files!.first.id!;
-        await driveApi.files.update(
-          drive.File(),
-          fileId,
-          uploadMedia: media,
-        );
-      } else {
-        final driveFile = drive.File()
-          ..name = 'wookflow_backup.json'
-          ..parents = ['appDataFolder'];
-        await driveApi.files.create(
-          driveFile,
-          uploadMedia: media,
-        );
+      // 1. Search for existing wookflow_backup.json in appDataFolder
+      final searchUri = Uri.parse(
+          'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27wookflow_backup.json%27+and+trashed%3Dfalse&fields=files(id%2Cname)');
+      final searchRes = await http.get(searchUri, headers: authHeaders);
+      if (searchRes.statusCode != 200) {
+        AppDatabase.lastError = 'Drive search failed: ${searchRes.statusCode}';
+        return false;
       }
-      lastAutoBackupTime = DateTime.now();
-      return true;
+
+      final searchData = jsonDecode(searchRes.body) as Map<String, dynamic>;
+      final files = (searchData['files'] as List?) ?? [];
+
+      String fileId;
+      if (files.isNotEmpty) {
+        fileId = files.first['id'] as String;
+      } else {
+        // Create new file metadata in appDataFolder
+        final createUri = Uri.parse('https://www.googleapis.com/drive/v3/files');
+        final createRes = await http.post(
+          createUri,
+          headers: {
+            ...authHeaders,
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode({
+            'name': 'wookflow_backup.json',
+            'parents': ['appDataFolder'],
+          }),
+        );
+        if (createRes.statusCode != 200) {
+          AppDatabase.lastError = 'Drive create failed: ${createRes.statusCode}';
+          return false;
+        }
+        final createData = jsonDecode(createRes.body) as Map<String, dynamic>;
+        fileId = createData['id'] as String;
+      }
+
+      // 2. Upload file content via media upload
+      final uploadUri = Uri.parse(
+          'https://www.googleapis.com/upload/drive/v3/files/$fileId?uploadType=media');
+      final uploadRes = await http.patch(
+        uploadUri,
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: utf8.encode(jsonStr),
+      );
+
+      if (uploadRes.statusCode == 200) {
+        lastAutoBackupTime = DateTime.now();
+        return true;
+      } else {
+        AppDatabase.lastError = 'Drive upload failed: ${uploadRes.statusCode}';
+        return false;
+      }
     } catch (e) {
       debugPrint('Silent auto backup error: $e');
+      AppDatabase.lastError = '$e';
       return false;
     } finally {
       _isSyncing = false;
@@ -1406,35 +1428,41 @@ class GoogleDriveService {
       if (account == null) return false;
       currentUserNotifier.value = account;
 
-      final client = await _googleSignIn.authenticatedClient();
-      if (client == null) return false;
+      final authHeaders = await account.authHeaders;
 
-      final driveApi = drive.DriveApi(client);
+      // 1. Search for wookflow_backup.json in appDataFolder
+      final searchUri = Uri.parse(
+          'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27wookflow_backup.json%27+and+trashed%3Dfalse&fields=files(id%2Cname)');
+      final searchRes = await http.get(searchUri, headers: authHeaders);
+      if (searchRes.statusCode != 200) {
+        AppDatabase.lastError = 'Drive search failed: ${searchRes.statusCode}';
+        return false;
+      }
 
-      final fileList = await driveApi.files.list(
-        spaces: 'appDataFolder',
-        q: "name = 'wookflow_backup.json' and trashed = false",
-        $fields: 'files(id, name, modifiedTime)',
-      );
+      final searchData = jsonDecode(searchRes.body) as Map<String, dynamic>;
+      final files = (searchData['files'] as List?) ?? [];
 
-      if (fileList.files == null || fileList.files!.isEmpty) {
+      if (files.isEmpty) {
         AppDatabase.lastError = t('drive_no_backup');
         return false;
       }
 
-      final fileId = fileList.files!.first.id!;
-      final media = await driveApi.files.get(
-        fileId,
-        downloadOptions: drive.DownloadOptions.fullMedia,
-      ) as drive.Media;
+      final fileId = files.first['id'] as String;
 
-      final List<int> dataStore = [];
-      await for (final data in media.stream) {
-        dataStore.addAll(data);
+      // 2. Download file content
+      final downloadUri = Uri.parse(
+          'https://www.googleapis.com/drive/v3/files/$fileId?alt=media');
+      final downloadRes = await http.get(downloadUri, headers: authHeaders);
+
+      if (downloadRes.statusCode == 200) {
+        final jsonStr = utf8.decode(downloadRes.bodyBytes);
+        return await AppDatabase.importBackupJson(jsonStr);
+      } else {
+        AppDatabase.lastError = 'Drive download failed: ${downloadRes.statusCode}';
+        return false;
       }
-      final jsonStr = utf8.decode(dataStore);
-      return await AppDatabase.importBackupJson(jsonStr);
     } catch (e) {
+      debugPrint('Restore error: $e');
       AppDatabase.lastError = '$e';
       return false;
     }
