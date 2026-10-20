@@ -1296,6 +1296,7 @@ Future<void> showCurrencyDialog(
 // ======================= خدمة Google Drive السحابية =======================
 
 class GoogleDriveService {
+  static String? lastSignInError;
   static final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
       'https://www.googleapis.com/auth/drive.appdata',
@@ -1316,6 +1317,7 @@ class GoogleDriveService {
 
   static Future<GoogleSignInAccount?> signIn() async {
     try {
+      lastSignInError = null;
       final account = await _googleSignIn.signIn();
       currentUserNotifier.value = account;
       if (account != null) {
@@ -1324,6 +1326,7 @@ class GoogleDriveService {
       return account;
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
+      lastSignInError = '$e';
       return null;
     }
   }
@@ -1347,9 +1350,88 @@ class GoogleDriveService {
       final authHeaders = await account.authHeaders;
       final jsonStr = AppDatabase.exportBackupJson();
 
-      // 1. Search for existing wookflow_backup.json in appDataFolder
+      // 1. البحث وحذف أي نسخ قديمة مكررة في السحابة
       final searchUri = Uri.parse(
-          'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27wookflow_backup.json%27+and+trashed%3Dfalse&fields=files(id%2Cname)');
+          'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27wookflow_backup.json%27+and+trashed%3Dfalse&fields=files(id)');
+      final searchRes = await http.get(searchUri, headers: authHeaders);
+      if (searchRes.statusCode == 200) {
+        final searchData = jsonDecode(searchRes.body) as Map<String, dynamic>;
+        final files = (searchData['files'] as List?) ?? [];
+        for (final f in files) {
+          final id = f['id'];
+          if (id != null) {
+            await http.delete(
+              Uri.parse('https://www.googleapis.com/drive/v3/files/$id'),
+              headers: authHeaders,
+            );
+          }
+        }
+      }
+
+      // 2. رفع النسخة الحالية بالكامل عبر طلب Multipart متكامل
+      final boundary = '----WookFlowBoundary${DateTime.now().millisecondsSinceEpoch}';
+      final uploadUri = Uri.parse(
+          'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+
+      final metadataPart = jsonEncode({
+        'name': 'wookflow_backup.json',
+        'parents': ['appDataFolder'],
+      });
+
+      final body = '--$boundary\r\n'
+          'Content-Type: application/json; charset=UTF-8\r\n\r\n'
+          '$metadataPart\r\n'
+          '--$boundary\r\n'
+          'Content-Type: application/json; charset=UTF-8\r\n\r\n'
+          '$jsonStr\r\n'
+          '--$boundary--';
+
+      final uploadRes = await http.post(
+        uploadUri,
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'multipart/related; boundary=$boundary',
+        },
+        body: body,
+      );
+
+      if (uploadRes.statusCode == 200) {
+        lastAutoBackupTime = DateTime.now();
+        return true;
+      } else {
+        AppDatabase.lastError = 'Drive upload failed: ${uploadRes.statusCode}';
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Silent auto backup error: $e');
+      AppDatabase.lastError = '$e';
+      return false;
+    } finally {
+      _isSyncing = false;
+    }
+  }
+
+  static Future<bool> uploadBackup() async {
+    final res = await uploadBackupSilently();
+    if (res) {
+      AppDatabase.logActivity('backup', 'act_backup_export', 'Google Drive');
+    }
+    return res;
+  }
+
+  static Future<bool> restoreBackup() async {
+    try {
+      GoogleSignInAccount? account = currentUserNotifier.value;
+      account ??= await _googleSignIn.signInSilently();
+      account ??= await _googleSignIn.signIn();
+      if (account == null) return false;
+      currentUserNotifier.value = account;
+
+      final authHeaders = await account.authHeaders;
+
+      // البحث عن النسخة مع الترتيب بالأحدث تنازلياً
+      final searchUri = Uri.parse(
+          'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27wookflow_backup.json%27+and+trashed%3Dfalse&orderBy=modifiedTime+desc&fields=files(id,name,modifiedTime)');
       final searchRes = await http.get(searchUri, headers: authHeaders);
       if (searchRes.statusCode != 200) {
         AppDatabase.lastError = 'Drive search failed: ${searchRes.statusCode}';
@@ -1359,30 +1441,32 @@ class GoogleDriveService {
       final searchData = jsonDecode(searchRes.body) as Map<String, dynamic>;
       final files = (searchData['files'] as List?) ?? [];
 
-      String fileId;
-      if (files.isNotEmpty) {
-        fileId = files.first['id'] as String;
-      } else {
-        // Create new file metadata in appDataFolder
-        final createUri = Uri.parse('https://www.googleapis.com/drive/v3/files');
-        final createRes = await http.post(
-          createUri,
-          headers: {
-            ...authHeaders,
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({
-            'name': 'wookflow_backup.json',
-            'parents': ['appDataFolder'],
-          }),
-        );
-        if (createRes.statusCode != 200) {
-          AppDatabase.lastError = 'Drive create failed: ${createRes.statusCode}';
-          return false;
-        }
-        final createData = jsonDecode(createRes.body) as Map<String, dynamic>;
-        fileId = createData['id'] as String;
+      if (files.isEmpty) {
+        AppDatabase.lastError = t('drive_no_backup');
+        return false;
       }
+
+      final fileId = files.first['id'] as String;
+
+      // تنزيل محتوى الملف الأحدث
+      final downloadUri = Uri.parse(
+          'https://www.googleapis.com/drive/v3/files/$fileId?alt=media');
+      final downloadRes = await http.get(downloadUri, headers: authHeaders);
+
+      if (downloadRes.statusCode == 200) {
+        final jsonStr = utf8.decode(downloadRes.bodyBytes);
+        return await AppDatabase.importBackupJson(jsonStr);
+      } else {
+        AppDatabase.lastError = 'Drive download failed: ${downloadRes.statusCode}';
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Restore error: $e');
+      AppDatabase.lastError = '$e';
+      return false;
+    }
+  }
+}
 
       // 2. Upload file content via media upload
       final uploadUri = Uri.parse(
